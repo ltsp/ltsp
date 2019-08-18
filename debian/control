@@ -1,0 +1,34 @@
+Source: ltsp
+Section: misc
+Priority: optional
+Maintainer: Debian LTSP Maintainers <team+ltsp@tracker.debian.org>
+Uploaders: Vagrant Cascadian <vagrant@debian.org>, Alkis Georgopoulos <alkisg@gmail.com>
+Build-Depends: debhelper (>= 9),
+  ruby-ronn | go-md2man
+Standards-Version: 4.4.0.1
+Vcs-Git: https://github.com/ltsp/ltsp.git
+Vcs-Browser: https://github.com/ltsp/ltsp/
+Homepage: https://ltsp.github.io
+
+Package: ltsp
+# Try to keep dependencies to what's there in plain `debootstrap`,
+# except for: busybox, sshfs
+Depends: ${misc:Depends},
+  busybox | busybox-static | busybox-initramfs,
+  procps,
+  python3,
+  sshfs,
+  systemd
+Suggests: dnsmasq,
+  epoptes,
+  nfs-kernel-server,
+  openssh-server,
+  squashfs-tools
+Architecture: all
+Description: Linux Terminal Server Project
+ Make an installation able to netboot as an LTSP client.
+ For LTSP servers, also install the suggested packages (dnsmasq etc).
+ .
+ LTSP helps in netbooting LAN clients from a single installation that resides
+ in a chroot or a VM on the LTSP server. This way maintaining tens or hundreds
+ of clients is as easy as maintaining a single PC.

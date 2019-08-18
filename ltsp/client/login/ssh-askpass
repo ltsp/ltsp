@@ -1,0 +1,37 @@
+#!/bin/sh
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright 2019 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# SSH_ASKPASS implementation to transfer the passphrase to SSH/SSHFS.
+# Very (!) long story short:
+# `pam_exec expose_authtok` places the user password in stdin.
+# To allow passwordless logins, the shadow cache is preferred over stdin.
+# SSH won't read it from stdin, but supports an external SSH_ASKPASS program.
+# It only calls SSH_ASKPASS if DISPLAY is set though, even to an empty value.
+# Also, if stdin is a tty, it prefers to use it; so in cmdline it needs:
+#   echo pass | SSH_ASKPASS=ssh-askpass setsid ssh user@server cmd
+# Under PAM we're already in a pipe, and setsid isn't needed.
+# So we just need to the passphrase to stdout.
+# Take that, SSH screen scraping! :)
+
+main() {
+    local sp_namp sp_pwdp dummy var_value pass
+
+    IFS=:
+    read -r sp_namp sp_pwdp dummy <"/run/ltsp/pam/$PAM_USER/shadow"
+    IFS=,
+    unset pass
+    for var_value in $sp_pwdp; do
+        case "$var_value" in
+            pamltsp=*) pass=$(echo "${var_value#pamltsp=}" | base64 -d) ;;
+        esac
+    done
+    test "$_OLDIFS" = "not set" && unset IFS || IFS="$_OLDIFS"
+    # If pass wasn't set in shadow, read it from stdin
+    test -n "$pass" || read -r pass
+    echo "$pass"
+}
+
+_OLDIFS="$IFS"
+main "$@"

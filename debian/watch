@@ -1,0 +1,5 @@
+version=4
+# hack to treat tags with a debian revision as version 0
+opts="uversionmangle=s/.*-.*/0/g" \
+https://github.com/ltsp/ltsp/releases \
+.*/archive/@ANY_VERSION@@ARCHIVE_EXT@

@@ -1,0 +1,102 @@
+#!ipxe
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright 2019 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Configure iPXE for LTSP
+# Documentation=man:ltsp-ipxe(8)
+
+# Set the default image (img) based on arch, or to root-path if it's not empty
+cpuid --ext 29 && set img x86_64 || set img x86_32
+isset ${root-path} && set img ${root-path} ||
+isset ${proxydhcp/dhcp-server} && set srv ${proxydhcp/dhcp-server} || set srv ${next-server}
+
+### BEGIN LOCAL CONTENT (preserved on `ltsp -o ipxe`)
+
+# Define cmdline parameters common to all LTSP clients
+set cmdline_ltsp BOOTIF=01-${mac:hexhyp}
+set menu-timeout 5000
+
+goto ${mac} || goto start
+# Define client-specific settings, like the hostname, the menu default
+# and cmdline parameters, in sections similar to the following examples
+
+:61:6c:6b:69:73:67
+set hostname pc01
+set img live
+goto start
+
+:72:6f:63:6b:73:21
+set hostname pc02
+set cmdline_client nolapic
+goto start
+
+### END LOCAL CONTENT
+
+:start
+# To completely hide the menu, uncomment the next line
+# goto ${img}
+menu iPXE boot menu - ${hostname}:${srv}:${root-path} || goto ${img}
+item --gap                        Boot an image from the network in LTSP mode:
+# item --key 1 images             x86_64
+item
+item --gap                        Other options:
+item --key m memtest              Memory test
+item --key c config               Enter iPXE configuration
+item --key s shell                Drop to iPXE shell
+item --key d disk                 Boot from the first local disk
+item
+item --key x exit                 Exit iPXE and continue BIOS boot
+choose --timeout ${menu-timeout} --default ${img} img || goto cancel
+goto ${img}
+
+:images
+# The "images" method can boot anything in /srv/ltsp/images
+set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9
+goto ltsp
+
+:roots
+# The "roots" method can boot all /srv/ltsp/roots
+set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp/${img}
+goto ltsp
+
+:ltsp
+# :images and :roots jump here after setting cmdline_method
+set cmdline ${cmdline_method} ${cmdline_ltsp} ${cmdline_client}
+# In EFI mode, iPXE requires initrds to be specified in the cmdline
+kernel /ltsp/${img}/vmlinuz initrd=initrd.img initrd=ltsp.img ${cmdline}
+initrd /ltsp/${img}/initrd.img
+initrd /ltsp/ltsp.img
+boot || goto failed
+
+:memtest
+iseq ${platform} pcbios && kernel memtest.0 || kernel memtest.efi
+# Boot "fails" on normal memtest exit with Esc, so show the menu again
+boot ||
+goto start
+
+:config
+config
+goto start
+
+:shell
+echo Type 'exit' to get the back to the menu
+shell
+goto start
+
+:disk
+# Boot the first local HDD
+sanboot --no-describe --drive 0x80 || goto failed
+
+:exit
+# Exit with error, to fall back to the next boot option
+# http://forum.ipxe.org/showthread.php?tid=6775
+exit 1
+
+:cancel
+echo You cancelled the menu, dropping to shell
+goto shell
+
+:failed
+echo Booting failed, dropping to shell
+goto shell

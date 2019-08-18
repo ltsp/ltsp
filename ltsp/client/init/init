@@ -1,0 +1,8 @@
+#!/bin/sh
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright 2019 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Initrd hooks or kernel cmdline can use this wrapper to boot an ltsp client
+
+exec ltsp init "$@"

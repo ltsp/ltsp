@@ -1,0 +1,15 @@
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright (C) the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Configure NFS exports for LTSP
+# Documentation=man:ltsp-nfs(8)
+
+# Export LTSP chroots and images
+/srv/ltsp	*(ro,async,crossmnt,no_subtree_check,no_root_squash)
+
+# Export TFTP_DIR over NFS as well, for synching local kernels and ltsp.img
+/srv/tftp/ltsp	*(ro,async,crossmnt,no_subtree_check,no_root_squash)
+
+# Export home over NFS3; note this is insecure
+#/home	*(rw,async,no_subtree_check)

@@ -1,0 +1,51 @@
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright 2019 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Create /etc/ltsp/image-local.excludes to add more entries;
+# only modify this one if you want to delete lines, not add new ones
+cdrom/.*
+cdrom/*
+dev/*
+etc/epoptes/server.key
+etc/.!(java)
+etc/mysql/debian.cnf
+etc/NetworkManager/system-connections/*
+etc/ssh/ssh_host_*
+etc/udev/rules.d/??-persistent-*.rules
+home/*
+lost+found/*
+media/*
+mnt/*
+opt/ltsp*
+proc/*
+root/.*
+root/*
+run/*
+snap/*
+srv/*
+swapfile
+sys/*
+tmp/.*
+tmp/*
+var/backups/*
+var/cache/apt/archives/*.deb
+var/cache/apt/archives/partial/*
+var/cache/apt-xapian-index/*
+var/cache/lightdm/dmrc/*
+var/crash/*
+var/lib/apt/lists/*
+var/lib/lightdm/.*
+var/lib/lightdm/*
+var/lib/mysql/*
+var/lib/sudo/*
+var/log/*.[1-9]
+var/log/*.gz
+var/log/*.old
+var/log/*/*
+var/mail/*
+var/spool/cron/*/*
+var/spool/cups/*
+var/spool/squid3/*
+var/swap
+var/tmp/.*
+var/tmp/*

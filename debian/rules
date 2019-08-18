@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/pkg-info.mk
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+# % calls are the following params, which then call these dh_ binaries:
+# clean: dh_clean
+# build: dh_update_autotools_config
+# binary: dh_testroot, dh_prep, dh_installdirs, dh_install, dh_installdocs,
+#   dh_installchangelogs, dh_perl, dh_link, dh_strip_nondeterminism,
+#   dh_compress, dh_fixperms, dh_missing, dh_installdeb, dh_gencontrol,
+#   dh_md5sums, dh_builddeb
+# dh clean:
+%:
+	dh $@
+
+override_dh_auto_configure:
+	cd docs; ./Makefile.sh; cd -
+
+override_dh_install:
+	dh_install --exclude _.git
+	sed "s/^\(_VERSION=\).*/\1'$(DEB_VERSION)'/" -i "$(CURDIR)"/debian/ltsp/usr/share/ltsp/common/ltsp/55-ltsp.sh
+	mkdir -p "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks"
+	# hooks/ltsp conflicts with ltsp-client-core
+	cp -a "$(CURDIR)/debian/ltsp.initramfs-hook" "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks/ltsp-next"

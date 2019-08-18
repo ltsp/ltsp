@@ -1,0 +1,28 @@
+#!/bin/sh
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright 2019 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Initramfs hook for ltsp
+
+PREREQ=""
+
+prereqs()
+{
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+# make sure all our modules are there
+manual_add_modules aoe
+manual_add_modules overlay
+manual_add_modules squashfs
+auto_add_modules net
