@@ -135,6 +135,20 @@ by DHCP.
 : The LTSP server is usually autodetected; it can be manually specified
 if there's need for it.
 
+**X_DRIVER=**"_vesa_"
+**X_HORIZSYNC=**"_28.0-87.0_"
+**X_MODELINE=**'_"1024x768_85.00"   94.50  1024 1096 1200 1376  768 771 775 809 -hsync +vsync_'
+**X_MODES=**'"_1024x768" "800x600" "640x480"_'
+**X_PREFERREDMODE=**"_1024x768_"
+**X_VERTREFRESH=**"_43.0-87.0_"
+**X_VIRTUAL**="_800 600_"
+: If any of these parameters are set, the /usr/share/ltsp/client/init/xorg.conf
+template is installed to /etc/X11/xorg.conf, while applying the parameters.
+Read that template and consult xorg.conf(5) for more information.
+The most widely supported method to set a default resolution is X_MODES.
+If more parameters are required, create a custom xorg.conf as described in
+the EXAMPLES section.
+
 ## EXAMPLES
 If some clients need an custom xorg.conf file, create it in e.g.
 `/etc/ltsp/xorg-nvidia.conf`, and put the following in ltsp.conf
