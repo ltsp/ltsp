@@ -10,7 +10,7 @@ xorg_conf_main() {
         test -n "$X_MODELINE$X_VIRTUAL$X_MODES" ||
         return 0
 
-    install_template "xorg.conf" "/etc/X11/xorg.conf" "\
+    OVERWRITE=1 install_template "xorg.conf" "/etc/X11/xorg.conf" "\
 s|^\( *\)# \(Driver *\).*|$(textif "$X_DRIVER" "\1\2  \"$X_DRIVER\"" "&")|
 s|^\( *\)# \(HorizSync *\).*|$(textif "$X_HORIZSYNC" "\1\2  $X_HORIZSYNC" "&")|
 s|^\( *\)# \(VertRefresh *\).*|$(textif "$X_VERTREFRESH" "\1\2  $X_VERTREFRESH" "&")|
