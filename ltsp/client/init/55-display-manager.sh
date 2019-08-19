@@ -27,4 +27,5 @@ configure_gdm() {
     grep -qsw "^ *AutomaticLoginEnable *=.*rue" /etc/gdm3/daemon.conf &&
         rw sed "s|^ *AutomaticLoginEnable *=.*rue|# ltsp: &|" \
             -i /etc/gdm3/daemon.conf
+    return 0
 }
