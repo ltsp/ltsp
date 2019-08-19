@@ -96,6 +96,9 @@ they're listed in MASK_SESSION_SERVICES. Space separated list.
 : Whitelist some system services so that they're not deleted, even if
 they're listed in MASK_SYSTEM_SERVICES. Space separated list.
 
+**LOCAL_SWAP=**_0|1_
+: Activate local swap partitions. Defaults to 1.
+
 **MASK_SESSION_SERVICES=**_"ubuntu-mate-welcome"_
 : Mask some session services that shouldn't be started on LTSP clients.
 Space separated list. See /usr/share/ltsp/client/init/56-rm-services.sh
