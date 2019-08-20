@@ -56,6 +56,22 @@ The `ltsp initrd` command does a quick syntax check by running
 The following parameters are currently defined; an example is given in
 each case.
 
+**AUTOLOGIN=**_"user01"_<br/>
+**RELOGIN=**_0|1_<br/>
+**GDM3_CONF=**_"/etc/ltsp/additional-gdm3.conf"_<br/>
+**LIGHTDM_CONF=**_"greeter-hide-users=true"_<br/>
+**SDDM_CONF=**_"/etc/ltsp/sddm.conf"_<br/>
+: Configure the display manager to log in this user automatically.
+The user's password must also be provided using the PASSWORDS_x parameter
+(see below), unless it's a local, non-ltsp user. AUTOLOGIN can be a simple
+username like "user01", or it can be a partial regular expression that
+transforms a hostname to a username. For example, AUTOLOGIN="pc/guest" means
+"automatically log in as guest01 in pc01, as guest02 in pc02 etc".<br/>
+RELOGIN=1 means to reconnect if the user logs off; it's not supported by
+all DMs though. Finally, the *_CONF parameters can be either filenames
+or text, and provide a way to write additional configuration to the
+generated display manager configuration.
+
 **CRONTAB_x=**_"30 15 * * *  poweroff"_
 : Add a line in crontab. The example powers off the clients at 15:30.
 
@@ -154,13 +170,13 @@ by DHCP.
 : The LTSP server is usually autodetected; it can be manually specified
 if there's need for it.
 
-**X_DRIVER=**"_vesa_"
-**X_HORIZSYNC=**"_28.0-87.0_"
-**X_MODELINE=**'_"1024x768_85.00"   94.50  1024 1096 1200 1376  768 771 775 809 -hsync +vsync_'
-**X_MODES=**'"_1024x768" "800x600" "640x480"_'
-**X_PREFERREDMODE=**"_1024x768_"
-**X_VERTREFRESH=**"_43.0-87.0_"
-**X_VIRTUAL**="_800 600_"
+**X_DRIVER=**"_vesa_"<br/>
+**X_HORIZSYNC=**"_28.0-87.0_"<br/>
+**X_MODELINE=**'_"1024x768_85.00"   94.50  1024 1096 1200 1376  768 771 775 809 -hsync +vsync_'<br/>
+**X_MODES=**'"_1024x768" "800x600" "640x480"_'<br/>
+**X_PREFERREDMODE=**"_1024x768_"<br/>
+**X_VERTREFRESH=**"_43.0-87.0_"<br/>
+**X_VIRTUAL**="_800 600_"<br/>
 : If any of these parameters are set, the /usr/share/ltsp/client/init/xorg.conf
 template is installed to /etc/X11/xorg.conf, while applying the parameters.
 Read that template and consult xorg.conf(5) for more information.
