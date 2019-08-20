@@ -21,7 +21,7 @@ mksquashfs_main() {
     fi
     if [ -f /etc/ltsp/image.excludes ]; then
         ef_upstream=/etc/ltsp/image.excludes
-    elif [ -z "$ef_local" ]; then
+    elif [ -z "$ef_upstream" ]; then
         ef_upstream="$_APPLET_DIR/image.excludes"
     else
         unset ef_upstream
