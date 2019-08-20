@@ -109,6 +109,22 @@ for the default. Setting MASK_SESSION_SERVICES in ltsp.conf adds to that list.
 Space separated list. See /usr/share/ltsp/client/init/56-rm-services.sh
 for the default. Setting MASK_SYSTEM_SERVICES in ltsp.conf adds to that list.
 
+**PASSWORDS_x=**_"teacher/cXdlcjEyMzQK [a-z][-0-9]*/MTIzNAo= guest[^:]*/"_
+: A space separated list of regular expressions that match usernames, followed
+by slash and base64-encoded passwords. On boot, `ltsp init` writes those
+passwords for the matching users in /etc/shadow, so that then pamltsp can
+pass them to SSH/SSHFS. The end result is that those users are able to
+login either in the console or the display manager by just pressing [Enter]
+at the password prompt.<br/>
+Passwords are base64-encoded to prevent over-the-shoulder spying and to
+avoid the need for escaping special characters. To encode a password in
+base64, run `base64 -`, type a single password, and then Ctrl+D.<br/>
+In the example above, the teacher account will automatically use "qwer1234"
+as the password, the a1-01, b1-02 etc students will use "1234", and the
+guest01 etc accounts will be able to use an empty password without even
+authenticating against the server; in this case, SSHFS can't be used,
+/home should be local or NFS.
+
 **POST_APPLET_x=**_"ln -s /etc/ltsp/xorg.conf /etc/X11/xorg.conf"_
 : All parameters that start with POST_ and then have an ltsp client applet
 name are sorted and their values are executed after the main function of
