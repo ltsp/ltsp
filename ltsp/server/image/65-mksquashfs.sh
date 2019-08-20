@@ -21,10 +21,8 @@ mksquashfs_main() {
     fi
     if [ -f /etc/ltsp/image.excludes ]; then
         ef_upstream=/etc/ltsp/image.excludes
-    elif [ -z "$ef_local" ]; then
-        ef_upstream="$_APPLET_DIR/image.excludes"
     else
-        unset ef_upstream
+        ef_upstream="$_APPLET_DIR/image.excludes"
     fi
     re mkdir -p "$BASE_DIR/images"
     # -regex might be nicer: https://stackoverflow.com/questions/57304278
