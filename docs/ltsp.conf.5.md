@@ -58,7 +58,7 @@ each case.
 
 **AUTOLOGIN=**_"user01"_<br/>
 **RELOGIN=**_0|1_<br/>
-**GDM3_CONF=**_"/etc/ltsp/additional-gdm3.conf"_<br/>
+**GDM3_CONF=**_"WaylandEnable=false"_<br/>
 **LIGHTDM_CONF=**_"greeter-hide-users=true"_<br/>
 **SDDM_CONF=**_"/etc/ltsp/sddm.conf"_<br/>
 : Configure the display manager to log in this user automatically.
@@ -67,9 +67,9 @@ The user's password must also be provided using the PASSWORDS_x parameter
 username like "user01", or it can be a partial regular expression that
 transforms a hostname to a username. For example, AUTOLOGIN="pc/guest" means
 "automatically log in as guest01 in pc01, as guest02 in pc02 etc".<br/>
-RELOGIN=1 means to reconnect if the user logs off; it's not supported by
-all DMs though. Finally, the *_CONF parameters can be either filenames
-or text, and provide a way to write additional configuration to the
+RELOGIN=1 means to reconnect if the user logs off, but it's only supported
+by gdm3 and sddm. Finally, the *_CONF parameters can be either filenames
+or direct text, and provide a way to write additional content to the
 generated display manager configuration.
 
 **CRONTAB_x=**_"30 15 * * *  poweroff"_
@@ -101,7 +101,7 @@ are written to /etc/fstab at the client init phase.
 : All parameters that start with HOSTS_ are sorted and then their values
 are written to /etc/hosts at the client init phase.
 
-**INCLUDE=**_"other-section"
+**INCLUDE=**_"other-section"_
 : Include another section in this section.
 
 **KEEP_SESSION_SERVICES=**_"at-spi-dbus-bus"_
@@ -185,6 +185,25 @@ If more parameters are required, create a custom xorg.conf as described in
 the EXAMPLES section.
 
 ## EXAMPLES
+To specify a hostname and a user to autologin in a client:
+
+```shell
+[3c:07:71:a2:02:e3]
+HOSTNAME=pc01
+PASSWORDS_PC01="user01:cGFzczAxCg=="
+AUTOLOGIN=1
+```
+
+The password above is "pass01" in base64 encoding. To calculate it, the
+`base64 -` command was run in a terminal:
+
+```shell
+base64 -
+pass01
+<press Ctrl+D at this point>
+cGFzczAxCg==
+```
+
 If some clients need an custom xorg.conf file, create it in e.g.
 `/etc/ltsp/xorg-nvidia.conf`, and put the following in ltsp.conf
 to dynamically symlink it for those clients on boot:

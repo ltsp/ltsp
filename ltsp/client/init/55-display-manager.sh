@@ -4,7 +4,7 @@
 
 # Handle tasks related to display managers.
 # Patching arbitrary .conf files is hard; let's try appending the sections
-# we want to the existing files and hope this overrrides
+# we want to the existing files and hope this properly overrides
 # @LTSP.CONF: AUTOLOGIN RELOGIN GDM3_CONF LIGHTDM_CONF SDDM_CONF
 
 display_manager_main() {
