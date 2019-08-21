@@ -91,8 +91,11 @@ EOF
             # TODO: ssh -X user@localhost from an ltsp client fails too:
             # /usr/bin/xauth: timeout in locking authority file /home/user/.Xauthority
             # It's probably not important; plain `xhost +local:` is OK for DIRECTX.
-            if [ -x /usr/bin/gnome-keyring ]; then
-                chmod -x /usr/bin/gnome-keyring
+            #if [ -x /usr/bin/gnome-keyring ]; then
+            #    chmod -x /usr/bin/gnome-keyring
+            #fi
+            if [ -x /usr/bin/gnome-keyring-daemon ]; then
+                chmod -x /usr/bin/gnome-keyring-daemon
             fi
         fi
     fi

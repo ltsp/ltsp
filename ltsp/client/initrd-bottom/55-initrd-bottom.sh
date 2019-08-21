@@ -32,7 +32,18 @@ initrd_bottom_main() {
     elif [ ! -d "$rootmnt/proc" ]; then
         die "$rootmnt/proc doesn't exist and ltsp.image wasn't specified"
     fi
-    test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in initrd-bottom"
+    # Handle some common live CDs
+    if [ ! -d "$rootmnt/proc" ]; then
+        for img_src in "$rootmnt/casper/filesystem.squashfs" \
+            "$rootmnt/live/filesystem.squashfs"
+        do
+            if [ -f "$img_src" ]; then
+                warn "Running: mount -t squashfs -o ro $img_src $rootmnt"
+                re mount -t squashfs -o ro "$img_src" "$rootmnt"
+            fi
+        done
+    fi
+    test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in $_APPLET"
     test "$OVERLAY" = "0" || re overlay_root
     re install_ltsp
 }

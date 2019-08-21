@@ -12,4 +12,4 @@
 /srv/tftp/ltsp	*(ro,async,crossmnt,no_subtree_check,no_root_squash)
 
 # Export home over NFS3; note this is insecure
-#/home	*(rw,async,no_subtree_check)
+#/home		*(rw,async,no_subtree_check)

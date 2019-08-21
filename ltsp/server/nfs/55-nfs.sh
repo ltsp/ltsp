@@ -29,11 +29,12 @@ nfs_cmdline() {
 
 nfs_main() {
     re mkdir -p /etc/exports.d
-    install_template "ltsp-nfs.exports" "/etc/exports.d/ltsp-nfs.exports" "\
+    re install_template "ltsp-nfs.exports" "/etc/exports.d/ltsp-nfs.exports" "\
 s|^/srv/ltsp|$BASE_DIR|
-s|^/srv/tftp/ltsp|$(textif "$NFS_TFTP" "$TFTP_DIR" "#$TFTP_DIR")|
+s|^/srv/tftp/ltsp|$(textif "$NFS_TFTP" "$TFTP_DIR/ltsp" "#&")|
 s|^#/home|$(textif "$NFS_HOME" "$HOME_DIR" "&")|
 "
+    re mkdir -p "$BASE_DIR" "$TFTP_DIR/ltsp"
     re systemctl restart nfs-kernel-server
     echo "Restarted nfs-kernel-server"
 }
