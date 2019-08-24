@@ -59,7 +59,8 @@ dns_server() {
             tr '\n' ',')
     fi
     if [ -z "$dns_server" ]; then
-        dns_server=$(rw awk '($1 == "nameserver") && ($2 !~ "127\\.0\\..*") { print $2 }' /etc/resolv.conf | tr '\n' ',')
+        dns_server=$(rw awk '/^ *nameserver [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+.*$/ {
+if ($2 !~ "127\\.0\\..*" ) printf "%s,",$2 }' /etc/resolv.conf)
     fi
     dns_server=${dns_server%,}
     dns_server=${dns_server:-8.8.8.8,208.67.222.222}
