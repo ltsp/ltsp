@@ -246,19 +246,39 @@ EOF
 
 # We care about the IP/MAC used to connect to the LTSP server, not all of them
 # To handle multiple MACs in ltsp.conf, use INCLUDE=
+# Note that it's "GATEWAY to 192.168.67.1", not always the real gateway
 network_vars() {
+    local ip _dummy
+
     test -n "$DEVICE" && test -n "$IP_ADDRESS" && test -n "$MAC_ADDRESS" &&
         return 0
-    read -r GATEWAY DEVICE IP_ADDRESS <<EOF
-$(re ip -o route get 192.168.67.1 |
-    sed -n 's/.*via *\([0-9.]*\) .*dev \([^ ]*\) .*src *\([0-9.]*\) .*/\1 \2 \3/p')
+    # 192.168.67.1 is for clients and servers != 192.168.67.1,
+    # 192.168.67.2 is to get DEVICE (instead of lo) when server = 192.168.67.1
+    for ip in 192.168.67.1 192.168.67.2; do
+        # Get the words around "dev" and "src"; possible output:
+        # client1: 192.168.67.1 dev enp3s0 src 192.168.67.20 uid 0 \    cache
+        # client2: 192.168.67.1 via 10.161.254.1 dev enp3s0 src 10.161.254.20 uid 0 \    cache
+        # server1: 192.168.167.1 via 10.161.254.1 dev enp2s0 src 10.161.254.11 uid 0 \    cache
+        # server2: local 192.168.67.1 dev lo src 192.168.67.1 uid 0 \    cache <local>
+        # server2: 192.168.67.2 dev enp5s0 src 192.168.67.1 uid 0 \    cache
+        read -r GATEWAY _dummy DEVICE _dummy IP_ADDRESS<<EOF
+$(rw ip -o route get "$ip" | grep -o '[^ ]* *dev *[^ ]* *src *[^ ]*')
 EOF
-    re test "GATEWAY=$GATEWAY" != "GATEWAY="
-    re test "DEVICE=$DEVICE" != "DEVICE="
-    re test "IP_ADDRESS=$IP_ADDRESS" != "IP_ADDRESS="
-    read -r MAC_ADDRESS <<EOF
-$(re ip -o link show dev "$DEVICE" |
-    sed -n 's|.* link/ether \([0-9a-f:]*\) .*|\1|p')
+        if [ "$_dummy" != "src" ] || [ -z "$GATEWAY" ] ||
+            [ -z "$DEVICE" ] || [ -z "$IP_ADDRESS" ]
+        then
+            die "Could not parse output of: ip -o route get $ip"
+        fi
+        if [ "$DEVICE" = "lo" ]; then
+            continue
+        elif [ "$IP_ADDRESS" = "192.168.67.1" ]; then
+            GATEWAY=$IP_ADDRESS
+        else
+            break
+        fi
+    done
+    read -r _dummy MAC_ADDRESS <<EOF
+$(re ip -o link show dev "$DEVICE" | grep -o 'link/ether [^ ]*')
 EOF
     re test "MAC_ADDRESS=$MAC_ADDRESS" != "MAC_ADDRESS="
 }
