@@ -2,6 +2,11 @@
 # Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+# For best compatibility, ltsp.img should be an uncompressed cpio that is
+# loaded before initrd.img (issue #9).
+# If it grows to be too large, we can create ltsp.gzip inside the cpio,
+# and use an uncompressed script to gunzip it in initrd-top.
+
 cpio_main() {
     local script
 
@@ -14,7 +19,7 @@ EOF
     # Create the initrd
     re cd "$_DST_DIR"
     {
-        find . ! -name ltsp.img | cpio -oH newc | gzip > "$_DST_DIR/ltsp.img"
+        find . ! -name ltsp.img | cpio -oH newc > "$_DST_DIR/ltsp.img"
         # Avoid the awful "NNN blocks" message of cpio
     } 2>&1 | sed '/^[0-9]* blocks$/d' 1>&2
     re cd - >/dev/null

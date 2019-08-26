@@ -64,9 +64,9 @@ goto ltsp
 # :images and :roots jump here after setting cmdline_method
 set cmdline ${cmdline_method} ${cmdline_ltsp} ${cmdline_client}
 # In EFI mode, iPXE requires initrds to be specified in the cmdline
-kernel /ltsp/${img}/vmlinuz initrd=initrd.img initrd=ltsp.img ${cmdline}
-initrd /ltsp/${img}/initrd.img
+kernel /ltsp/${img}/vmlinuz initrd=ltsp.img initrd=initrd.img ${cmdline}
 initrd /ltsp/ltsp.img
+initrd /ltsp/${img}/initrd.img
 boot || goto failed
 
 :memtest
