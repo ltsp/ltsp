@@ -21,6 +21,8 @@ Depends: ${misc:Depends},
   systemd
 Suggests: dnsmasq,
   epoptes,
+  ethtool,
+  net-tools,
   nfs-kernel-server,
   openssh-server,
   squashfs-tools

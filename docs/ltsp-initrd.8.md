@@ -7,11 +7,12 @@
 ## DESCRIPTION
 Create a secondary initrd in /srv/tftp/ltsp/ltsp.img, that contains the LTSP
 client code from /usr/share/ltsp/{client,common} and everything under
-/etc/ltsp, including the ltsp.conf settings file. LTSP clients receive this
-initrd in addition to their usual one.
+/etc/ltsp, including the ltsp.conf settings file. Additionally it contains
+the server users and groups lists (passwd/group) and public SSH keys.
+LTSP clients receive this initrd in addition to their usual one.
 
-This means that whenever you edit **ltsp.conf(5)**, you need to run
-`ltsp initrd` to update **ltsp.img**, and reboot the clients.
+This means that whenever you add new uses or edit **ltsp.conf(5)**,
+you need to run `ltsp initrd` to update **ltsp.img**, and reboot the clients.
 
 It also means that you can very easily put template xorg.conf or sshfs
 or other files in /etc/ltsp, and have them on the clients in seconds,
