@@ -110,7 +110,7 @@ ff00::0\tip6-mcastprefix
 ff02::1\tip6-allnodes
 ff02::2\tip6-allrouters
 " "${SEARCH_DOMAIN:+$HOSTNAME.$SEARCH_DOMAIN }" "$HOSTNAME" "$SERVER"
-        rw echo_values "^HOSTS_"
+        rw echo_values "HOSTS_[[:alnum:]_]*"
     } >/etc/hosts
 }
 

@@ -27,7 +27,7 @@ ipxe_cmdline() {
 }
 
 ipxe_main() {
-    local key items gotos r_items r_gotos img_name binary
+    local key items gotos r_items r_gotos img_name title binary
 
     # Prepare the menu text for all images and chroot
     key=0
@@ -37,7 +37,9 @@ ipxe_main() {
     set -- $img_name
     for img_name in "$@"; do
         key=$((key+1))
-        items="${items:+"$items\n"}$(printf "item --key %d %-20s %s" "$((key%10))" "$img_name" "$img_name.img")"
+        title=$(echo_values "$(ipxe_name "$img_name.img")")
+        title=${title:-$img_name.img}
+        items="${items:+"$items\n"}$(printf "item --key %d %-20s %s" "$((key%10))" "$img_name" "$title")"
         gotos=":$img_name\n$gotos"
     done
     r_items=""
@@ -46,7 +48,9 @@ ipxe_main() {
     set -- $img_name
     for img_name in "$@"; do
         key=$((key+1))
-        r_items="${r_items:+"$r_items\n"}$(printf "item --key %d %-20s %s" "$((key%10))" "r_$img_name" "$img_name")"
+        title=$(echo_values "$(ipxe_name "$img_name")")
+        title=${title:-$img_name}
+        r_items="${r_items:+"$r_items\n"}$(printf "item --key %d %-20s %s" "$((key%10))" "r_$img_name" "$title")"
         r_gotos=":r_$img_name\nset img $img_name \&\& goto roots\n$r_gotos"
     done
     re mkdir -p "$TFTP_DIR/ltsp"
@@ -78,4 +82,9 @@ s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
     for binary in ltsp.ipxe memtest.0 memtest.efi snponly.efi undionly.kpxe; do
         re ls -l "$TFTP_DIR/ltsp/$binary"
     done
+}
+
+ipxe_name() {
+    echo "$*" |
+        awk '{ var=toupper($0); gsub("[^A-Z0-9]", "_", var); print "IPXE_" var }'
 }

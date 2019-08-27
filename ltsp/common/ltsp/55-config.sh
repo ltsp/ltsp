@@ -30,8 +30,9 @@ echo_vars() {
         eval "value=\$$var"
         test -n "$value" || continue
         echo "$var"
+    # We want "[[:alnum:]_]*" to match only English letters, hence LC_ALL=C
     done <<EOF
-$(set | grep -E "$ex1" | grep -vE "$ex2")
+$(set | LC_ALL=C grep -E "^$ex1=" | LC_ALL=C grep -vE "^$ex2=")
 EOF
 }
 
@@ -280,7 +281,7 @@ EOF
     done
     # Empty IP might mean "server with unplugged cable"; let's find a DEVICE
     if [ -z "$IP_ADDRESS" ]; then
-        for DEVICE in /sys/class/net/*/device; do
+        for DEVICE in /sys/class/net/*/device ""; do
             test -e "$DEVICE" || continue
             DEVICE=${DEVICE%/device}
             DEVICE=${DEVICE##*/}
@@ -299,8 +300,8 @@ run_parameters() {
     local cap_applet ex1 ex2 parameters
 
     cap_applet=$(echo "$_APPLET" | awk '{ print(toupper($0)) }' |
-        sed 's/[^[:alnum:]]/_/g')
-    ex1="^${1}_${cap_applet}_"
+        LC_ALL=C sed 's/[^[:alnum:]]/_/g')
+    ex1="${1}_${cap_applet}_[[:alnum:]_]*"
     if [ "$cap_applet" = "INITRD" ]; then
         ex2="${ex1}BOTTOM_"
     else
