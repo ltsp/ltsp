@@ -77,8 +77,12 @@ disable_flow_control() {
 enable_nat() {
     local ipv4_forward
 
-    # Check if it's a dual NIC LTSP server
-    test "$IP_ADDRESS" = "192.168.67.1" || return 0
+    # Only enable NAT on servers, if NAT=1 or IP_ADDRESS=192.168.67.1
+    if [ -d /run/ltsp/client ] || [ "$NAT" = "0" ] ||
+        { [ "$NAT" != "1" ] && [ "$IP_ADDRESS" != "192.168.67.1" ]; };
+    then
+        return 0
+    fi
     # For now, just check if ip forwarding was already enabled;
     # TODO: in the future, introduce persistent_vars
     read -r ipv4_forward </proc/sys/net/ipv4/ip_forward

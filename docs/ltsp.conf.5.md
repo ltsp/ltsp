@@ -125,6 +125,14 @@ for the default. Setting MASK_SESSION_SERVICES in ltsp.conf adds to that list.
 Space separated list. See /usr/share/ltsp/client/init/56-rm-services.sh
 for the default. Setting MASK_SYSTEM_SERVICES in ltsp.conf adds to that list.
 
+**NAT=**_0|1_
+: Only use this under the [server] section. Normally, `ltsp service`
+runs when the server boots and detects if a server IP is 192.168.67.1,
+in which case it automatically enables IP forwarding for the clients to
+be able to access the Internet in dual NIC setups. But if there's a chance
+that the IP isn't set yet (e.g. disconnected network cable), setting NAT=1
+enforces that.
+
 **PASSWORDS_x=**_"teacher/cXdlcjEyMzQK [a-z][-0-9]*/MTIzNAo= guest[^:]*/"_
 : A space separated list of regular expressions that match usernames, followed
 by slash and base64-encoded passwords. On boot, `ltsp init` writes those
