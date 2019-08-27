@@ -267,7 +267,8 @@ EOF
         if [ "$_dummy" != "src" ] || [ -z "$GATEWAY" ] ||
             [ -z "$DEVICE" ] || [ -z "$IP_ADDRESS" ]
         then
-            die "Could not parse output of: ip -o route get $ip"
+            warn "Could not parse output of: ip -o route get $ip"
+            continue
         fi
         if [ "$DEVICE" = "lo" ]; then
             continue
@@ -277,6 +278,15 @@ EOF
             break
         fi
     done
+    # Empty IP might mean "server with unplugged cable"; let's find a DEVICE
+    if [ -z "$IP_ADDRESS" ]; then
+        for DEVICE in /sys/class/net/*/device; do
+            test -e "$DEVICE" || continue
+            DEVICE=${DEVICE%/device}
+            DEVICE=${DEVICE##*/}
+            break
+        done
+    fi
     read -r _dummy MAC_ADDRESS <<EOF
 $(re ip -o link show dev "$DEVICE" | grep -o 'link/ether [^ ]*')
 EOF
