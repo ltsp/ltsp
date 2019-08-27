@@ -1,0 +1,19 @@
+# This file is part of Epoptes, http://epoptes.org
+# Copyright 2018 the Epoptes team, see AUTHORS.
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Unit]
+Description=LTSP startup tasks
+Documentation=man:ltsp-service(8)
+After=network-online.target
+Wants=network-online.target
+
+# Parts copied from rc-local.service
+[Service]
+Type=forking
+ExecStart=/usr/sbin/ltsp service
+TimeoutSec=0
+RemainAfterExit=yes
+GuessMainPID=no
+
+[Install]
+WantedBy=multi-user.target

@@ -22,6 +22,9 @@ override_dh_auto_configure:
 override_dh_install:
 	dh_install --exclude _.git
 	sed "s/^\(_VERSION=\).*/\1'$(DEB_VERSION)'/" -i "$(CURDIR)"/debian/ltsp/usr/share/ltsp/common/ltsp/55-ltsp.sh
+	mkdir -p "$(CURDIR)/debian/ltsp/lib/systemd/system/multi-user.target.wants"
+	ln -s "../../../usr/share/ltsp/common/service/ltsp.service" "$(CURDIR)/debian/ltsp/lib/systemd/system/ltsp.service"
+	ln -s "../ltsp.service" "$(CURDIR)/debian/ltsp/lib/systemd/system/multi-user.target.wants/ltsp.service"
 	mkdir -p "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks"
 	# hooks/ltsp conflicts with ltsp-client-core
 	cp -a "$(CURDIR)/debian/ltsp.initramfs-hook" "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks/ltsp-next"

@@ -66,6 +66,9 @@ install_ltsp() {
     fi
     # Symlink the ltsp binary
     re ln -sf ../share/ltsp/ltsp "$rootmnt/usr/sbin/ltsp"
+    # Symlink the service
+    re ln -sf ../../../usr/share/ltsp/common/service/ltsp.service "$rootmnt/lib/systemd/system/ltsp.service"
+    re ln -sf ../ltsp.service "$rootmnt/lib/systemd/system/multi-user.target.wants/ltsp.service"
     # To avoid specifying an init=, we override the real init.
     # We can't mount --bind as it's in use by libraries and can't be unmounted.
     re mv "$rootmnt/sbin/init" "$rootmnt/sbin/init.ltsp"
