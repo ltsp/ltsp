@@ -9,13 +9,13 @@ BINARIES_URL=${BINARIES_URL:-https://github.com/ltsp/binaries/releases/latest/do
 ipxe_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "b:u:" -l \
-        "binaries:binaries-url:" -- "$@") ||
+    args=$(getopt -n "ltsp $_APPLET" -o "b::u:" -l \
+        "binaries::,binaries-url:" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
-            -b|--binaries) shift; BINARIES=$1 ;;
+            -b|--binaries) shift; BINARIES=${1:-1} ;;
             -u|--binaries-url) shift; BINARIES_URL=$1 ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
@@ -54,23 +54,29 @@ ipxe_main() {
         r_gotos=":r_$img_name\nset img $img_name \&\& goto roots\n$r_gotos"
     done
     re mkdir -p "$TFTP_DIR/ltsp"
-    exit_command "rw rm -f '$TFTP_DIR/ltsp/ltsp.ipxe.tmp'"
-    re install_template "ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe.tmp" "\
+    if [ "$OVERWRITE" != "1" ] && [ -f "$TFTP_DIR/ltsp/ltsp.ipxe" ]; then
+        warn "Configuration file already exists: $TFTP_DIR/ltsp/ltsp.ipxe
+To overwrite it, run: ltsp --overwrite $_APPLET ..."
+    else
+        exit_command "rw rm -f '$TFTP_DIR/ltsp/ltsp.ipxe.tmp'"
+        re install_template "ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe.tmp" "\
 s|^/srv/ltsp|$BASE_DIR|g
 s|^#.*item.*\bimages\b.*|$(textif "$items$r_items" "$items\n$r_items" "&")|
 s|^:images\$|$(textif "$items" "$gotos" "&")|
 s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
 "
-    re migrate_local_content "$TFTP_DIR/ltsp/ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe.tmp"
-    if [ -f "$TFTP_DIR/ltsp/ltsp.ipxe" ]; then
-        re mv "$TFTP_DIR/ltsp/ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe.old"
+        re migrate_local_content "$TFTP_DIR/ltsp/ltsp.ipxe" \
+            "$TFTP_DIR/ltsp/ltsp.ipxe.tmp"
+        if [ -f "$TFTP_DIR/ltsp/ltsp.ipxe" ]; then
+            re mv "$TFTP_DIR/ltsp/ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe.old"
+        fi
+        re mv "$TFTP_DIR/ltsp/ltsp.ipxe.tmp" "$TFTP_DIR/ltsp/ltsp.ipxe"
     fi
-    re mv "$TFTP_DIR/ltsp/ltsp.ipxe.tmp" "$TFTP_DIR/ltsp/ltsp.ipxe"
     if [ "$BINARIES" != "0" ]; then
         # Prefer memtest.0 from ipxe.org over the one from distributions:
         # https://lists.ipxe.org/pipermail/ipxe-devel/2012-August/001731.html
         for binary in memtest.0 memtest.efi snponly.efi undionly.kpxe; do
-            if [ "$OVERWRITE" = "1" ] || [ ! -f "$TFTP_DIR/ltsp/$binary" ]; then
+            if [ "$BINARIES" = "1" ] || [ ! -f "$TFTP_DIR/ltsp/$binary" ]; then
                 echo "Downloading $BINARIES_URL/$binary"
                 re wget -q "$BINARIES_URL/$binary" -O "$TFTP_DIR/ltsp/$binary"
             else

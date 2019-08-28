@@ -14,12 +14,15 @@ before running `ltsp ipxe` to generate the configuration.
 
 ## OPTIONS
 See the **ltsp(8)** man page for _ltsp-options_.
-Note that `ltsp --overwrite ipxe` redownloads the binaries and overwrites
-ltsp.ipxe, while preserving the content between the lines
+Note that `ltsp --overwrite ipxe` overwrites ltsp.ipxe but preserves the
+content between the lines
 "### BEGIN LOCAL CONTENT" and "### END LOCAL CONTENT".
 
-**-b**, **--binaries=**_[0|1]_
-: Download the iPXE binaries again even if they already exist. Defaults to 0.
+**-b**, **--binaries=**_[0|1|""]_
+: Download the iPXE binaries again even if they already exist. Defaults to "",
+which means "only download the missing ones".
+Note that the --overwrite flag doesn't affect the binaries, they're only
+contolled by the --binaries flag.
 
 **-u**, **--binaries-url=**_URL_
 : Specify a different URL for the binaries. Defaults to
