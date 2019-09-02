@@ -14,9 +14,6 @@ before running `ltsp ipxe` to generate the configuration.
 
 ## OPTIONS
 See the **ltsp(8)** man page for _ltsp-options_.
-Note that `ltsp --overwrite ipxe` overwrites ltsp.ipxe but preserves the
-content between the lines
-"### BEGIN LOCAL CONTENT" and "### END LOCAL CONTENT".
 
 **-b**, **--binaries=**_[0|1|""]_
 : Download the iPXE binaries again even if they already exist. Defaults to "",
@@ -45,7 +42,7 @@ Let's see an advanced example: suppose that your clients came with
 Windows, and that you copied a live CD into C:\ltsp\ubuntu.iso, and you
 want your LTSP clients to use that for speed. First, disable Windows
 fast boot and hibernation, so that Linux is able to mount its partition.
-Then create the following "method" in the LOCAL CONTENTS section of ltsp.ipxe:
+Then create the following "method" in ltsp.ipxe:
 
 ```ipxe
 :local_image

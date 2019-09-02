@@ -81,6 +81,15 @@ generated display manager configuration.
 **DEBUG_SHELL=**_0|1_
 : Launch a debug shell when errors are detected. Defaults to 0.
 
+**DEFAULT_IMAGE=**_"x86_64"_
+**KERNEL_PARAMETERS=**_"nomodeset noapic"_
+**MENU_TIMEOUT=**_"5000"_
+: These parameters can be defined under [mac:address] sections in ltsp.conf,
+and they are used by `ltsp ipxe` to generate the iPXE menu.
+They control the default menu item, the additional kernel parameters and
+the menu timeout for each client. MENU_TIMEOUT can also be defined globally
+under [clients].
+
 **DNS_SERVER=**_"8.8.8.8 208.67.222.222"_
 : Specify the DNS servers for the clients.
 

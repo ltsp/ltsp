@@ -11,31 +11,22 @@ cpuid --ext 29 && set img x86_64 || set img x86_32
 isset ${root-path} && set img ${root-path} ||
 isset ${proxydhcp/dhcp-server} && set srv ${proxydhcp/dhcp-server} || set srv ${next-server}
 
-### BEGIN LOCAL CONTENT (preserved on `ltsp -o ipxe`)
-
 # Define cmdline parameters common to all LTSP clients
 set cmdline_ltsp BOOTIF=01-${mac:hexhyp}
-set menu-timeout 5000
 
 goto ${mac} || goto start
-# Define client-specific settings, like the hostname, the menu default
-# and cmdline parameters, in sections similar to the following examples
+# The following client-specific settings can be defined in ltsp.conf:
+# DEFAULT_IMAGE (img): default menu item for that client
+# KERNEL_PARAMETERS (cmdline_client): additional kernel parameters
+# MENU_TIMEOUT (menu-timeout): menu milliseconds, 0=forever, -1=hide menu
+# For those clients, :mac:address sections are generated below
 
 :61:6c:6b:69:73:67
-set hostname pc01
-set img live
-goto start
-
-:72:6f:63:6b:73:21
-set hostname pc02
-set cmdline_client nolapic
-goto start
-
-### END LOCAL CONTENT
 
 :start
-# To completely hide the menu, uncomment the next line
-# goto ${img}
+# To completely hide the menu, set menu-timeout to -1
+isset ${menu-timeout} || set menu-timeout 5000
+iseq "${menu-timeout}" "-1" && goto ${img}
 menu iPXE boot menu - ${hostname}:${srv}:${root-path} || goto ${img}
 item --gap                        Boot an image from the network in LTSP mode:
 # item --key 1 images             x86_64

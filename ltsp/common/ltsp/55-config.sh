@@ -89,8 +89,9 @@ BEGIN {
         prefix=tolower(prefix)
         gsub("[^a-z0-9]", "_", prefix)
     }
-    # The sections list, used later on in section_call()
-    list=""
+    # We maintain two lists for sections, to be used later
+    list_sections=""
+    list_cases=""
     # Cope with parameters above all sections, which is a user error
     section_id=prefix "unnamed"
     print section_id "() {\n"\
@@ -108,7 +109,8 @@ if ($0 ~ /^[ ]*\[[^]]*\]/) {  # [Section]
     print section_id "() {\n"\
         "test \"$" section_id "\" = 1 && return 0 || " section_id "=1"
     # Append the appropriate case line
-    list=list "\n            " section ")  " section_id " \"$@\" ;;"
+    list_cases=list_cases "\n            " section ")  " section_id " \"$@\" ;;"
+    list_sections=list_sections "\n" section_id
 } else if (tolower($0) ~ /^include *=/) {  # INCLUDE = xxx
     value=tolower($0)
     sub("include *= *", "", value)
@@ -123,6 +125,11 @@ if ($0 ~ /^[ ]*\[[^]]*\]/) {  # [Section]
 }
 END {
     print "}\n\n"\
+        "# List all sections, to be able to loop over them\n"\
+        prefix "list() {\n"\
+        "    echo \"\\"\
+        list_sections "\"\n"\
+        "}\n\n"\
         "# Example usage: " prefix "call \"unnamed\" \"clients\" \"$MAC\" \"$IP\" \"$lower_hostname\"\n"\
         prefix "call() {\n"\
         "    local section\n"\
@@ -130,7 +137,7 @@ END {
         "    for section in \"$@\"; do\n"\
         "        case \"$section\" in\n"\
         "            unnamed)  " prefix "unnamed \"$@\" ;;"\
-        list\
+        list_cases\
         "\n        esac\n"\
         "    done\n"\
         "}"
@@ -219,30 +226,6 @@ $(awk 'BEGIN { FS=""; }
         }
     }
     ' < /proc/cmdline)"
-}
-
-migrate_local_content() {
-    local old new local_content above_content below_content
-
-    old=$1
-    new=$2
-    test -f "$new" || die "migrate_local_content: $new not found"
-    test -f "$old" || return 0
-    local_content=$(re sed \
-        '/^### BEGIN LOCAL CONTENT/,/^### END LOCAL CONTENT/!d' "$old")
-    test -n "$local_content" || return 0
-    # https://stackoverflow.com/questions/15184358
-    above_content=$(re sed '/^### BEGIN LOCAL CONTENT/,$d' "$new" && echo EOF)
-    above_content="${above_content%
-EOF}"
-    test -n "$above_content" || die "No ### BEGIN LOCAL CONTENT in $new"
-    below_content=$(re sed '1,/^### END LOCAL CONTENT/d' "$new")
-    test -n "$below_content" || die "No ### END LOCAL CONTENT in $new"
-    re cat > "$new" <<EOF
-$above_content
-$local_content
-$below_content
-EOF
 }
 
 # We care about the IP/MAC used to connect to the LTSP server, not all of them
