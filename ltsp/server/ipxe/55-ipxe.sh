@@ -116,6 +116,7 @@ client_sections() {
                         printf '\\nset cmdline_client %s' "$KERNEL_PARAMETERS"
                     test -n "$MENU_TIMEOUT" &&
                         printf '\\nset menu-timeout %s' "$MENU_TIMEOUT"
+                    printf '\\ngoto start'
                 ) || continue
                 unset first
                 ;;

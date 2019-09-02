@@ -26,7 +26,7 @@ goto ${mac} || goto start
 :start
 # To completely hide the menu, set menu-timeout to -1
 isset ${menu-timeout} || set menu-timeout 5000
-iseq "${menu-timeout}" "-1" && goto ${img}
+iseq "${menu-timeout}" "-1" && goto ${img} ||
 menu iPXE boot menu - ${hostname}:${srv}:${root-path} || goto ${img}
 item --gap                        Boot an image from the network in LTSP mode:
 # item --key 1 images             x86_64
