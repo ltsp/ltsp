@@ -300,25 +300,29 @@ mount_file() {
     die "I don't know how to mount $src"
 }
 
-# Overlay src into dst; note that $dst/../up and $dst/../work are created
+# Overlay src and a tmpfs overlay into dst
 # It uses exit_command for umount / rmdir
 overlay() {
-    local src dst dst_par
+    local src dst tmpfs
 
     src=$1
     dst=$2
+    tmpfs=$3
     re test -d "$src"
     re test -d "$dst"
-    # Allow `mount` to show the absolute path of the destination parent
-    dst_par=$(re readlink -f "$dst/..")
-    re test "overlay_dir:$dst_par" != "overlay_dir:/"
+    if [ ! -d "$tmpfs" ]; then
+        re mkdir -p "$tmpfs"
+        exit_command "rw rmdir '$tmpfs'"
+    fi
     if ! grep -q overlay /proc/filesystems; then
         re modprobe overlay
         grep -q overlay /proc/filesystems || die "Could not modprobe overlay"
     fi
-    re mkdir -p "$dst_par/up" "$dst_par/work"
-    exit_command "rw rm -r '$dst_par/up' '$dst_par/work'"
-    warn "Running: mount -t overlay -o upperdir=$dst_par/up,lowerdir=$src,workdir=$dst_par/work overlay $dst"
-    re mount -t overlay -o "upperdir=$dst_par/up,lowerdir=$src,workdir=$dst_par/work" overlay "$dst"
+    re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
+    exit_command "rw umount '$tmpfs'"
+    re mkdir -p "$tmpfs/up" "$tmpfs/work"
+    # tmpfs; no need for: exit_command "rw rm -r '$tmpfs/up' '$tmpfs/work'"
+    warn "Running: mount -t overlay -o upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work overlay $dst"
+    re mount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" overlay "$dst"
     exit_command "rw umount '$dst'"
 }

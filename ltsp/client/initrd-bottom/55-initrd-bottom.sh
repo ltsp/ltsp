@@ -44,7 +44,10 @@ initrd_bottom_main() {
         done
     fi
     test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in $_APPLET"
-    test "$OVERLAY" = "0" || re overlay_root
+    if [ "$OVERLAY" != "0" ]; then
+        re modprobe_overlay
+        re overlay "$rootmnt" "$rootmnt" "/run/initramfs/ltsp"
+    fi
     re install_ltsp
 }
 
@@ -98,12 +101,4 @@ modprobe_overlay() {
             return 0
     fi
     return 1
-}
-
-overlay_root() {
-    re modprobe_overlay
-    re mkdir -p /run/initramfs/ltsp
-    re mount -t tmpfs -o mode=0755 tmpfs /run/initramfs/ltsp
-    re mkdir -p /run/initramfs/ltsp/up /run/initramfs/ltsp/work
-    re mount -t overlay -o upperdir=/run/initramfs/ltsp/up,lowerdir=$rootmnt,workdir=/run/initramfs/ltsp/work overlay "$rootmnt"
 }
