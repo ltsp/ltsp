@@ -12,16 +12,11 @@ additional ltsp.img initrd that is sent when the clients boot.
 To create an initial ltsp.conf, run the following command:
 
 ```shell
-install -m 0600 /usr/share/ltsp/common/ltsp/ltsp.conf /etc/ltsp/ltsp.conf
+install -m 0660 -g sudo /usr/share/ltsp/common/ltsp/ltsp.conf /etc/ltsp/ltsp.conf
 ```
 
-Optionally, you may also change its owner from "root" to yourself, so that
-you can edit that file with a visual editor (e.g. gedit) without running sudo.
-Of course, replace _administrator_ below with your username:
-
-```shell
-chown administrator:administrator /etc/ltsp/ltsp.conf
-```
+The optional `-g sudo` parameter allows users in the sudo group to edit
+ltsp.conf with any editor (e.g. gedit) without running sudo.
 
 ## SYNTAX
 Open and view the /etc/ltsp/ltsp.conf file that you just created, so that it's
@@ -142,7 +137,7 @@ be able to access the Internet in dual NIC setups. But if there's a chance
 that the IP isn't set yet (e.g. disconnected network cable), setting NAT=1
 enforces that.
 
-**PASSWORDS_x=**_"teacher/cXdlcjEyMzQK [a-z][-0-9]*/MTIzNAo= guest[^:]*/"_
+**PASSWORDS_x=**_"teacher/cXdlcjEyMzQK [a-z][-0-9]\*/MTIzNAo= guest[^:]\*/"_
 : A space separated list of regular expressions that match usernames, followed
 by slash and base64-encoded passwords. On boot, `ltsp init` writes those
 passwords for the matching users in /etc/shadow, so that then pamltsp can
@@ -151,7 +146,7 @@ login either in the console or the display manager by just pressing [Enter]
 at the password prompt.<br/>
 Passwords are base64-encoded to prevent over-the-shoulder spying and to
 avoid the need for escaping special characters. To encode a password in
-base64, run `base64 -`, type a single password, and then Ctrl+D.<br/>
+base64, run `base64`, type a single password, and then Ctrl+D.<br/>
 In the example above, the teacher account will automatically use "qwer1234"
 as the password, the a1-01, b1-02 etc students will use "1234", and the
 guest01 etc accounts will be able to use an empty password without even
@@ -212,10 +207,10 @@ AUTOLOGIN=1
 ```
 
 The password above is "pass01" in base64 encoding. To calculate it, the
-`base64 -` command was run in a terminal:
+`base64` command was run in a terminal:
 
 ```shell
-base64 -
+base64
 pass01
 <press Ctrl+D at this point>
 cGFzczAxCg==
