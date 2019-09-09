@@ -38,6 +38,10 @@ img_path_to_name() {
             img_name=${img_path##*/}
             if [ "$img_name" = "" ]; then  # E.g. chrootless
                 img_name=$(re uname -m)
+                case "$img_name" in
+                    # Try to use a common name for all x86 32bit variants
+                    *86) img_name="x86_32" ;;
+                esac
                 warn "Using $img_name as the base name of image $img_path"
             fi
             ;;

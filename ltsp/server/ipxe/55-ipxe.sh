@@ -60,7 +60,6 @@ ipxe_main() {
 To overwrite it, run: ltsp --overwrite $_APPLET ..."
     else
         client_sections=$(re client_sections)
-        echo "$client_sections"
         re install_template "ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe" "\
 s|^/srv/ltsp|$BASE_DIR|g
 s/\(|| set menu-timeout \)5000/$(textif "$MENU_TIMEOUT" "\1$MENU_TIMEOUT" "&")/
