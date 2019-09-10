@@ -21,13 +21,11 @@ local_swap() {
         blkid -o udev -p "${device%%[0-9]*}" | grep -q "^ID_FS_USAGE=raid" &&
             continue
 
-        magic=$(re dd if="$device" bs=4086 skip=1 count=1 2>/dev/null |
-            re dd bs=10 count=1 2>/dev/null) || continue
-
+        magic=$(rw dd if="$device" bs=1 skip=4086 count=10 2>/dev/null)
         if [ "$magic" = "SWAPSPACE2" ] || [ "$magic" = "SWAP-SPACE" ]; then
             # log "Found $device"
             devices="$devices $device"
-            fi
+        fi
     done
 
     for device in $devices; do
