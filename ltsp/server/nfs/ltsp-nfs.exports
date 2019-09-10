@@ -6,10 +6,12 @@
 # Documentation=man:ltsp-nfs(8)
 
 # Export LTSP chroots and images
-/srv/ltsp	*(ro,async,crossmnt,no_subtree_check,no_root_squash)
+/srv/ltsp	*(ro,async,crossmnt,no_subtree_check,no_root_squash,insecure)
 
 # Export TFTP_DIR over NFS as well, for synching local kernels and ltsp.img
-/srv/tftp/ltsp	*(ro,async,crossmnt,no_subtree_check,no_root_squash)
+/srv/tftp/ltsp	*(ro,async,crossmnt,no_subtree_check,no_root_squash,insecure)
 
 # Export home over NFS3; note this is insecure
-#/home		*(rw,async,no_subtree_check)
+# "no_root_squash" is for root epoptes to access /home/user/.Xauthority
+# "insecure" allows access over NAT, e.g. from vbox/kvm virtual clients
+#/home		*(rw,async,no_subtree_check,no_root_squash,insecure)
