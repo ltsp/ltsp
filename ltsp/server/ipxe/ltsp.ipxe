@@ -43,12 +43,12 @@ goto ${img}
 
 :images
 # The "images" method can boot anything in /srv/ltsp/images
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp,timeo=600 ltsp.image=images/${img}.img loop.max_part=9
+set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9
 goto ltsp
 
 :roots
 # The "roots" method can boot all /srv/ltsp/roots
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp/${img},timeo=600
+set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp/${img}
 goto ltsp
 
 :ltsp

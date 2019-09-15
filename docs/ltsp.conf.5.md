@@ -88,7 +88,7 @@ under [clients].
 **DNS_SERVER=**_"8.8.8.8 208.67.222.222"_
 : Specify the DNS servers for the clients.
 
-**FSTAB_x=**_"server:/home /home nfs defaults,nolock 0 0"_
+**FSTAB_x=**_"server:/home /home nfs defaults,nolock,rsize=32768,wsize=32768 0 0"_
 : All parameters that start with FSTAB_ are sorted and then their values
 are written to /etc/fstab at the client init phase.
 
