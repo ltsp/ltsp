@@ -40,7 +40,7 @@ Aborting, please remove the LTSP5 configuration first"
 s|^port=0|$(textif "$DNS" "#&" "&")|
 s|^dhcp-range=set:proxy.*|$(textif "$PROXY_DHCP" "$(proxy_dhcp)" "#&")|
 s|^dhcp-range=192.168.67.20.*|$(textif "$REAL_DHCP" "&" "#&")|
-s|^\(dhcp-option=option:dns-server,\).*|\1${DNS_SERVER:-$(dns_server)}|
+s|^\(dhcp-option=option:dns-server,\).*|\1$(dns_server)|
 s|^\(tftp-root=\).*|\1$TFTP_DIR|
 s|^enable-tftp|$(textif "$TFTP" "&" "#&")|
 "
@@ -50,6 +50,10 @@ s|^enable-tftp|$(textif "$TFTP" "&" "#&")|
 dns_server() {
     local dns_server
 
+    if [ -n "$DNS_SERVER" ]; then
+        echo "$DNS_SERVER" | tr " " ","
+        return 0
+    fi
     dns_server=
     # Jessie doesn't have systemd-resolve
     if is_command systemd-resolve; then
