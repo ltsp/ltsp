@@ -93,7 +93,8 @@ proxy_dhcp() {
                 test "$cidr" != "${cidr#*/}" || continue
                 netmask=$(length_to_netmask "${cidr#*/}")
                 # echo in dash translates "\n", use printf to keep it
-                echo "${separator}dhcp-range=set:proxy,$subnet,proxy,$netmask"
+                printf "%sdhcp-range=set:proxy,%s,proxy,%s" \
+                    "${separator}" "$subnet" "$netmask"
                 # Insert a separator only after the first line
                 separator="\n"
                 ;;
