@@ -188,13 +188,7 @@ EOF
 }
 
 pam_log() {
-    # TODO: remove logging in production
-    {
-        id
-        env
-        ps faux
-        grep home /proc/self/mountinfo
-    } >"/tmp/pam_$PAM_TYPE.$$"
+    return 0
 }
 
 pam_session() {

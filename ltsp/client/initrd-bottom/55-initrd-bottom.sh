@@ -22,6 +22,7 @@ initrd_bottom_main() {
 
     warn "Running $0"
     kernel_vars
+    re set_readahead "$rootmnt"
     if [ -n "$IMAGE" ]; then
         img_src=$IMAGE
         # If it doesn't start with slash, it's relative to $rootmnt
@@ -29,6 +30,7 @@ initrd_bottom_main() {
             img_src="$rootmnt/$img_src"
         fi
         re mount_img_src "$img_src" "$rootmnt"
+        re set_readahead "$rootmnt"
     elif [ ! -d "$rootmnt/proc" ]; then
         die "$rootmnt/proc doesn't exist and ltsp.image wasn't specified"
     fi
@@ -40,6 +42,7 @@ initrd_bottom_main() {
             if [ -f "$img_src" ]; then
                 warn "Running: mount -t squashfs -o ro $img_src $rootmnt"
                 re mount -t squashfs -o ro "$img_src" "$rootmnt"
+                re set_readahead "$rootmnt"
             fi
         done
     fi

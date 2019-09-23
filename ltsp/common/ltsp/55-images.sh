@@ -330,3 +330,31 @@ overlay() {
     re mount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" overlay "$dst"
     exit_command "rw umount '$dst'"
 }
+
+# Most file systems use 128 KB readahead. NFS had a bug and used 15 MB.
+# In LTSP, we want all network file systems to use only 4 KB readahead,
+# as it lowers the network traffic to about half.
+# I.e. NFS, NBD, SSHFS, and loop devices.
+# https://github.com/ltsp/ltsp/issues/27#issuecomment-533976774
+set_readahead() {
+    local mpoint devs dev rakf
+
+    mpoint=$1
+    if [ -n "$mpoint" ]; then
+        devs=$(rw awk '$5 =="'"$mpoint"'" { print $3 }' </proc/self/mountinfo)
+    else
+        devs=$(rw awk '/^v[0-9]/ { print $4 }' </proc/fs/nfsfs/volumes)
+    fi
+    for dev in $devs; do
+        for rakf in \
+            "/sys/class/bdi/$dev/read_ahead_kb" \
+            "/sys/dev/block/$dev/../bdi/read_ahead_kb"
+        do
+            test -e "$rakf" || continue
+            read -r rak <"$rakf"
+            test "$rak" != ${READ_AHEAD_KB:-4} || continue
+            echo "${READ_AHEAD_KB:-4}" >"$rakf"
+            break
+        done
+    done
+}

@@ -1,10 +1,10 @@
-# This file is part of Epoptes, http://epoptes.org
-# Copyright 2018 the Epoptes team, see AUTHORS.
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 [Unit]
 Description=LTSP startup tasks
 Documentation=man:ltsp-service(8)
-After=network-online.target
+After=network-online.target home.mount
 Wants=network-online.target
 
 # Parts copied from rc-local.service

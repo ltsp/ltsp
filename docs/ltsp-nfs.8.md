@@ -27,7 +27,7 @@ follow symlinks outside of an export. Start by putting this line in
 /etc/ltsp/ltsp.conf under the [clients] section:
 
 ```shell
-FSTAB_NFS="server:/home/nfs /home nfs defauls,nolock,rsize=32768,wsize=32768 0 0"
+FSTAB_NFS="server:/home/nfs /home nfs defaults,nolock 0 0"
 ```
 
 Then run the following commands:

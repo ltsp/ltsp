@@ -24,6 +24,8 @@ service_cmdline() {
 service_main() {
     disable_flow_control
     enable_nat
+    rw cp /proc/self/mountinfo /tmp/mountinfo
+    set_readahead
 }
 
 # We want to disable flow control in all interfaces, as all of them might
