@@ -75,6 +75,11 @@ install_ltsp() {
     # Symlink the service
     re ln -sf ../../../usr/share/ltsp/common/service/ltsp.service "$rootmnt/lib/systemd/system/ltsp.service"
     re ln -sf ../ltsp.service "$rootmnt/lib/systemd/system/multi-user.target.wants/ltsp.service"
+    # Copy our modules configuration
+    if [ -f /etc/modprobe.d/ltsp.conf ] && [ -d "$rootmnt/etc/modprobe.d" ]
+    then
+        re cp -a /etc/modprobe.d/ltsp.conf "$rootmnt/etc/modprobe.d/"
+    fi
     # To avoid specifying an init=, we override the real init.
     # We can't mount --bind as it's in use by libraries and can't be unmounted.
     re mv "$rootmnt/sbin/init" "$rootmnt/sbin/init.ltsp"

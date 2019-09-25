@@ -337,7 +337,7 @@ overlay() {
 # I.e. NFS, NBD, SSHFS, and loop devices.
 # https://github.com/ltsp/ltsp/issues/27#issuecomment-533976774
 set_readahead() {
-    local mpoint devs dev rakf
+    local mpoint devs dev rakf rak
 
     mpoint=$1
     if [ -n "$mpoint" ]; then
@@ -352,7 +352,7 @@ set_readahead() {
         do
             test -e "$rakf" || continue
             read -r rak <"$rakf"
-            test "$rak" != ${READ_AHEAD_KB:-4} || continue
+            test "$rak" != "${READ_AHEAD_KB:-4}" || continue
             echo "${READ_AHEAD_KB:-4}" >"$rakf"
             break
         done
