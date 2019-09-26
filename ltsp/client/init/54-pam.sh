@@ -21,7 +21,7 @@ pam_main() {
     for userpass in $userpass; do
         user=${userpass%%/*}
         pass=${userpass##*/}
-        if [ -n "$user" ] && re grep -q "^$user:pamltsp" /etc/shadow; then
+        if [ -n "$user" ] && grep -q "^$user:pamltsp" /etc/shadow; then
             re sed "s/^\($user:pamltsp\)[^:]*/\1=$pass/" -i /etc/shadow
         else
             warn "No shadow entries found for user regexp: $user"
