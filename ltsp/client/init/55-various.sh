@@ -6,8 +6,6 @@
 # @LTSP.CONF: FSTAB_x IGNORE_EPOPTES
 
 various_main() {
-    local var home_dir
-
     # initrd-bottom may have renamed the real init
     if [ -f /sbin/init.ltsp ]; then
         re rm /sbin/init

@@ -18,14 +18,12 @@
 # 7) user: cmdline `ltsp ... --VAR=value`, evaluated at the execution phase
 # Btw, to see all constants: grep -rIwoh '$[A-Z][_A-Z0-9]*' | sort -u
 
-# Distributions should replace "1.0" below at build time using `sed`
-_VERSION="1.0"
 BASE_DIR=${BASE_DIR:-/srv/ltsp}
 TFTP_DIR=${TFTP_DIR:-/srv/tftp}
 HOME_DIR=${HOME_DIR:-/home}
 
 ltsp_cmdline() {
-    local show_help help_param args cap_applet
+    local show_help help_param args
 
     show_help=0
     help_param=

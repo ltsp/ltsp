@@ -65,6 +65,18 @@ eval_ini() {
     fi
 }
 
+# Replace % with $ and then eval the resulting string.
+# In some cases we need strings with variables like
+# LTSPDM_USERS="(guest|[ab][0-9]-)%{HOSTNAME#pc}"
+# ...but have the variables evaluated later, not at assignment time.
+eval_percent() {
+    # Use cat <<EOF to process $ while allowing single/double quotes
+    eval "cat <<EOF
+$(echo "$*" | tr '%' '$')
+EOF
+"
+}
+
 # Convert an .ini file, like ltsp.conf, to a shell sourceable file.
 # The basic ideas are:
 # [a1:b2:c3:d4:*:*] becomes a function: section_a1_b2_c3_d4____() {

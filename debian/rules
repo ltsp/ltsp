@@ -21,7 +21,7 @@ override_dh_auto_configure:
 
 override_dh_install:
 	dh_install --exclude _.git
-	sed "s/^\(_VERSION=\).*/\1'$(DEB_VERSION)'/" -i "$(CURDIR)"/debian/ltsp/usr/share/ltsp/common/ltsp/55-ltsp.sh
+	sed "s/^\(_VERSION=\).*/\1'$(DEB_VERSION)'/" -i "$(CURDIR)"/debian/ltsp/usr/share/ltsp/ltsp
 	mkdir -p "$(CURDIR)/debian/ltsp/lib/systemd/system/multi-user.target.wants"
 	# Debian policy mandates the use of absolute symlinks there:
 	# https://www.debian.org/doc/debian-policy/ch-files.html#symbolic-links

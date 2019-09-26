@@ -17,7 +17,7 @@ cron_main() {
 
     # Disable several cronjobs that are usually present but that
     # cause unnecessary load.
-    while read var; do
+    while read -r var; do
         rm -f "$var"
     done <<EOF
 /etc/cron.d/popularity-contest

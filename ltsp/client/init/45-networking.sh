@@ -223,7 +223,7 @@ import_ipconfig() {
 
     test -f "/run/net-$DEVICE.conf" || return 0
     # Fetch the variables but prefix IPCONFIG_ in them
-    eval "$(sed 's/^[[:alpha:]]/IPCONFIG_&/' /run/net-$DEVICE.conf)" ||
+    eval "$(sed 's/^[[:alpha:]]/IPCONFIG_&/' "/run/net-$DEVICE.conf")" ||
         die "Error sourcing /run/net-$DEVICE.conf"
     if [ -z "$DNS_SERVER" ]; then
        for var in $IPCONFIG_IPV4DNS0 $IPCONFIG_IPV4DNS1; do

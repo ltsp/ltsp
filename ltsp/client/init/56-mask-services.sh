@@ -17,7 +17,7 @@ exclude_kept_services() {
 
     keep_services=$1; shift
     # Allow multiple services in the same line; remove comments
-    echo "$@" | sed 's/#.*//' | tr ' ' '\n' | while read service; do
+    echo "$@" | sed 's/#.*//' | tr ' ' '\n' | while read -r service; do
         test -n "$service" || continue
         case " $keep_services " in
             *" $service "*)
