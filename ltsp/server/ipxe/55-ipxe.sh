@@ -91,6 +91,8 @@ s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
 client_sections() {
     local section mac first
 
+    # If ltsp.conf doesn't exist, there's no section_list
+    is_command section_list || return 0
     first=1
     for section in $(section_list); do
         # We only care about mac address sections
