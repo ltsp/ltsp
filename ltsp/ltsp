@@ -9,8 +9,8 @@
 # Internal global variables are uppercased and begin with underscores
 # Distributions should replace "1.0" below at build time using `sed`
 _VERSION="1.0"
-_NL=$(printf "\n")
-_TAB=$(printf "\t")
+_NL="
+"
 
 # Execution sequence:
 # This main() > source common/ltsp/* (and config/vendor overrides)
