@@ -10,9 +10,9 @@ pam_main() {
 
     re "$_LTSP_DIR/client/login/pwmerge" \
         ${PWMERGE_SUR:+"--sur=$PWMERGE_SUR"} \
-        ${PWMERGE_SGR:+"--sur=$PWMERGE_SGR"} \
-        ${PWMERGE_DUR:+"--sur=$PWMERGE_DUR"} \
-        ${PWMERGE_DGR:+"--sur=$PWMERGE_DGR"} \
+        ${PWMERGE_SGR:+"--sgr=$PWMERGE_SGR"} \
+        ${PWMERGE_DUR:+"--dur=$PWMERGE_DUR"} \
+        ${PWMERGE_DGR:+"--dgr=$PWMERGE_DGR"} \
         -lq /etc/ltsp /etc /etc
     re "$_LTSP_DIR/client/login/pamltsp" install
     userpass=$(re echo_values "PASSWORDS_[[:alnum:]_]*")
