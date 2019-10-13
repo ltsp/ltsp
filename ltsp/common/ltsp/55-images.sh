@@ -327,7 +327,7 @@ overlay() {
     re mkdir -p "$tmpfs/up" "$tmpfs/work"
     # tmpfs; no need for: exit_command "rw rm -r '$tmpfs/up' '$tmpfs/work'"
     warn "Running: mount -t overlay -o upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work overlay $dst"
-    re mount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" overlay "$dst"
+    re mount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" "$tmpfs" "$dst"
     exit_command "rw umount '$dst'"
 }
 
