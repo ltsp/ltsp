@@ -9,6 +9,7 @@ Standards-Version: 4.4.0.1
 Vcs-Git: https://github.com/ltsp/ltsp.git
 Vcs-Browser: https://github.com/ltsp/ltsp/
 Homepage: https://ltsp.github.io
+Rules-Requires-Root: no
 
 Package: ltsp
 # Try to keep dependencies to what's there in plain `debootstrap`,
