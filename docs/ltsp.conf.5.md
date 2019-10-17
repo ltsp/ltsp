@@ -3,7 +3,7 @@
 
 ## SYNOPSIS
 The LTSP client configuration file is placed at `/etc/ltsp/ltsp.conf`
-and it losely follows the .ini format. It is able to control various
+and it loosely follows the .ini format. It is able to control various
 settings of the LTSP server and clients. After each ltsp.conf modification,
 the `ltsp initrd` command needs to be run so that it's included in the
 additional ltsp.img initrd that is sent when the clients boot.
