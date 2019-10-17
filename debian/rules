@@ -19,6 +19,9 @@ export DH_VERBOSE=1
 override_dh_auto_configure:
 	cd docs; ./Makefile.sh; cd -
 
+override_dh_installinit:
+	dh_installinit --no-scripts
+
 override_dh_install:
 	dh_install --exclude _.git
 	sed "s/^\(_VERSION=\).*/\1'$(DEB_VERSION)'/" -i "$(CURDIR)"/debian/ltsp/usr/share/ltsp/ltsp
