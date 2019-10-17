@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian LTSP Maintainers <team+ltsp@tracker.debian.org>
 Uploaders: Vagrant Cascadian <vagrant@debian.org>, Alkis Georgopoulos <alkisg@gmail.com>
 Build-Depends: debhelper (>= 9),
-  ruby-ronn | go-md2man
+  ronn | ruby-ronn (<< 0.7.3-5.1) | go-md2man,
 Standards-Version: 4.4.0.1
 Vcs-Git: https://github.com/ltsp/ltsp.git
 Vcs-Browser: https://github.com/ltsp/ltsp/
