@@ -25,13 +25,11 @@ override_dh_installinit:
 override_dh_install:
 	dh_install --exclude _.git
 	sed "s/^\(_VERSION=\).*/\1'$(DEB_VERSION)'/" -i "$(CURDIR)"/debian/ltsp/usr/share/ltsp/ltsp
-	mkdir -p "$(CURDIR)/debian/ltsp/lib/systemd/system/multi-user.target.wants"
-	# Debian policy mandates the use of absolute symlinks there:
-	# https://www.debian.org/doc/debian-policy/ch-files.html#symbolic-links
-	# And then lintian complains:
-	# https://lintian.debian.org/tags/service-file-is-not-a-file.html
-	ln -s "../../../usr/share/ltsp/common/service/ltsp.service" "$(CURDIR)/debian/ltsp/lib/systemd/system/ltsp.service"
-	ln -s "../ltsp.service" "$(CURDIR)/debian/ltsp/lib/systemd/system/multi-user.target.wants/ltsp.service"
+	cp ltsp/common/service/ltsp.service debian/
 	mkdir -p "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks"
 	# hooks/ltsp conflicts with ltsp-client-core
 	cp -a "$(CURDIR)/debian/ltsp.initramfs-hook" "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks/ltsp-next"
+
+override_dh_clean:
+	rm -f debian/ltsp.service
+	dh_clean
