@@ -18,14 +18,14 @@ Depends: ${misc:Depends},
   procps,
   python3,
   sshfs,
-  systemd
+  systemd,
 Suggests: dnsmasq,
   epoptes,
   ethtool,
   net-tools,
   nfs-kernel-server,
   openssh-server,
-  squashfs-tools
+  squashfs-tools,
 Architecture: all
 Description: Linux Terminal Server Project
  Make an installation able to netboot as an LTSP client.
