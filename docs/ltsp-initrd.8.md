@@ -11,7 +11,7 @@ client code from /usr/share/ltsp/{client,common} and everything under
 the server users and groups lists (passwd/group) and public SSH keys.
 LTSP clients receive this initrd in addition to their usual one.
 
-This means that whenever you add new uses or edit **ltsp.conf(5)**,
+This means that whenever you add new users or edit **ltsp.conf(5)**,
 you need to run `ltsp initrd` to update **ltsp.img**, and reboot the clients.
 
 It also means that you can very easily put template xorg.conf or sshfs
