@@ -1,3 +1,44 @@
+ltsp (19.10-1) experimental; urgency=medium
+
+  [ Alkis Georgopoulos ]
+  * Correct typo, x64_32 => x86_32
+  * Enhance install/base64 commands in ltsp.conf
+  * Use x86_32 in iPXE for all x86 32bit variants
+  * Avoid dd/swap boot block on small extended partitions
+  * Use no_root_squash for NFS3 (#25)
+  * Use timeo=600 to avoid nfsmount lags (#27)
+  * Use rsize=32768,wsize=32768 instead of timeo=600 (#27)
+  * Use commas in ltsp-dnsmasq.conf dns-server option (#28)
+  * Avoid `ltsp dnsmasq` failing on multiple proxy subnets (#30)
+  * Set read_ahead_kb=4 for network mounts (#27)
+  * Blacklist floppy module (#32)
+  * Make user accounts available before 55-
+  * Customize the greeter user list (#33)
+  * Avoid section_list: not found warning (#36)
+  * Correctly set _NL
+  * Add dhcpcd to MASK_SYSTEM_SERVICES
+
+  [ DI FH Markus Kienast ]
+  * Fix PWMERGE_(SGR|DUR|DGR) (#42)
+
+  [ Alkis Georgopoulos ]
+  * Make snaps run (#44)
+
+  [ Vagrant Cascadian ]
+  * docs/ltsp.conf.5.md: Fix spelling of "loosely".
+  * debian/control:
+    - Build-Depends: Prefer "ronn" over "ruby-ronn".
+    - Update Standards-Version to 4.4.1.
+    - Set Rules-Requires-Root to "no".
+  * debian/rules:
+    - Override dh_installinit to not add init script snippets.
+    - Copy ltsp.service file into debian/ and to allow dh_installsystemd
+      to work correctly.
+  * Fix typo in ltsp-initrd man page.
+  * Fix debian/watch file.
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Sat, 19 Oct 2019 13:23:20 -0700
+
 ltsp (19.09-1) unstable; urgency=low
 
   * Customize ltsp.ipxe from ltsp.conf parameters (#14)
