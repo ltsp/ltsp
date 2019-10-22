@@ -66,12 +66,13 @@ list_img_names() {
     # chroots, VMs, exported images
     local listc listv listi img_path img_names
 
-    test "$#" -ne 0 || set -- -c -v -i
+    test "$#" -ne 0 || set -- -c -v -i -m
     while [ -n "$1" ]; do
         case "$1" in
             -c) listc=1 ;;
             -v) listv=1 ;;
             -i) listi=1 ;;
+            -m) listm=1 ;;
             *)  die "Error in list_all_images"
         esac
         shift
@@ -91,6 +92,12 @@ list_img_names() {
         fi
         if [ "$listi" = "1" ]; then
             for img_path in "$BASE_DIR/images/"*.img; do
+                test -f "$img_path" || continue
+                img_path_to_name "$img_path"
+            done
+        fi
+        if [ "$listm" = "1" ]; then
+            for img_path in "$BASE_DIR/cmdline_boot_method/"*; do
                 test -f "$img_path" || continue
                 img_path_to_name "$img_path"
             done
