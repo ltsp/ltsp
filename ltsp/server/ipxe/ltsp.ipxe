@@ -41,19 +41,27 @@ item --key x exit                 Exit iPXE and continue BIOS boot
 choose --timeout ${menu-timeout} --default ${img} img || goto cancel
 goto ${img}
 
+:cmdline_boot_method
+# If CMDLINE_BOOT_METHOD is set in ltsp.conf, the selection of an LTSP image in
+# the menu will execute this target. You can use ${img} in CMDLINE_BOOT_METHOD
+# to allow different images to be selected with the same CMDLINE_BOOT_METHOD.
+# See Ceph/RBD example in ltsp.conf.
+set cmdline_boot_method CMDLINE_BOOT_METHOD
+goto ltsp
+
 :images
 # The "images" method can boot anything in /srv/ltsp/images
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9
+set cmdline_boot_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9
 goto ltsp
 
 :roots
 # The "roots" method can boot all /srv/ltsp/roots
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp/${img}
+set cmdline_boot_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp/${img}
 goto ltsp
 
 :ltsp
-# :images and :roots jump here after setting cmdline_method
-set cmdline ${cmdline_method} ${cmdline_ltsp} ${cmdline_client}
+# :images and :roots jump here after setting cmdline_boot_method
+set cmdline ${cmdline_boot_method} ${cmdline_ltsp} ${cmdline_client}
 # In EFI mode, iPXE requires initrds to be specified in the cmdline
 kernel /ltsp/${img}/vmlinuz initrd=ltsp.img initrd=initrd.img ${cmdline}
 initrd /ltsp/ltsp.img

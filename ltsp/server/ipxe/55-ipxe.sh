@@ -28,7 +28,7 @@ ipxe_cmdline() {
 }
 
 ipxe_main() {
-    local key items gotos r_items r_gotos img_name title client_sections binary
+    local key items gotos r_items r_gotos img_name title client_sections binary sedp
 
     # Prepare the menu text for all images and chroot
     key=0
@@ -60,14 +60,22 @@ ipxe_main() {
 To overwrite it, run: ltsp --overwrite $_APPLET ..."
     else
         client_sections=$(re client_sections)
-        re install_template "ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe" "\
+        sedp = "\
 s|^/srv/ltsp|$BASE_DIR|g
 s/\(|| set menu-timeout \)5000/$(textif "$MENU_TIMEOUT" "\1$MENU_TIMEOUT" "&")/
 s|^:61:6c:6b:69:73:67\$|$(textif "$client_sections" "$client_sections" "&")|
 s|^#.*item.*\bimages\b.*|$(textif "$items$r_items" "$items\n$r_items" "&")|
-s|^:images\$|$(textif "$items" "$gotos" "&")|
 s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
 "
+
+        if [ -z "$CMDLINE_BOOT_METHOD" ] ; then
+          sedp = "$sedp
+s|^:images\$|$(textif "$items" "$gotos" "&")|"
+        else
+          sedp = "$sedp
+s|^:cmdline_boot_method\$|$(textif "$items" "$gotos" "&")|"
+
+        re install_template "ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe" $sedp
     fi
     if [ "$BINARIES" != "0" ]; then
         # Prefer memtest.0 from ipxe.org over the one from distributions:
@@ -129,4 +137,3 @@ ipxe_name() {
     echo "$*" |
         awk '{ var=toupper($0); gsub("[^A-Z0-9]", "_", var); print "IPXE_" var }'
 }
-
