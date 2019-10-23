@@ -53,7 +53,7 @@ each case.
 
 **AUTOLOGIN=**_"user01"_<br/>
 **RELOGIN=**_0|1_<br/>
-**GDM3_CONF=**_"WaylandEnable=false"_<br/>
+**GDM3\_CONF=**_"WaylandEnable=false"_<br/>
 **LIGHTDM_CONF=**_"greeter-hide-users=true"_<br/>
 **SDDM_CONF=**_"/etc/ltsp/sddm.conf"_<br/>
 : Configure the display manager to log in this user automatically.
