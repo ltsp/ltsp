@@ -32,4 +32,6 @@ info_main() {
     list_img_names -v
     printf "\nIMAGES:\n"
     list_img_names -i
+    printf "\nCMDLINE_BOOT_METHODS:\n"
+    list_img_names -m
 }

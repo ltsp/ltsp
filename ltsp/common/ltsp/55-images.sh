@@ -98,7 +98,7 @@ list_img_names() {
         fi
         if [ "$listm" = "1" ]; then
             for img_path in "$BASE_DIR/cmdline_boot_method/"*; do
-                test -f "$img_path" || continue
+                test -d "$img_path" || continue
                 img_path_to_name "$img_path"
             done
         fi
