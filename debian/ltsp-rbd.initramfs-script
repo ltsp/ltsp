@@ -1,0 +1,225 @@
+# This file is part of LTSP, https://ltsp.github.io
+# Originally written by Paul Emmerich, emmericp@net.in.tum.de
+# Extended and adapted for LTSP by Markus Kienast, mark@trickkiste.at
+# Based on the initramfs-tools nfs script.
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Inject LTSP code under initramfs-tools
+
+# RBD root mounting			-*- shell-script -*-
+
+
+rbd_top()
+{
+	if [ "${rbd_top_used}" != "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/rbd-top"
+		run_scripts /scripts/rbd-top
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	rbd_top_used=yes
+}
+
+rbd_premount()
+{
+	if [ "${rbd_premount_used}" != "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/rbd-premount"
+		run_scripts /scripts/rbd-premount
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	rbd_premount_used=yes
+}
+
+rbd_bottom()
+{
+	if [ "${rbd_premount_used}" = "yes" ] || [ "${rbd_top_used}" = "yes" ]; then
+		[ "$quiet" != "y" ] && log_begin_msg "Running /scripts/rbd-bottom"
+		run_scripts /scripts/rbd-bottom
+		[ "$quiet" != "y" ] && log_end_msg
+	fi
+	rbd_premount_used=no
+	rbd_top_used=no
+}
+
+# parse rbd bootargs and mount rbd
+rbd_map_root_impl()
+{
+	configure_networking
+
+	# get rbd root from dhcp
+	if [ "x${RBDROOT}" = "xauto" ]; then
+		RBDROOT=${ROOTPATH}
+	fi
+
+	local mons user key pool image snap partition
+
+	# rbdroot=<mons>:<user>:<key>:<pool>:<image>[@<snapshot>]:[<partition>]:[<mountopts>]
+	if [ -n "${RBDROOT}" ]; then
+		local i=1
+		local OLD_IFS=${IFS}
+		IFS=":"
+		for arg in ${RBDROOT} ; do
+			case ${i} in
+				1)
+					mons=$(echo ${arg} | tr ";" ":")
+					;;
+				2)
+					user=${arg}
+					;;
+				3)
+					key=${arg}
+					;;
+				4)
+					pool=${arg}
+					;;
+				5)
+					# image contains an @, i.e. a snapshot
+					if [ ${arg#*@*} != ${arg} ] ; then
+						image=${arg%%@*}
+						snap=${arg##*@}
+					else
+						image=${arg}
+						snap=""
+					fi
+					;;
+				6)
+					partition=${arg}
+					;;
+				7)
+				  mountopts=${arg}
+					;;
+			esac
+			i=$((${i} + 1))
+		done
+		IFS=${OLD_IFS}
+	fi
+
+	# the kernel will reject writes to add if add_single_major exists
+	local rbd_bus
+	if [ -e /sys/bus/rbd/add_single_major ]; then
+		rbd_bus=/sys/bus/rbd/add_single_major
+	elif [ -e /sys/bus/rbd/add ]; then
+		rbd_bus=/sys/bus/rbd/add
+	else
+		echo "ERROR: /sys/bus/rbd/add does not exist"
+		return 1
+	fi
+
+  ### FIXME: this must not repeat if successful but mount fails for some reason
+
+	# tell the kernel rbd client to map the block device
+	echo "${mons} name=${user},secret=${key} ${pool} ${image} ${snap}" > ${rbd_bus}
+	# figure out where the block device appeared
+	dev=$(ls /dev/rbd* | grep '/dev/rbd[0-9]*$' | tail -n 1)
+	# add partition if set
+	if [ ${partition} ]; then
+		dev=${dev}p${partition}
+	fi
+}
+
+rbd_mount_root_impl()
+{
+	if [ ${readonly} = y ]; then
+		roflag="-r"
+	else
+		roflag="-w"
+	fi
+
+	if [[ ! -z "$mountopts" ]] ; then
+		mountopts="-o $mountopts"
+	fi
+
+	# get the root filesystem type if not set
+	if [ -z "${ROOTFSTYPE}" ]; then
+		FSTYPE=$(get_fstype "${dev}")
+	else
+		FSTYPE=${ROOTFSTYPE}
+	fi
+
+	rbd_premount
+
+	# mount the fs
+	modprobe ${FSTYPE}
+	echo "EXECUTING: \"mount -t ${FSTYPE} ${roflag},${mountopts} $dev ${rootmnt}\""
+	mount -t ${FSTYPE} ${roflag} ${mountopts} $dev ${rootmnt}
+
+}
+
+
+# RBD root mounting
+rbd_mount_root()
+{
+
+	export RBDROOT=
+
+	# Parse command line options for rbdroot option
+	for x in $(cat /proc/cmdline); do
+		case $x in
+		rbdroot=*)
+			RBDROOT="${x#rbdroot=}"
+			;;
+		esac
+	done
+
+	rbd_top
+
+	modprobe rbd
+	# For DHCP
+	modprobe af_packet
+
+	wait_for_udev 10
+
+	# Default delay is around 180s
+	delay=${ROOTDELAY:-120}
+
+	# loop until rbd mount succeeds
+	rbd_map_root_impl
+	rbd_map_retry_count=0
+	while [ ${rbd_map_retry_count} -lt ${delay} ] \
+		&& [[ -z "$dev" ]] ; do
+		[ "$quiet" != "y" ] && log_begin_msg "Retrying rbd map"
+		/bin/sleep 1
+		rbd_map_root_impl
+		rbd_map_retry_count=$(( ${rbd_map_retry_count} + 1 ))
+		[ "$quiet" != "y" ] && log_end_msg
+	done
+
+  if [ -z "$dev" ] ; then
+		echo "ERROR: RBD could not be mapped"
+		return 1
+	fi
+
+	# loop until rbd mount succeeds
+	rbd_mount_root_impl
+	rbd_mount_retry_count=0
+	while [ ${rbd_mount_retry_count} -lt ${delay} ] \
+		&& ! chroot "${rootmnt}" test -x "${init}" ; do
+		[ "$quiet" != "y" ] && log_begin_msg "Retrying rbd mount"
+		/bin/sleep 1
+		rbd_mount_root_impl
+		rbd_mount_retry_count=$(( ${rbd_mount_retry_count} + 1 ))
+		[ "$quiet" != "y" ] && log_end_msg
+	done
+}
+
+mountroot()
+{
+	rbd_mount_root
+}
+
+mount_top()
+{
+	# Note, also called directly in case it's overridden.
+	rbd_top
+}
+
+mount_premount()
+{
+	# Note, also called directly in case it's overridden.
+	rbd_premount
+}
+
+mount_bottom()
+{
+	# Note, also called directly in case it's overridden.
+	rbd_bottom
+}
