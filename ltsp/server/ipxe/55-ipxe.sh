@@ -60,7 +60,7 @@ ipxe_main() {
       eval "boot_method=\$${boot_method_var}"
       eval "boot_method_name=\$${boot_method_var}_NAME"
       boot_method_target=$(ipxe_lowercase ${boot_method_var})
-      methods="${methods}${boot_method_target}:\nset cmdline_boot_method $boot_method \&\& goto ltsp\n"
+      methods="${methods}:${boot_method_target}\nset cmdline_boot_method $boot_method \&\& goto ltsp\n"
       items="${items:+"$items\n"}$(printf "item --gap %s" "$boot_method_name")"
       boot_names=$(re list_boot_names $BASE_DIR/$subdir)
       set -- $boot_names
@@ -75,7 +75,7 @@ ipxe_main() {
         else
           items="${items:+"$items\n"}$(printf "item%s %-28s %s" "$is_default" "$((key%10))" "$item_label" "$title")"
         fi
-        gotos="$gotos:${item_label}:\nset img $boot_name \&\& goto ${boot_method_target}\n"
+        gotos="$gotos:${item_label}\nset img $boot_name \&\& goto ${boot_method_target}\n"
 
       done
     done
