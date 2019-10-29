@@ -73,7 +73,7 @@ goto ltsp
 ```
 
 The ${img} parameter is the name of the menu; it would be "ubuntu" if you
-copied ubuntu.iso in /srv/ltsp/images/ubuntu.img and ran `ltsp -o ipxe`.
+copied ubuntu.iso in /srv/ltsp/images/ubuntu.img and ran `ltsp ipxe`.
 
 ## EXAMPLES
 Initial use:
@@ -85,13 +85,13 @@ ltsp ipxe
 Regenerate ltsp.ipxe and redownload the binaries:
 
 ```shell
-ltsp -o ipxe -b
+ltsp ipxe -b
 ```
 
 Force downgrading to an older version of the binaries:
 
 ```shell
-ltsp -o ipxe -b -u 'https://github.com/ltsp/binaries/releases/download/v19.07'
+ltsp ipxe -b -u 'https://github.com/ltsp/binaries/releases/download/v19.07'
 ```
 
 Copy the binaries from a USB stick before running ltsp ipxe:

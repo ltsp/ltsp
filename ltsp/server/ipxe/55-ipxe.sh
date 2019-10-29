@@ -55,7 +55,7 @@ ipxe_main() {
         r_gotos=":r_$img_name\nset img $img_name \&\& goto roots\n$r_gotos"
     done
     re mkdir -p "$TFTP_DIR/ltsp"
-    if [ "$OVERWRITE" != "1" ] && [ -f "$TFTP_DIR/ltsp/ltsp.ipxe" ]; then
+    if [ "$OVERWRITE" = "0" ] && [ -f "$TFTP_DIR/ltsp/ltsp.ipxe" ]; then
         warn "Configuration file already exists: $TFTP_DIR/ltsp/ltsp.ipxe
 To overwrite it, run: ltsp --overwrite $_APPLET ..."
     else

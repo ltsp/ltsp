@@ -169,7 +169,7 @@ install_template() {
     src=$1
     dst=$2
     sedp=$3
-    if [ -e "$dst" ] && [ "$OVERWRITE" != "1" ]; then
+    if [ -e "$dst" ] && [ "$OVERWRITE" = "0" ]; then
         die "Configuration file already exists: $dst
 To overwrite it, run: ltsp --overwrite $_APPLET ..."
     fi

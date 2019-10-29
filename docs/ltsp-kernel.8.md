@@ -28,7 +28,7 @@ location, without using symlinks, and then update kernels and ipxe:
 ```shell
 mv xubuntu-18.04-desktop-amd64.iso /srv/ltsp/images/xubuntu-18.04.img
 ltsp kernel xubuntu-18.04
-ltsp -o ipxe  # note, this overwrites ltsp.ipxe
+ltsp ipxe
 ```
 
 If you reboot your clients, they'll now have the option to boot with the
@@ -44,7 +44,7 @@ You can also do this with virtual machine images! For example:
     mv ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-vm.img
     ln -rs /srv/ltsp/images/debian-vm.img ~/VirtualBox\ VMs/debian/debian-flat.vmdk
     ltsp kernel debian-vm
-    ltsp -o ipxe  # note, this overwrites ltsp.ipxe
+    ltsp ipxe
 ```
 
 These commands move your "debian" VM to the LTSP images directory, symlink
