@@ -23,10 +23,14 @@ TFTP_DIR=${TFTP_DIR:-/srv/tftp}
 HOME_DIR=${HOME_DIR:-/home}
 
 ltsp_cmdline() {
-    local show_help help_param args
+    local show_help help_param base_dir home_dir overwrite tftp_dir args
 
     show_help=0
     help_param=
+    base_dir=
+    home_dir=
+    overwrite=
+    tftp_dir=
     # No getopt in the initramfs; avoid it if $1 isn't an option
     if [ "${1#-}" != "$1" ]; then
         args=$(re getopt -n "ltsp" -o "+b:h::m:o::t:V" -l \
@@ -34,11 +38,11 @@ ltsp_cmdline() {
         eval "set -- $args"
         while true; do
             case "$1" in
-                -b|--base-dir) shift; BASE_DIR=$1 ;;
+                -b|--base-dir) shift; BASE_DIR=$1; base_dir=$1 ;;
                 -h|--help) shift; help_param=$1; show_help=1 ;;
-                -m|--home-dir) shift; HOME_DIR=$1 ;;
-                -o|--overwrite) shift; OVERWRITE=${1:-1} ;;
-                -t|--tftp-dir) shift; TFTP_DIR=$1; ;;
+                -m|--home-dir) shift; HOME_DIR=$1; home_dir=$1 ;;
+                -o|--overwrite) shift; OVERWRITE=${1:-1}; overwrite=${1:-1} ;;
+                -t|--tftp-dir) shift; TFTP_DIR=$1; tftp_dir=$1 ;;
                 -V|--version) version; exit 0 ;;
                 --) shift; break ;;
                 *) die "ltsp: error in cmdline: $*" ;;
@@ -63,6 +67,11 @@ ltsp_cmdline() {
     re network_vars
     if [ -f /etc/ltsp/ltsp.conf ]; then
         re eval_ini
+        # Command line arguments take precedence over ltsp.conf; restore them
+        BASE_DIR=${base_dir:-$BASE_DIR}
+        HOME_DIR=${home_dir:-$HOME_DIR}
+        OVERWRITE=${overwrite:-$OVERWRITE}
+        TFTP_DIR=${tftp_dir:-$TFTP_DIR}
     fi
     # We could put the rest of the code below in an ltsp_main() function,
     # but we want ltsp/scriptname_main()s to finish before any applet starts
