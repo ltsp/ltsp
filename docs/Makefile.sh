@@ -30,6 +30,9 @@ else
     VERSION=$(. ../ltsp/common/ltsp/55-ltsp.sh && echo "$_VERSION")
 fi
 date=$(date "+%Y-%m-%d")
+if [ -n "$SOURCE_DATE_EPOCH" ]; then
+    date=$(date -d"@$SOURCE_DATE_EPOCH" "+%Y-%m-%d")
+fi
 rm -rf man
 for mp in *.[0-9].md; do
     applet_section=${mp%.md}
