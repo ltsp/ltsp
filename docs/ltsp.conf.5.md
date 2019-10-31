@@ -202,8 +202,8 @@ To specify a hostname and a user to autologin in a client:
 ```shell
 [3c:07:71:a2:02:e3]
 HOSTNAME=pc01
-PASSWORDS_PC01="user01:cGFzczAxCg=="
-AUTOLOGIN=1
+AUTOLOGIN=user01
+PASSWORDS_PC01="user01/cGFzczAxCg=="
 ```
 
 The password above is "pass01" in base64 encoding. To calculate it, the
