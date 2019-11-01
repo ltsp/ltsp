@@ -3,8 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Handle networking
-# @LTSP.CONF: DNS_SERVER SERVER SEARCH_DOMAIN HOSTNAME HOSTNAME_BASE
-# @LTSP.CONF: HOSTNAME_EXTRA
+# @LTSP.CONF: DNS_SERVER SERVER SEARCH_DOMAIN HOSTNAME
 
 # TODO: this only handles Debian-based distributions currently
 networking_main() {
@@ -75,23 +74,23 @@ config_dns() {
 }
 
 config_hostname() {
+    local IP MAC
+
+    # Remove spaces and default to e.g. ltsp123
     HOSTNAME=${HOSTNAME%% *}
-    if [ -z "$HOSTNAME" ]; then
-        HOSTNAME_BASE=${HOSTNAME_BASE:-ltsp}
-        case "$HOSTNAME_EXTRA" in
-            mac)
-                HOSTNAME_EXTRA=$(echo "$MAC_ADDRESS" | tr -d ':')
+    HOSTNAME=${HOSTNAME:-ltsp%{IP\}}
+    case "$HOSTNAME" in
+        *%{IP}*)
+            IP=$(
+                ip -oneline -family inet address show dev "$DEVICE" |
+                sed 's/.* \([0-9.]*\)\/\([0-9]*\) .*/\1.\2/' |
+                awk -F "." '{ print (2^24*$1+2^16*$2+2^8*$3+$4)%(2^(32-$5)) }')
                 ;;
-            ip|"")
-                HOSTNAME_EXTRA=$(
-                    ip -oneline -family inet address show dev "$DEVICE" |
-                    sed 's/.* \([0-9.]*\)\/\([0-9]*\) .*/\1.\2/' |
-                    awk -F "." '{ print (2^24*$1+2^16*$2+2^8*$3+$4)%(2^(32-$5)) }')
-                ;;
-        esac
-        HOSTNAME="$HOSTNAME_BASE$HOSTNAME_EXTRA"
-    fi
-    HOSTNAME=${HOSTNAME:-ltsp}
+        *%{MAC}*)
+            MAC=$(echo "$MAC_ADDRESS" | tr -d ':')
+            ;;
+    esac
+    HOSTNAME=$(re eval_percent "$HOSTNAME")
     echo "$HOSTNAME" >/etc/hostname
     re hostname "$HOSTNAME"
 }
