@@ -62,10 +62,10 @@ The user's password must also be provided using the PASSWORDS_x parameter
 username like "user01", or it can be a partial regular expression that
 transforms a hostname to a username. For example, AUTOLOGIN="pc/guest" means
 "automatically log in as guest01 in pc01, as guest02 in pc02 etc".<br/>
-RELOGIN=1 means to reconnect if the user logs off, but it's only supported
-by gdm3 and sddm. Finally, the *_CONF parameters can be either filenames
-or direct text, and provide a way to write additional content to the
-generated display manager configuration.
+Setting RELOGIN=0 will make AUTOLOGIN work only once.
+Finally, the *_CONF parameters can be either filenames or direct text, and
+provide a way to write additional content to the generated display manager
+configuration.
 
 **CRONTAB_x=**_"30 15 * * *  poweroff"_
 : Add a line in crontab. The example powers off the clients at 15:30.
