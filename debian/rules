@@ -27,8 +27,13 @@ override_dh_install:
 	sed "s/^\(_VERSION=\).*/\1'$(DEB_VERSION)'/" -i "$(CURDIR)"/debian/ltsp/usr/share/ltsp/ltsp
 	cp ltsp/common/service/ltsp.service debian/
 	mkdir -p "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks"
+	mkdir -p "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/scripts"
 	# hooks/ltsp conflicts with ltsp-client-core
 	cp -a "$(CURDIR)/debian/ltsp.initramfs-hook" "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks/ltsp-next"
+	# initramfs-tools hook, so rbd modules will be included in initrd
+	cp -a "$(CURDIR)/debian/ltsp-rbd.initramfs-hook" "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/hooks/ltsp-rbd-next"
+	# initramfs-tools script, so we can boot from rbd
+	cp -a "$(CURDIR)/debian/ltsp-rbd.initramfs-script" "$(CURDIR)/debian/ltsp/usr/share/initramfs-tools/scripts/rbd"
 
 override_dh_clean:
 	rm -f debian/ltsp.service
