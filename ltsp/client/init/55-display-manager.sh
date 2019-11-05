@@ -69,7 +69,7 @@ configure_lightdm() {
     if [ "$RELOGIN" = "0" ]; then
         timeout=${RELOGIN_TIMEOUT:-0}
     else
-        timeout=${RELOGIN_TIMEOUT:-1}
+        timeout=${RELOGIN_TIMEOUT:-2}
     fi
     re mkdir -p /etc/lightdm
     {
