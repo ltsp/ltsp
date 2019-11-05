@@ -23,6 +23,8 @@ img_path_to_name() {
     img_path=$1
     img_name=${img_path##*/}
     if [ -f "$img_path" ]; then
+        # QUESTION: why do images need to be named *.img?
+        # Wouldn't it work just as well if images could have arbitrary names?
         img_name=${img_name%.img}  # Remove the .img extension for files
     elif [ ! -e "$img_path" ]; then
         die "Image doesn't exist: $img_path"
@@ -52,6 +54,28 @@ img_path_to_name() {
         die "Invalid LTSP image name: $img_path"
     fi
     echo "$img_name"
+}
+
+# List the simple names (boot_name) of all images or chroots under given dir.
+# It will discover images with postfix ".img" and chroots at the same time.
+# However, in most scenarios it will only make sense to have either images or
+# chroots in a given dir.
+list_boot_names() {
+    local boot_names boot_path
+
+    test "$#" -ne 0 || set -- $BASE_DIR
+    boot_names=$(
+      for boot_path in "$1/"*; do
+          test -d "$boot_path/proc" || continue
+          img_path_to_name "$boot_path"
+      done
+      for boot_path in "$1/"*.img; do
+          test -f "$boot_path" || continue
+          img_path_to_name "$boot_path"
+      done
+    # `set -e` may not work in pipes or subshells; be more explicit
+    ) || return $?
+    echo "$boot_names" | sort -u
 }
 
 # List the simple names (img_name) of all images under $BASE_DIR[/images]
