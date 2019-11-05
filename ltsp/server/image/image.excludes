@@ -21,7 +21,6 @@ proc/*
 root/.*
 root/*
 run/*
-snap/*
 srv/*
 swapfile
 sys/*
