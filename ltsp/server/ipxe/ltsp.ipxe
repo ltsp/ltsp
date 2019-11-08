@@ -28,7 +28,6 @@ goto ${mac} || goto start
 isset ${menu-timeout} || set menu-timeout 5000
 iseq "${menu-timeout}" "-1" && goto ${img} ||
 menu iPXE boot menu - ${hostname}:${srv}:${root-path} || goto ${img}
-item --gap                        Boot an image from the network in LTSP mode:
 # item --key 1 images             x86_64
 item
 item --gap                        Other options:
@@ -41,19 +40,15 @@ item --key x exit                 Exit iPXE and continue BIOS boot
 choose --timeout ${menu-timeout} --default ${img} img || goto cancel
 goto ${img}
 
-:images
-# The "images" method can boot anything in /srv/ltsp/images
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9
-goto ltsp
+# Jump targets setting correct ${img} var for menu items.
+:gotos
 
-:roots
-# The "roots" method can boot all /srv/ltsp/roots
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp/${img}
-goto ltsp
+# Jump targets with the respective boot_method.
+:boot_methods
 
 :ltsp
-# :images and :roots jump here after setting cmdline_method
-set cmdline ${cmdline_method} ${cmdline_ltsp} ${cmdline_client}
+# :images and :roots jump here after setting cmdline_boot_method
+set cmdline ${cmdline_boot_method} ${cmdline_ltsp} ${cmdline_client}
 # In EFI mode, iPXE requires initrds to be specified in the cmdline
 kernel /ltsp/${img}/vmlinuz initrd=ltsp.img initrd=initrd.img ${cmdline}
 initrd /ltsp/ltsp.img

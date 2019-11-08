@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# This file is part of LTSP, https://ltsp.github.io
+# Copyright 2019 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Inject LTSP code under initramfs-tools
+
+# Hook scripts (from man initramfs-tools(8))
+# These  are  used  when an initramfs image is created and not included in the
+# image itself. They can however cause files to be included in the image.  Hook
+# scripts are executed under errexit.  Thus  a hook script can abort the
+# mkinitramfs build on possible errors (exitcode != 0).
+
+# Notes:
+# Use functions and local variables, to avoid namespace pollution
+
+# Initramfs hook for ltsp
+
+PREREQ=""
+
+prereqs()
+{
+    echo "$PREREQ"
+}
+
+case "$1" in
+    prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+modules="rbd aes cbc"
+manual_add_modules $modules
