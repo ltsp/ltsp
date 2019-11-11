@@ -1,3 +1,18 @@
+ltsp (19.11-1) unstable; urgency=low
+
+  * Prefer external ltsp-binaries package, fall back to ipxe (#49)
+  * Don't exclude /snap (#63)
+  * Make RELOGIN work in lightdm (#58)
+  * Remove HOSTNAME_PREFIX and _SUFFIX (#57)
+  * Enable ltsp.service with compat=10
+  * Amend AUTOLOGIN/PASSWORDS_x example (#58)
+  * Use SOURCE_DATE_EPOCH to set the date when generating man pages
+  * Command line parameters take precedence over ltsp.conf
+  * Default to OVERWRITE=1 (#53)
+  * Fix ltsp.conf manpage online rendering
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Mon, 11 Nov 2019 09:52:19 +0200
+
 ltsp (19.10-1) experimental; urgency=medium
 
   [ Alkis Georgopoulos ]
