@@ -2,30 +2,23 @@
 **ltsp ipxe** - install iPXE binaries and configuration in TFTP
 
 ## SYNOPSIS
-**ltsp** [_ltsp-options_] **ipxe** [**-b** _binaries_] [**-u** _binaries-url_]
+**ltsp** [_ltsp-options_] **ipxe** [**-b** _binaries_]
 
 ## DESCRIPTION
-Generate the ltsp.ipxe configuration file in /srv/tftp/ltsp and download the
-required iPXE binaries: memtest.0, memtest.efi, snponly.efi and undionly.kpxe.
+Generate the ltsp.ipxe configuration file and install the required iPXE binaries
+in /srv/tftp/ltsp: memtest.0, memtest.efi, snponly.efi and undionly.kpxe.
 
-If an Internet connection isn't available, you need to manually download
-those binaries from https://boot.ipxe.org or our github mirror site
-before running `ltsp ipxe` to generate the configuration.
+An ltsp-binaries package is available in the LTSP PPA that provides them;
+otherwise, some of them are automatically found in the ipxe/memtest86+ packages.
 
 ## OPTIONS
 See the **ltsp(8)** man page for _ltsp-options_.
 
 **-b**, **--binaries=**_[0|1|""]_
-: Download the iPXE binaries again even if they already exist. Defaults to "",
-which means "only download the missing ones".
+: Reinstall the iPXE binaries in TFTP even if they already exist.
+Defaults to "", which means "only install the missing ones".
 Note that the --overwrite flag doesn't affect the binaries, they're only
 contolled by the --binaries flag.
-
-**-u**, **--binaries-url=**_URL_
-: Specify a different URL for the binaries. Defaults to
-https://github.com/ltsp/binaries/releases/latest/download. They're
-periodically mirrored there to avoid straining ipxe.org and so that LTSP
-users have similar iPXE versions.
 
 ## ADVANCED IMAGE SOURCES
 This section is for advanced LTSP sysadmins.
@@ -82,16 +75,10 @@ Initial use:
 ltsp ipxe
 ```
 
-Regenerate ltsp.ipxe and redownload the binaries:
+Regenerate ltsp.ipxe and reinstall the binaries:
 
 ```shell
 ltsp ipxe -b
-```
-
-Force downgrading to an older version of the binaries:
-
-```shell
-ltsp ipxe -b -u 'https://github.com/ltsp/binaries/releases/download/v19.07'
 ```
 
 Copy the binaries from a USB stick before running ltsp ipxe:

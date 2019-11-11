@@ -5,19 +5,16 @@
 # Install iPXE binaries and configuration in TFTP
 # @LTSP.CONF: DEFAULT_IMAGE KERNEL_PARAMETERS MENU_TIMEOUT
 
-BINARIES_URL=${BINARIES_URL:-https://github.com/ltsp/binaries/releases/latest/download}
-
 ipxe_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "b::u:" -l \
-        "binaries::,binaries-url:" -- "$@") ||
+    args=$(getopt -n "ltsp $_APPLET" -o "b::" -l \
+        "binaries::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
             -b|--binaries) shift; BINARIES=${1:-1} ;;
-            -u|--binaries-url) shift; BINARIES_URL=$1 ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac
@@ -28,7 +25,8 @@ ipxe_cmdline() {
 }
 
 ipxe_main() {
-    local key items gotos r_items r_gotos img_name title client_sections binary
+    local key items gotos r_items r_gotos img_name title client_sections
+    local binary binsrc
 
     # Prepare the menu text for all images and chroot
     key=0
@@ -74,17 +72,29 @@ s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
         # https://lists.ipxe.org/pipermail/ipxe-devel/2012-August/001731.html
         for binary in memtest.0 memtest.efi snponly.efi undionly.kpxe; do
             if [ "$BINARIES" = "1" ] || [ ! -f "$TFTP_DIR/ltsp/$binary" ]; then
-                echo "Downloading $BINARIES_URL/$binary"
-                re wget -q "$BINARIES_URL/$binary" -O "$TFTP_DIR/ltsp/$binary"
+                if [ -f "/usr/share/ltsp/binaries/$binary" ]; then
+                    binsrc="/usr/share/ltsp/binaries/$binary"
+                elif [ -f "/usr/lib/ipxe/$binary" ]; then
+                    binsrc="/usr/lib/ipxe/$binary"
+                elif [ "$binary" = "memtest.0" ] &&
+                        [ -f "/boot/memtest86+.bin" ]; then
+                    binsrc="/boot/memtest86+.bin"
+                elif [ "$binary" = "snponly.efi" ] &&
+                        [ -f "/usr/lib/ipxe/ipxe.efi" ]; then
+                    binsrc="/usr/lib/ipxe/ipxe.efi"
+                elif [ "${binary%.*}" = "memtest" ]; then
+                    warn "$binary not found, that iPXE menu won't work"
+                    continue
+                else
+                    die "Could not locate required iPXE binary: $binary"
+                fi
+                re install -pm 644 "$binsrc" "$TFTP_DIR/ltsp/$binary"
+                echo "Installed $binsrc in $TFTP_DIR/ltsp/$binary"
             else
-                echo "Skipping existing $TFTP_DIR/ltsp/$binary"
+                echo "Skipped existing $TFTP_DIR/ltsp/$binary"
             fi
         done
     fi
-    echo "Installed iPXE binaries and configuration:"
-    for binary in ltsp.ipxe memtest.0 memtest.efi snponly.efi undionly.kpxe; do
-        re ls -l "$TFTP_DIR/ltsp/$binary"
-    done
 }
 
 # Print the client sections list

@@ -24,7 +24,6 @@ service_cmdline() {
 service_main() {
     disable_flow_control
     enable_nat
-    rw cp /proc/self/mountinfo /tmp/mountinfo
     set_readahead
 }
 
@@ -93,6 +92,6 @@ enable_nat() {
         return 0
     fi
     echo 1 >/proc/sys/net/ipv4/ip_forward
-    iptables -s 192.168.67.0/24 -t nat -A POSTROUTING -j MASQUERADE
+    rw iptables -s 192.168.67.0/24 -t nat -A POSTROUTING -j MASQUERADE
     warn "Enabled IP forwarding/masquerading for 192.168.67.0/24"
 }
