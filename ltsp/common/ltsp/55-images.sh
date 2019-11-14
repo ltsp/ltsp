@@ -269,8 +269,8 @@ mount_file() {
     partition="$5"
     re test -e "$src"
     re test -d "$dst"
-    # Work around https://bugs.busybox.net/show_bug.cgi?id=11941
-    re modprobe loop max_part=9
+    # Work around https://bugs.busybox.net/show_bug.cgi?id=11941 and #70
+    test -d /sys/module/loop || re modprobe loop max_part=9
     fstype=${fstype:-$(mount_type "$src")}
     if [ "$fstype" = "gpt" ]; then  # A partition table
         unset fstype
