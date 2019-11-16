@@ -83,7 +83,7 @@ configuration.
 and they are used by `ltsp ipxe` to generate the iPXE menu.
 They control the default menu item, the additional kernel parameters and
 the menu timeout for each client. MENU_TIMEOUT can also be defined globally
-under [clients].
+under [server].
 
 **DNS_SERVER=**_"8.8.8.8 208.67.222.222"_
 : Specify the DNS servers for the clients.
