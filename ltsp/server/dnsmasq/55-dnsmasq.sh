@@ -37,12 +37,12 @@ dnsmasq_main() {
 Aborting, please remove the LTSP5 configuration first"
     mkdir -p "$TFTP_DIR"
     install_template "ltsp-dnsmasq.conf" "/etc/dnsmasq.d/ltsp-dnsmasq.conf" "\
-s|^port=0|$(textif "$DNS" "#&" "&")|
-s|^dhcp-range=set:proxy.*|$(textif "$PROXY_DHCP" "$(proxy_dhcp)" "#&")|
-s|^dhcp-range=192.168.67.20.*|$(textif "$REAL_DHCP" "&" "#&")|
+s|^port=0|$(textifb "$DNS" "#&" "&")|
+s|^dhcp-range=set:proxy.*|$(textifb "$PROXY_DHCP" "$(proxy_dhcp)" "#&")|
+s|^dhcp-range=192.168.67.20.*|$(textifb "$REAL_DHCP" "&" "#&")|
 s|^\(dhcp-option=option:dns-server,\).*|\1$(dns_server)|
 s|^\(tftp-root=\).*|\1$TFTP_DIR|
-s|^enable-tftp|$(textif "$TFTP" "&" "#&")|
+s|^enable-tftp|$(textifb "$TFTP" "&" "#&")|
 "
     restart_dnsmasq
 }

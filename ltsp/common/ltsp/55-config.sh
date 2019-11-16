@@ -307,8 +307,17 @@ run_parameters() {
     re eval "$parameters"
 }
 
-# Used by install_template
+# Used by install_template. This is for strings.
 textif() {
+    if [ -n "$1" ]; then
+        echo "$2"
+    else
+        echo "$3"
+    fi
+}
+
+# Used by install_template. This is for booleans.
+textifb() {
     if [ "${1:-0}" != "0" ]; then
         echo "$2"
     else
