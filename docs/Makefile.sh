@@ -49,15 +49,8 @@ $applet($section) -- $description
 $(sed "1,2d" "$mp")
 $(footer)
 EOF
-        test -d ../../ltsp.github.io/docs/ || continue
-        mkdir -p "../../ltsp.github.io/docs/$applet"
-        ronn --html --manual "LTSP Manual" --organization "LTSP $VERSION" \
-            --date "$date" > "../../ltsp.github.io/docs/$applet/index.html" <<EOF
-$applet($section) -- $description
-=====================================
-$(sed "1,2d" "$mp")
-$(footer)
-EOF
+        # work around #72
+        sed "s/\\\'/'/g" -i "man/man$section/$applet.$section"
     else
         go-md2man > "man/man$section/$applet.$section" <<EOF
 $applet $section $date "LTSP $VERSION"
