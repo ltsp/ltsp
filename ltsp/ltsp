@@ -202,7 +202,11 @@ locate_applet_scripts() {
         _APPLET_DIR="$_LTSP_DIR/$sub_dir/$_APPLET"
         test -d "$_APPLET_DIR" && break
     done
-    test -d "$_APPLET_DIR" || die "Could not locate LTSP applet: $_APPLET"
+    if [ ! -d "$_APPLET_DIR" ]; then
+        warn "Could not locate LTSP applet: $_APPLET"
+        warn ""
+        die "$(applets_list)"
+    fi
     if [ "$sub_dir" = client ] && [ ! -d /run/ltsp/client ] ; then
         die "Refusing to run client applet $_APPLET in non-ltsp client"
     fi
@@ -337,6 +341,15 @@ $scripts
 EOF
 }
 
+# Show available applets list
+applets_list() {
+    echo "Available applets:"
+    for sub_dir in common server client; do
+        _APPLET_DIR="$_LTSP_DIR/$sub_dir"
+        ls -1 "$_APPLET_DIR" | sed 's/^/    /'
+    done
+}
+
 # Show usage. _APPLET must be set. If $1 is set, exit with that code.
 usage() {
     local cmd text
@@ -344,12 +357,15 @@ usage() {
     if [ "$_APPLET" = "ltsp" ]; then
         cmd="man ltsp"
         text=$(re man ltsp)
+        applets_list="$(printf "\n\n%s" "$(applets_list)")"
     else
         cmd="man ltsp $_APPLET"
         text=$(re man "ltsp-$_APPLET")
+        applets_list=
     fi
-    printf "Usage: %s\n\n%s\n\nFor extensive help, run: %s\n" \
+    printf "Usage: %s%s\n\n%s\n\nFor extensive help, run: %s\n" \
         "$(echo "$text" | sed -n '/^SYNOPSIS/,/^[^ ]/s/^\(       \|$\)//p')" \
+        "$(echo "$applets_list")" \
         "$(echo "$text" | sed -n '/^DESCRIPTION/,/^[^ ]/s/^\(       \|$\)//p')" \
         "$cmd"
     test -n "$1" && exit "$1"
