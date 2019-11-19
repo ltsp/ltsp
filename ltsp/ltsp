@@ -348,9 +348,10 @@ usage() {
         cmd="man ltsp $_APPLET"
         text=$(re man "ltsp-$_APPLET")
     fi
-    printf "Usage: %s\n\n%s\n\nFor extensive help, run: %s\n" \
+    printf "Usage: %s\n\n%s\n\n%s\n\nFor extensive help, run: %s\n" \
         "$(echo "$text" | sed -n '/^SYNOPSIS/,/^[^ ]/s/^\(       \|$\)//p')" \
         "$(echo "$text" | sed -n '/^DESCRIPTION/,/^[^ ]/s/^\(       \|$\)//p')" \
+        "$(echo "$text" | sed -n '/^APPLETS/,/^[^ ]/s/^\(       \)//p' | sed 's/^\([^ ]\)   /  \1 /')" \
         "$cmd"
     test -n "$1" && exit "$1"
 }
