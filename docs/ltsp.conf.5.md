@@ -134,6 +134,11 @@ be able to access the Internet in dual NIC setups. But if there's a chance
 that the IP isn't set yet (e.g. disconnected network cable), setting NAT=1
 enforces that.
 
+**OMIT_FUNCTIONS=**_"pam_main mask_services_main"_
+: A space separated list of function names that should be omitted.
+The functions specified here will not be executed when called.
+This option can be specified in any [section].
+
 **PASSWORDS_x=**_"teacher/cXdlcjEyMzQK [a-z][-0-9]\*/MTIzNAo= guest[^:]\*/"_
 : A space separated list of regular expressions that match usernames, followed
 by slash and base64-encoded passwords. On boot, `ltsp init` writes those
