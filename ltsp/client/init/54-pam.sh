@@ -6,6 +6,8 @@
 # @LTSP.CONF: PASSWORDS_x
 
 pam_main() {
+    test "$LOCAL_AUTH" != "1" ||
+        return 0
     local userpass user pass
 
     re "$_LTSP_DIR/client/login/pwmerge" \

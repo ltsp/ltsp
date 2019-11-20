@@ -26,6 +26,8 @@ remove_printers() {
 }
 
 remove_users() {
+    test "$CLEANUP_USERS" != "0" ||
+        return 0
     mkdir -p "$_COW_DIR/tmp/pwempty" "$_COW_DIR/tmp/pwmerged"
     touch "$_COW_DIR/tmp/pwempty/passwd"
     touch "$_COW_DIR/tmp/pwempty/group"
