@@ -5,7 +5,7 @@
 # Call mksquashfs to generate the image
 
 mksquashfs_main() {
-    local ef_upstream ef_local
+    local ef_merged
 
     # Unset IONICE means use the default; IONICE="" means don't use anything
     if [ -z "${IONICE+nonempty}" ]; then
@@ -14,21 +14,37 @@ mksquashfs_main() {
             IONICE="$IONICE ionice -c3"
         fi
     fi
-    if [ -f /etc/ltsp/image-local.excludes ]; then
-        ef_local=/etc/ltsp/image-local.excludes
-    else
-        unset ef_local
-    fi
-    if [ -f /etc/ltsp/image.excludes ]; then
-        ef_upstream=/etc/ltsp/image.excludes
-    else
-        ef_upstream="$_APPLET_DIR/image.excludes"
-    fi
+
     re mkdir -p "$BASE_DIR/images"
+
+    ef_merged="$BASE_DIR/images/$_IMG_NAME.excludes"
+    if [ -f /etc/ltsp/image.excludes ]; then
+        cat /etc/ltsp/image.excludes > "$ef_merged"
+    else
+        cat "$_APPLET_DIR/image.excludes" > "$ef_merged"
+    fi
+
+    # Append local image excludes
+    if [ -f /etc/ltsp/image-local.excludes ]; then
+        cat /etc/ltsp/image-local.excludes >> "$ef_merged"
+    fi
+    echo "$ADD_IMAGE_EXCLUDES" | tr ' ' '\n' >> "$ef_merged"
+
+    # Remove OMIT_IMAGE_EXCLUDES
+    while read line; do
+        for pattern in $OMIT_IMAGE_EXCLUDES; do
+            test "$line" = "$pattern" ||
+            echo "$line"
+        done
+    done <"$ef_merged" >"$ef_merged.tmp"
+    mv "$ef_merged.tmp" "$ef_merged"
+
     # -regex might be nicer: https://stackoverflow.com/questions/57304278
     re $IONICE mksquashfs  "$_COW_DIR" "$BASE_DIR/images/$_IMG_NAME.img.tmp" \
-        -noappend -wildcards ${ef_upstream:+-ef "$ef_upstream"} \
-        ${ef_local:+-ef "$ef_local"} $MKSQUASHFS_PARAMS
+        -noappend -wildcards -ef "$ef_merged" $MKSQUASHFS_PARAMS
+
+    rm -f "$ef_merged"
+
     if [ "$BACKUP" != 0 ] && [ -f "$BASE_DIR/images/$_IMG_NAME.img" ]; then
         re mv "$BASE_DIR/images/$_IMG_NAME.img" "$BASE_DIR/images/$_IMG_NAME.img.old"
     fi
