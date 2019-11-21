@@ -49,6 +49,10 @@ image_main() {
     img_path=$(add_path_to_src "${img_src%%,*}")
     _IMG_NAME=$(img_path_to_name "$img_path")
     re test "image_main:$_IMG_NAME" != "image_main:"
+    if [ "$IN_PLACE" = "1" ]; then
+        _COW_DIR="$img_path"
+        return 0
+    fi
     _COW_DIR=$(re mktemp -d)
     exit_command "rw rmdir '$_COW_DIR'"
     # _COW_DIR has mode=0700; use a subdir to hide the mount from users

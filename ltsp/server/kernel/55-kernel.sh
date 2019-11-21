@@ -37,13 +37,17 @@ Please export ALL_IMAGES=1 if you want to allow this"
         img_path=$(add_path_to_src "${img_src%%,*}")
         img_name=$(img_path_to_name "$img_path")
         re test "kernel_main:$img_name" != "kernel_main:"
-        tmp=$(re mktemp -d)
-        exit_command "rw rmdir '$tmp'"
-        # tmp has mode=0700; use a subdir to hide the mount from users
-        re mkdir -p "$tmp/ltsp"
-        exit_command "rw rmdir '$tmp/ltsp'"
-        tmp=$tmp/ltsp
-        re mount_img_src "$img_src" "$tmp"
+        if [ "$IN_PLACE" = "1" ]; then
+            tmp="$img_path"
+        else
+            tmp=$(re mktemp -d)
+            exit_command "rw rmdir '$tmp'"
+            # tmp has mode=0700; use a subdir to hide the mount from users
+            re mkdir -p "$tmp/ltsp"
+            exit_command "rw rmdir '$tmp/ltsp'"
+            tmp=$tmp/ltsp
+            re mount_img_src "$img_src" "$tmp"
+        fi
         re mkdir -p "$TFTP_DIR/ltsp/$img_name/"
         read -r vmlinuz initrd <<EOF
 $(search_kernel "$tmp" | head -n 1)

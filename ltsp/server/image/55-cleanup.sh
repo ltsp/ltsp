@@ -8,8 +8,10 @@ cleanup_main() {
     test "$CLEANUP" != "0" ||
         return 0
     re test "cleanup_main:$_COW_DIR" != "cleanup_main:"
-    grep -qs "overlay.*lowerdir=$_COW_DIR" /proc/self/mountinfo ||
-        die "Can't clean up without overlay: $_COW_DIR"
+    if [ "$IN_PLACE" != "1" ] || [ "$_COW_DIR" = "/" ]; then
+        grep -qs "overlay.*lowerdir=$_COW_DIR" /proc/self/mountinfo ||
+            die "Can't clean up without overlay: $_COW_DIR"
+    fi
     echo "Cleaning up $_IMG_NAME before mksquashfs..."
     # You can override any of the functions with a higher numbered script
     re remove_printers
