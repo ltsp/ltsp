@@ -102,6 +102,11 @@ pseudovariable, which is the MAC address without the colons.
 : All parameters that start with HOSTS_ are sorted and then their values
 are written to /etc/hosts at the client init phase.
 
+**IMAGE_TO_RAM=**_0|1_
+: Specifying this option under the [clients] section copies the rootfs
+image to RAM during boot. That makes clients less dependent on
+the server, but they must have sufficient memory to fit the image.
+
 **INCLUDE=**_"other-section"_
 : Include another section in this section.
 

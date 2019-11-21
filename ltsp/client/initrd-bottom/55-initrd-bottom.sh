@@ -18,7 +18,7 @@ initrd_bottom_cmdline() {
 }
 
 initrd_bottom_main() {
-    local img_src
+    local img_src img rest
 
     warn "Running $0"
     kernel_vars
@@ -28,6 +28,15 @@ initrd_bottom_main() {
         # If it doesn't start with slash, it's relative to $rootmnt
         if [ "${img_src#/}" = "$img_src" ]; then
             img_src="$rootmnt/$img_src"
+        fi
+        if [ "$IMAGE_TO_RAM" = "1" ]; then
+            img=${img_src%%,*}
+            rest=${img_src#$img}
+            re mkdir -p "/run/initramfs/ltsp"
+            warn "Running: cp $img /run/initramfs/ltsp/${img##*/}"
+            re cp "$img" "/run/initramfs/ltsp/${img##*/}"
+            re umount "/root"
+            img_src="/run/initramfs/ltsp/${img##*/}$rest"
         fi
         re mount_img_src "$img_src" "$rootmnt"
         re set_readahead "$rootmnt"
