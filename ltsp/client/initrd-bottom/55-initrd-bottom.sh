@@ -25,14 +25,24 @@ initrd_bottom_main() {
     re set_readahead "$rootmnt"
     if [ -n "$IMAGE" ]; then
         img_src=$IMAGE
-        # If it doesn't start with slash, it's relative to $rootmnt
+        img=${img_src%%,*}
+        rest=${img_src#$img}
+        re mkdir -p "/run/initramfs/ltsp"
+        case "${img_src}" in
+            http:*|https:*|ftp:*)
+                configure_networking
+                warn "Running: wget $img -O /run/initramfs/ltsp/${img##*/}"
+                re wget "$img" -O "/run/initramfs/ltsp/${img##*/}"
+                img_src="/run/initramfs/ltsp/${img##*/}$rest"
+                IMAGE_TO_RAM=0
+                ;;
+        esac
         if [ "${img_src#/}" = "$img_src" ]; then
+            # If it doesn't start with slash, it's relative to $rootmnt
             img_src="$rootmnt/$img_src"
+            img="$rootmnt/$img"
         fi
         if [ "$IMAGE_TO_RAM" = "1" ]; then
-            img=${img_src%%,*}
-            rest=${img_src#$img}
-            re mkdir -p "/run/initramfs/ltsp"
             warn "Running: cp $img /run/initramfs/ltsp/${img##*/}"
             re cp "$img" "/run/initramfs/ltsp/${img##*/}"
             re umount "/root"
