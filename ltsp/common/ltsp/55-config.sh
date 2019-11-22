@@ -289,6 +289,15 @@ EOF
     re test "MAC_ADDRESS=$MAC_ADDRESS" != "MAC_ADDRESS="
 }
 
+# Omit functions specified in OMIT_FUNCTIONS
+omit_functions() {
+    local fun
+
+    for fun in $OMIT_FUNCTIONS; do
+        eval "$fun() { echo Omitting $fun; }"
+    done
+}
+
 # Run parameters like PRE_INIT_XORG="ln -sf ../ltsp/xorg.conf /etc/X11/xorg.conf"
 # $1 is either PRE or POST.
 run_parameters() {
