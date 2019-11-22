@@ -17,6 +17,11 @@ Enabling the DNS service of dnsmasq allows caching of client requests,
 custom DNS results, blacklisting etc, and automatically disables
 DNSStubListener in systemd-resolved on the LTSP server.
 
+**-h**, **--http**=_0|1_
+: Enable or disable the HTTP method for download kernel and initrd.
+The HTTP method is faster and more safe then TFTP however you need
+to have configured http-server. See the ltsp-http(8) man page for more details.
+
 **-p**, **--proxy-dhcp=**_0|1_
 : Enable or disable the proxy DHCP service. Defaults to 1.
 Proxy DHCP means that the LTSP server sends the boot filename, but it leaves

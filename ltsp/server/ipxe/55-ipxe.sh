@@ -5,16 +5,19 @@
 # Install iPXE binaries and configuration in TFTP
 # @LTSP.CONF: DEFAULT_IMAGE KERNEL_PARAMETERS MENU_TIMEOUT
 
+HTTP_IMAGE=${HTTP_IMAGE:-0}
+
 ipxe_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "b::" -l \
-        "binaries::" -- "$@") ||
+    args=$(getopt -n "ltsp $_APPLET" -o "b::h::" -l \
+        "binaries::,http-image::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
             -b|--binaries) shift; BINARIES=${1:-1} ;;
+            -h|--http-image) shift; HTTP_IMAGE=${1:-1} ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac
@@ -65,6 +68,7 @@ s|^:61:6c:6b:69:73:67\$|$(textif "$client_sections" "$client_sections" "&")|
 s|^#.*item.*\bimages\b.*|$(textif "$items$r_items" "$items\n$r_items" "&")|
 s|^:images\$|$(textif "$items" "$gotos" "&")|
 s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
+s|^\(set cmdline_method \)\(root=/dev/nfs nfsroot=\${srv}:/srv/ltsp ltsp\.image=images/\${img}\.img\)|$(textifb "$HTTP_IMAGE" "\1ltsp.image=http://\${next-server}/ltsp/images/\${img}.img" "\1\2")|
 "
     fi
     if [ "$BINARIES" != "0" ]; then

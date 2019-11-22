@@ -20,6 +20,13 @@ Defaults to "", which means "only install the missing ones".
 Note that the --overwrite flag doesn't affect the binaries, they're only
 contolled by the --binaries flag.
 
+**-h**, **--http-image**=_0|1_
+: Enable or disable the HTTP method for download rootfs image.
+The image will be saved to RAM during the boot. That makes clients less
+dependent on the server, but they must have sufficient memory to fit the image.
+You need to have configured http-server for using this option.
+See the ltsp-http(8) man page for more details.
+
 ## ADVANCED IMAGE SOURCES
 This section is for advanced LTSP sysadmins.
 Normally, image sources are simple names like "x86_64" or full paths like
