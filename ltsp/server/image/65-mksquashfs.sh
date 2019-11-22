@@ -40,6 +40,7 @@ mksquashfs_main() {
     else
         kernel_src="$BASE_DIR/images/$_IMG_NAME.img"
     fi
-    echo "Running: ltsp kernel $kernel_src"
-    re "$0" kernel ${KERNEL_INITRD:+-k "$KERNEL_INITRD"} "$kernel_src"
+    echo "Running: ltsp kernel ${IN_PLACE:+-I"$IN_PLACE"} $kernel_src"
+    re "$0" kernel ${KERNEL_INITRD:+-k "$KERNEL_INITRD"} "${IN_PLACE:+-I"$IN_PLACE"}" \
+        "$kernel_src"
 }

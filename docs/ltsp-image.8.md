@@ -2,7 +2,7 @@
 **ltsp image** - generate a squashfs image from an image source
 
 ## SYNOPSIS
-**ltsp** [_ltsp-options_] **image** [**-b** _backup_] [**-c** _cleanup_] [**-i** _ionice_] [**-k** _kernel-initrd_] [**-m** _mksquashfs-params_] [**-r** _revert_] [_image_] ...
+**ltsp** [_ltsp-options_] **image** [**-b** _backup_] [**-c** _cleanup_] [**-I** _in-place_] [**-i** _ionice_] [**-k** _kernel-initrd_] [**-m** _mksquashfs-params_] [**-r** _revert_] [_image_] ...
 
 ## DESCRIPTION
 Compress a virtual machine image or chroot directory into a squashfs image,
@@ -20,6 +20,10 @@ See the **ltsp(8)** man page for _ltsp-options_.
 : Create a writeable overlay on top of the image source and temporarily
 remove user accounts and sensitive data before calling mksquashfs.
 Defaults to 1.
+
+**-I**, **--in-place**[=_0|1_]
+: Runs cleanup directly inside image source directory without using overlay.
+this might be useful for unprivileged running.
 
 **-i**, **--ionice=**_cmdline_
 : Set a prefix command to run mksquashfs with a lower priority, or specify

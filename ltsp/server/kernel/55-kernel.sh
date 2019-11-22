@@ -7,12 +7,13 @@
 kernel_cmdline() {
     local args
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "k:" -l \
-        "kernel-initrd:" -- "$@")
+    args=$(re getopt -n "ltsp $_APPLET" -o "k:I::" -l \
+        "kernel-initrd:,in-place::" -- "$@")
     eval "set -- $args"
     while true; do
         case "$1" in
             -k|--kernel-initrd) shift; KERNEL_INITRD=$1 ;;
+            -I|--in-place) shift; IN_PLACE=${1:-1} ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac

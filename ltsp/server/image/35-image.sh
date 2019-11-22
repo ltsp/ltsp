@@ -8,13 +8,14 @@
 image_cmdline() {
     local args _COW_DIR img_src
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "b:c:i:k:m:r::" -l \
-        "backup:,cleanup:,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@")
+    args=$(re getopt -n "ltsp $_APPLET" -o "b:c:I::i:k:m:r::" -l \
+        "backup:,cleanup:,in-place::,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@")
     eval "set -- $args"
     while true; do
         case "$1" in
             -b|--backup) shift; BACKUP=$1 ;;
             -c|--cleanup) shift; CLEANUP=$1 ;;
+            -I|--in-place) shift; IN_PLACE=${1:-1} ;;
             -i|--ionice) shift; IONICE=$1 ;;
             -k|--kernel-initrd) shift; KERNEL_INITRD=$1 ;;
             -m|--mksquashfs-params) shift; MKSQUASHFS_PARAMS=$1 ;;
