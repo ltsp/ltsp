@@ -43,7 +43,7 @@ goto ${img}
 
 :images
 # The "images" method can boot anything in /srv/ltsp/images
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9
+set cmdline_method ltsp.image=http://${srv}/ltsp/images/${img}.img loop.max_part=9
 goto ltsp
 
 :roots

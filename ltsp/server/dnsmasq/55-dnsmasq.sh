@@ -45,8 +45,7 @@ s|^dhcp-range=192.168.67.20.*|$(textifb "$REAL_DHCP" "&" "#&")|
 s|^\(dhcp-option=option:dns-server,\).*|\1$(dns_server)|
 s|^\(tftp-root=\).*|\1$TFTP_DIR|
 s|^enable-tftp|$(textifb "$TFTP" "&" "#&")|
-s|^\(pxe-service=tag:proxy,tag:iPXE,[^,]\+,\"ltsp.ipxe\",\).*|$(textifb "$HTTP" "\1\"http://\${proxydhcp/dhcp-server}/ltsp/ltsp.ipxe\"" "\1ltsp/ltsp.ipxe")|
-s|^\(dhcp-boot=tag:iPXE,\).*|$(textifb "$HTTP" "\1\"http://\${next-server}/ltsp/ltsp.ipxe\"" "\1ltsp/ltsp.ipxe")|
+s|\"http://\${[^}]\+}/\(ltsp/ltsp.ipxe\)\"|$(textifb "$HTTP" "&" "\1")|
 "
     restart_dnsmasq
 }
