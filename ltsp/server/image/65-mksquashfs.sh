@@ -26,18 +26,13 @@ mksquashfs_main() {
     fi
     re mkdir -p "$BASE_DIR/images"
 
-    # If variables set, we need to generate new image.excludes
+    # If these variables set, we need to generate new image.excludes
     if [ -n "$ADD_IMAGE_EXCLUDES" ] || [ -n "$OMIT_IMAGE_EXCLUDES" ]; then
         ef_merged="$(re mktemp)"
-        exit_command "rm -f $ef_merged"
-        re cat "$ef_upstream" > "$ef_merged"
+        exit_command "rm -f $ef_merged $ef_merged.tmp"
+        omit_image_excludes "$ef_upstream" > "$ef_merged.tmp"
+        add_image_excludes "$ef_merged.tmp" > "$ef_merged"
         ef_upstream="$ef_merged"
-        if [ -n "$ef_local" ]; then
-            re cat "$ef_local" >> "$ef_merged"
-            unset ef_local
-        fi
-        add_image_excludes "$ef_merged"
-        omit_image_excludes "$ef_merged"
     fi
 
     # -regex might be nicer: https://stackoverflow.com/questions/57304278
@@ -54,25 +49,14 @@ mksquashfs_main() {
     re "$0" kernel ${KERNEL_INITRD:+-k "$KERNEL_INITRD"} "$BASE_DIR/images/$_IMG_NAME.img"
 }
 
-# Append local image excludes with ADD_IMAGE_EXCLUDES
+# Append image excludes with ADD_IMAGE_EXCLUDES
 add_image_excludes() {
-    test -n "$ADD_IMAGE_EXCLUDES" ||
-        return 0
-    echo "$ADD_IMAGE_EXCLUDES" | tr ' ' '\n' >> "$1"
+    echo "$ADD_IMAGE_EXCLUDES" | sort | \
+        { exec 3<&0; sort "$1" | comm --output-delimiter= /dev/fd/0 /dev/fd/4 4<&3; }
 }
 
-# Remove image excludes specified in OMIT_IMAGE_EXCLUDES
+# Remove image excludes with OMIT_IMAGE_EXCLUDES
 omit_image_excludes() {
-    test -n "$OMIT_IMAGE_EXCLUDES" ||
-        return 0
-    (
-        set -f
-        while read line; do
-            for pattern in $OMIT_IMAGE_EXCLUDES; do
-                test "$line" = "$pattern" ||
-                echo "$line"
-            done
-        done <"$1" >"$1.tmp"
-        mv "$1.tmp" "$1"
-    )
+    echo "$OMIT_IMAGE_EXCLUDES" | sort | \
+        { exec 3<&0; sort "$1" | comm -3 --output-delimiter= /dev/fd/0 /dev/fd/4 4<&3; }
 }
