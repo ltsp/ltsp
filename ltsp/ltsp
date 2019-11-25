@@ -339,7 +339,7 @@ EOF
 
 # Show usage. _APPLET must be set. If $1 is set, exit with that code.
 usage() {
-    local cmd text
+    local cmd text atext
 
     if [ "$_APPLET" = "ltsp" ]; then
         cmd="man ltsp"
@@ -348,10 +348,13 @@ usage() {
         cmd="man ltsp $_APPLET"
         text=$(re man "ltsp-$_APPLET")
     fi
-    printf "Usage: %s\n\n%s\n\n%s\n\nFor extensive help, run: %s\n" \
+    atext=$(echo "$text" | sed -n '/^APPLETS/,/^[^ ]/s/^\(       \)//p' |
+        sed 's/^\([^ ]\)   /  \1 /')
+    atext=${atext:+$_NL$atext$_NL}
+    printf "Usage: %s\n\n%s\n%s\nFor extensive help, run: %s\n" \
         "$(echo "$text" | sed -n '/^SYNOPSIS/,/^[^ ]/s/^\(       \|$\)//p')" \
         "$(echo "$text" | sed -n '/^DESCRIPTION/,/^[^ ]/s/^\(       \|$\)//p')" \
-        "$(echo "$text" | sed -n '/^APPLETS/,/^[^ ]/s/^\(       \)//p' | sed 's/^\([^ ]\)   /  \1 /')" \
+        "$atext" \
         "$cmd"
     test -n "$1" && exit "$1"
 }
