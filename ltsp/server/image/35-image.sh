@@ -8,8 +8,9 @@
 image_cmdline() {
     local args _COW_DIR img_src
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "b:c:i:k:m:r::" -l \
-        "backup:,cleanup:,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@")
+    args=$(getopt -n "ltsp $_APPLET" -o "b:c:i:k:m:r::" -l \
+        "backup:,cleanup:,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in

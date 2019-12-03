@@ -7,8 +7,9 @@
 kernel_cmdline() {
     local args
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "k:" -l \
-        "kernel-initrd:" -- "$@")
+    args=$(getopt -n "ltsp $_APPLET" -o "k:" -l \
+        "kernel-initrd:" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
