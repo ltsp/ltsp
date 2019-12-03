@@ -18,7 +18,8 @@ initrd_bottom_cmdline() {
 }
 
 initrd_bottom_main() {
-    local img_src img rest
+    local img_src img rest tmpfs
+    tmpfs=/run/initramfs/ltsp
 
     warn "Running $0"
     kernel_vars
@@ -27,13 +28,14 @@ initrd_bottom_main() {
         img_src=$IMAGE
         img=${img_src%%,*}
         rest=${img_src#$img}
-        re mkdir -p "/run/initramfs/ltsp"
         case "${img_src}" in
             http:*|https:*|ftp:*)
                 configure_networking
-                warn "Running: wget $img -O /run/initramfs/ltsp/${img##*/}"
-                re wget "$img" -O "/run/initramfs/ltsp/${img##*/}"
-                img_src="/run/initramfs/ltsp/${img##*/}$rest"
+                re mkdir -p "$tmpfs/images"
+                re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs/images"
+                warn "Running: wget $img -O $tmpfs/images/${img##*/}"
+                re wget "$img" -O "$tmpfs/images/${img##*/}"
+                img_src="$tmpfs/images/${img##*/}$rest"
                 IMAGE_TO_RAM=0
                 ;;
         esac
@@ -43,10 +45,12 @@ initrd_bottom_main() {
             img="$rootmnt/$img"
         fi
         if [ "$IMAGE_TO_RAM" = "1" ]; then
-            warn "Running: cp $img /run/initramfs/ltsp/${img##*/}"
-            re cp "$img" "/run/initramfs/ltsp/${img##*/}"
-            re umount "/root"
-            img_src="/run/initramfs/ltsp/${img##*/}$rest"
+            re mkdir -p "$tmpfs/images"
+            re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs/images"
+            warn "Running: cp $img $tmpfs/images/${img##*/}"
+            re cp "$img" "$tmpfs/images/${img##*/}"
+            re umount "$rootmnt"
+            img_src="$tmpfs/images/${img##*/}$rest"
         fi
         re mount_img_src "$img_src" "$rootmnt"
         re set_readahead "$rootmnt"
@@ -68,7 +72,7 @@ initrd_bottom_main() {
     test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in $_APPLET"
     if [ "$OVERLAY" != "0" ]; then
         re modprobe_overlay
-        re overlay "$rootmnt" "$rootmnt" "/run/initramfs/ltsp"
+        re overlay "$rootmnt" "$rootmnt" "$tmpfs/cow"
     fi
     re install_ltsp
 }
