@@ -7,8 +7,9 @@
 service_cmdline() {
     local args
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "s" -l \
-        "stop" -- "$@")
+    args=$(getopt -n "ltsp $_APPLET" -o "s" -l \
+        "stop" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in

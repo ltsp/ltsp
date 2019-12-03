@@ -47,7 +47,7 @@ auth\t\[success=1 default=ignore\]\tpam_exec.so seteuid expose_authtok stdout qu
 # necessary information should be cached in /run/ltsp/pam/ on login.
 pam_auth() {
     local pw_entry pw_name pw_passwd pw_uid pw_gid pw_gecos pw_dir \
-        pw_shell sp_entry sp_namp sp_pwdp dummy msg
+        pw_shell sp_entry sp_namp sp_pwdp dummy sshfs_params msg
 
     pam_log
     # Verify that we're being called from PAM and that the user exists
@@ -168,9 +168,11 @@ EOF
         # sed'ing fuse.conf, chown'ing home etc; if we did, that would be:
         # allow_root: for the DM to setup .Xauthority
         # nonempty: in case of .bash_history or local home
+        sshfs_params=password_stdin,allow_other,default_permissions
+        # fuse3 defaults to nonempty and doesn't accept it
+        is_command fusermount3 || sshfs_params="$sshfs_params,nonempty"
         if "${_SELF%/*}/ssh-askpass" |
-            sshfs -o password_stdin,allow_other,default_permissions,nonempty \
-            "$@" "$pw_name@$SERVER:" "$pw_dir"
+            sshfs -o "$sshfs_params" "$@" "$pw_name@$SERVER:" "$pw_dir"
         then
             success=1
         fi
