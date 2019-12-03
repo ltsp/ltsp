@@ -13,7 +13,8 @@ dnsmasq_cmdline() {
     local args
 
     args=$(re getopt -n "ltsp $_APPLET" -o "d::p::r::s:t::" -l \
-        "dns::,proxy-dhcp::,real-dhcp::,dns-server:,tftp::" -- "$@")
+        "dns::,proxy-dhcp::,real-dhcp::,dns-server:,tftp::" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
