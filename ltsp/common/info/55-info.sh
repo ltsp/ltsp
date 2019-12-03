@@ -7,8 +7,9 @@
 info_cmdline() {
     local args
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "" -l \
-        "" -- "$@")
+    args=$(getopt -n "ltsp $_APPLET" -o "" -l \
+        "" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in

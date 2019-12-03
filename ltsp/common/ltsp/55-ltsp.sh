@@ -33,8 +33,9 @@ ltsp_cmdline() {
     tftp_dir=
     # No getopt in the initramfs; avoid it if $1 isn't an option
     if [ "${1#-}" != "$1" ]; then
-        args=$(re getopt -n "ltsp" -o "+b:h::m:o::t:V" -l \
-            "base-dir:,help::,home-dir:,overwrite::,tftp-dir:,version" -- "$@")
+        args=$(getopt -n "ltsp" -o "+b:h::m:o::t:V" -l \
+            "base-dir:,help::,home-dir:,overwrite::,tftp-dir:,version" -- "$@") ||
+            usage 1
         eval "set -- $args"
         while true; do
             case "$1" in
