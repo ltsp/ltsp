@@ -28,28 +28,32 @@ initrd_bottom_main() {
         img_src=$IMAGE
         img=${img_src%%,*}
         rest=${img_src#$img}
-        case "${img_src}" in
+        case "${img}" in
             http:*|https:*|ftp:*)
-                configure_networking
-                re mkdir -p "$tmpfs/images"
-                re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs/images"
-                warn "Running: wget $img -O $tmpfs/images/${img##*/}"
-                re wget "$img" -O "$tmpfs/images/${img##*/}"
-                img_src="$tmpfs/images/${img##*/}$rest"
-                IMAGE_TO_RAM=0
+                IMAGE_TO_RAM=1
+                ;;
+            /*)
+                true
+                ;;
+            *)
+                # If it doesn't start with slash, it's relative to $rootmnt
+                img_src="$rootmnt/$img_src"
+                img="$rootmnt/$img"
                 ;;
         esac
-        if [ "${img_src#/}" = "$img_src" ]; then
-            # If it doesn't start with slash, it's relative to $rootmnt
-            img_src="$rootmnt/$img_src"
-            img="$rootmnt/$img"
-        fi
         if [ "$IMAGE_TO_RAM" = "1" ]; then
             re mkdir -p "$tmpfs/images"
             re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs/images"
-            warn "Running: cp $img $tmpfs/images/${img##*/}"
-            re cp "$img" "$tmpfs/images/${img##*/}"
-            re umount "$rootmnt"
+            # If it doesn't start with slash, image should be downloaded
+            if [ "${img#/}" = "$img" ]; then
+                configure_networking
+                warn "Running: wget $img -O $tmpfs/images/${img##*/}"
+                re wget "$img" -O "$tmpfs/images/${img##*/}"
+            else
+                warn "Running: cp $img $tmpfs/images/${img##*/}"
+                re cp "$img" "$tmpfs/images/${img##*/}"
+                re umount "$rootmnt"
+            fi
             img_src="$tmpfs/images/${img##*/}$rest"
         fi
         re mount_img_src "$img_src" "$rootmnt"
