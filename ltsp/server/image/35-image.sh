@@ -1,4 +1,4 @@
-# This file is part of LTSP, https://ltsp.github.io
+# This file is part of LTSP, https://ltsp.org
 # Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -9,7 +9,8 @@ image_cmdline() {
     local args _COW_DIR img_src
 
     args=$(re getopt -n "ltsp $_APPLET" -o "b:c:I::i:k:m:r::" -l \
-        "backup:,cleanup:,in-place::,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@")
+        "backup:,cleanup:,in-place::,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in

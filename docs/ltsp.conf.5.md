@@ -102,6 +102,11 @@ pseudovariable, which is the MAC address without the colons.
 : All parameters that start with HOSTS_ are sorted and then their values
 are written to /etc/hosts at the client init phase.
 
+**IMAGE_TO_RAM=**_0|1_
+: Specifying this option under the [clients] section copies the rootfs
+image to RAM during boot. That makes clients less dependent on
+the server, but they must have sufficient memory to fit the image.
+
 **INCLUDE=**_"other-section"_
 : Include another section in this section.
 
@@ -133,6 +138,11 @@ in which case it automatically enables IP forwarding for the clients to
 be able to access the Internet in dual NIC setups. But if there's a chance
 that the IP isn't set yet (e.g. disconnected network cable), setting NAT=1
 enforces that.
+
+**OMIT_FUNCTIONS=**_"pam_main mask_services_main"_
+: A space separated list of function names that should be omitted.
+The functions specified here will not be executed when called.
+This option can be specified in any [section].
 
 **PASSWORDS_x=**_"teacher/cXdlcjEyMzQK [a-z][-0-9]\*/MTIzNAo= guest[^:]\*/"_
 : A space separated list of regular expressions that match usernames, followed

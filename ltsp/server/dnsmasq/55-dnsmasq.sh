@@ -1,4 +1,4 @@
-# This file is part of LTSP, https://ltsp.github.io
+# This file is part of LTSP, https://ltsp.org
 # Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -12,8 +12,9 @@ TFTP=${TFTP:-1}
 dnsmasq_cmdline() {
     local args
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "d:p:r:s:t:" -l \
-        "dns:,proxy-dhcp:,real-dhcp:,dns-server:,tftp:" -- "$@")
+    args=$(getopt -n "ltsp $_APPLET" -o "d:p:r:s:t:" -l \
+        "dns:,proxy-dhcp:,real-dhcp:,dns-server:,tftp:" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
