@@ -8,19 +8,20 @@ Build-Depends: debhelper (>= 10),
 Standards-Version: 4.4.1
 Vcs-Git: https://github.com/ltsp/ltsp.git
 Vcs-Browser: https://github.com/ltsp/ltsp/
-Homepage: https://ltsp.github.io
+Homepage: https://ltsp.org
 Rules-Requires-Root: no
 
 Package: ltsp
 # Try to keep dependencies to what's there in plain `debootstrap`,
-# except for: busybox, sshfs
+# except for: busybox, ssh-client
 Depends: ${misc:Depends},
   busybox | busybox-static | busybox-initramfs,
   procps,
   python3,
-  sshfs,
+  ssh-client,
   systemd,
 Recommends: man-db,
+  sshfs,
 Suggests: dnsmasq,
   epoptes,
   ethtool,

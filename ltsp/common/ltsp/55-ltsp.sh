@@ -1,4 +1,4 @@
-# This file is part of LTSP, https://ltsp.github.io
+# This file is part of LTSP, https://ltsp.org
 # Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -33,8 +33,9 @@ ltsp_cmdline() {
     tftp_dir=
     # No getopt in the initramfs; avoid it if $1 isn't an option
     if [ "${1#-}" != "$1" ]; then
-        args=$(re getopt -n "ltsp" -o "+b:h::m:o::t:V" -l \
-            "base-dir:,help::,home-dir:,overwrite::,tftp-dir:,version" -- "$@")
+        args=$(getopt -n "ltsp" -o "+b:h::m:o::t:V" -l \
+            "base-dir:,help::,home-dir:,overwrite::,tftp-dir:,version" -- "$@") ||
+            usage 1
         eval "set -- $args"
         while true; do
             case "$1" in
@@ -78,6 +79,7 @@ ltsp_cmdline() {
     re locate_applet_scripts "$_APPLET"
     # Remember, locate_applet_scripts has just updated $_SCRIPTS
     re source_scripts "$_SCRIPTS"
+    re omit_functions
     re run_parameters "PRE"
     re "$_APPLET_FUNCTION" "$@"
     re run_parameters "POST"
