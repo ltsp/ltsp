@@ -246,6 +246,8 @@ $(awk 'BEGIN { FS=""; }
 network_vars() {
     local ip _dummy
 
+    test "$_APPLET" != "initrd-bottom" || return 0
+
     test -n "$DEVICE" && test -n "$IP_ADDRESS" && test -n "$MAC_ADDRESS" &&
         return 0
     # 192.168.67.1 is for clients and servers != 192.168.67.1,

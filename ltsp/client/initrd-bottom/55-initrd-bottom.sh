@@ -46,7 +46,9 @@ initrd_bottom_main() {
             re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs/images"
             # If it doesn't start with slash, image should be downloaded
             if [ "${img#/}" = "$img" ]; then
-                configure_networking
+                if is_command configure_networking; then
+                    configure_networking
+                fi
                 warn "Running: wget $img -O $tmpfs/images/${img##*/}"
                 re wget "$img" -O "$tmpfs/images/${img##*/}"
             else
