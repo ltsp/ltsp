@@ -246,8 +246,6 @@ $(awk 'BEGIN { FS=""; }
 network_vars() {
     local ip _dummy
 
-    test "$_APPLET" != "initrd-bottom" || return 0
-
     test -n "$DEVICE" && test -n "$IP_ADDRESS" && test -n "$MAC_ADDRESS" &&
         return 0
     # 192.168.67.1 is for clients and servers != 192.168.67.1,
@@ -260,7 +258,7 @@ network_vars() {
         # server2: local 192.168.67.1 dev lo src 192.168.67.1 uid 0 \    cache <local>
         # server2: 192.168.67.2 dev enp5s0 src 192.168.67.1 uid 0 \    cache
         read -r GATEWAY _dummy DEVICE _dummy IP_ADDRESS<<EOF
-$(rw ip -o route get "$ip" | grep -o '[^ ]* *dev *[^ ]* *src *[^ ]*')
+$(rw ip -o route get "$ip" 2>/dev/null | grep -o '[^ ]* *dev *[^ ]* *src *[^ ]*')
 EOF
         if [ "$_dummy" != "src" ] || [ -z "$GATEWAY" ] ||
             [ -z "$DEVICE" ] || [ -z "$IP_ADDRESS" ]

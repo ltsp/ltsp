@@ -46,6 +46,7 @@ initrd_bottom_main() {
             re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs/images"
             # If it doesn't start with slash, image should be downloaded
             if [ "${img#/}" = "$img" ]; then
+                # Initramfs requires explicit call configure_networking (LP: #1463846)
                 if is_command configure_networking; then
                     configure_networking
                 fi
