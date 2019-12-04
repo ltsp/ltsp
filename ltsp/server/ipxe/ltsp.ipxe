@@ -43,7 +43,7 @@ goto ${img}
 
 :images
 # The "images" method can boot anything in /srv/ltsp/images
-set cmdline_method ltsp.image=http://${srv}/ltsp/images/${img}.img loop.max_part=9
+set cmdline_method ip=dhcp ltsp.image=http://${srv}/ltsp/images/${img}.img loop.max_part=9
 goto ltsp
 
 :roots

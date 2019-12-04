@@ -68,7 +68,7 @@ s|^:61:6c:6b:69:73:67\$|$(textif "$client_sections" "$client_sections" "&")|
 s|^#.*item.*\bimages\b.*|$(textif "$items$r_items" "$items\n$r_items" "&")|
 s|^:images\$|$(textif "$items" "$gotos" "&")|
 s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
-s|\(ltsp.image=\)http://\${srv}/ltsp/\(images/\${img}.img\)|$(textifb "$HTTP_IMAGE" "&" "root=/dev/nfs nfsroot=\${srv}:/srv/ltsp \1\2")|
+s|ip=dhcp \(ltsp.image=\)http://\${srv}/ltsp/\(images/\${img}.img\)|$(textifb "$HTTP_IMAGE" "&" "root=/dev/nfs nfsroot=\${srv}:/srv/ltsp \1\2")|
 "
     fi
     if [ "$BINARIES" != "0" ]; then
