@@ -1,3 +1,20 @@
+ltsp (19.12-1) unstable; urgency=low
+
+  * Use pam-auth-update to install pamltsp (#104)
+  * Fuse3 doesn't need nonempty param (#99)
+  * Demote sshfs to Recommends (#98)
+  * Die after getopt errors (#94)
+  * Introduce IMAGE_TO_RAM parameter
+  * Introduce OMIT_FUNCTIONS parameter
+  * Move back to ltsp.org
+  * Show applets in ltsp --help (#80)
+  * Workaround single quote Ronn bug (#72)
+  * Document MENU_TIMEOUT for [server], not [clients] (#69)
+  * Introduce textifb (#69)
+  * Only modprobe loop if it's not loaded (#70)
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Fri, 06 Dec 2019 10:49:53 +0200
+
 ltsp (19.11-1) unstable; urgency=low
 
   * Prefer external ltsp-binaries package, fall back to ipxe (#49)
