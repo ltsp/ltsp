@@ -29,14 +29,19 @@ install() {
     # The seteuid option is needed for `getent shadow`, for mkdir/chown $HOME,
     # for caching shadow options to /run/ltsp/pam/, for using systemd-run etc.
     # These are Debian/Ubuntu specific:
-    search="^auth\t\[success=1 default=ignore\]\tpam_unix.so nullok_secure$"
-    replace="auth\t\[success=2 default=ignore\]\tpam_unix.so nullok_secure\n\
-auth\t\[success=1 default=ignore\]\tpam_exec.so seteuid expose_authtok stdout quiet $_SELF pam_auth"
-    sed "s|$search|$replace|" -i /etc/pam.d/common-auth
-    grep -qw "pamltsp" /etc/pam.d/common-auth ||
+    printf "Name: SSH based authentication for LTSP
+Default: yes
+Priority: 0
+Auth-Type: Primary
+Auth:
+\t[success=end default=ignore]\tpam_exec.so seteuid expose_authtok stdout quiet %s pam_auth
+Session-Interactive-Only: yes
+Session-Type: Additional
+Session:
+\toptional\tpam_exec.so seteuid stdout quiet %s pam_session\n" \
+    "$_SELF" "$_SELF" > /usr/share/pam-configs/ltsp
+    pam-auth-update --package ltsp ||
         die "Could not configure PAM for SSH authentication!"
-    printf "session optional\tpam_exec.so seteuid stdout quiet %s\n" \
-        "$_SELF pam_session" >> /etc/pam.d/common-session
 }
 
 # May be called:
