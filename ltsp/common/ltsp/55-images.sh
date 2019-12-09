@@ -1,4 +1,4 @@
-# This file is part of LTSP, https://ltsp.github.io
+# This file is part of LTSP, https://ltsp.org
 # Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -342,7 +342,7 @@ set_readahead() {
     mpoint=$1
     if [ -n "$mpoint" ]; then
         devs=$(rw awk '$5 =="'"$mpoint"'" { print $3 }' </proc/self/mountinfo)
-    else
+    elif [ -f /proc/fs/nfsfs/volumes ]; then
         devs=$(rw awk '/^v[0-9]/ { print $4 }' </proc/fs/nfsfs/volumes)
     fi
     for dev in $devs; do

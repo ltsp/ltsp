@@ -1,5 +1,5 @@
 #!/bin/sh
-# This file is part of LTSP, https://ltsp.github.io
+# This file is part of LTSP, https://ltsp.org
 # Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -29,14 +29,19 @@ install() {
     # The seteuid option is needed for `getent shadow`, for mkdir/chown $HOME,
     # for caching shadow options to /run/ltsp/pam/, for using systemd-run etc.
     # These are Debian/Ubuntu specific:
-    search="^auth\t\[success=1 default=ignore\]\tpam_unix.so nullok_secure$"
-    replace="auth\t\[success=2 default=ignore\]\tpam_unix.so nullok_secure\n\
-auth\t\[success=1 default=ignore\]\tpam_exec.so seteuid expose_authtok stdout quiet $_SELF pam_auth"
-    sed "s|$search|$replace|" -i /etc/pam.d/common-auth
-    grep -qw "pamltsp" /etc/pam.d/common-auth ||
+    printf "Name: SSH based authentication for LTSP
+Default: yes
+Priority: 0
+Auth-Type: Primary
+Auth:
+\t[success=end default=ignore]\tpam_exec.so seteuid expose_authtok stdout quiet %s pam_auth
+Session-Interactive-Only: yes
+Session-Type: Additional
+Session:
+\toptional\tpam_exec.so seteuid stdout quiet %s pam_session\n" \
+    "$_SELF" "$_SELF" > /usr/share/pam-configs/ltsp
+    pam-auth-update --package ltsp ||
         die "Could not configure PAM for SSH authentication!"
-    printf "session optional\tpam_exec.so seteuid stdout quiet %s\n" \
-        "$_SELF pam_session" >> /etc/pam.d/common-session
 }
 
 # May be called:
@@ -47,7 +52,7 @@ auth\t\[success=1 default=ignore\]\tpam_exec.so seteuid expose_authtok stdout qu
 # necessary information should be cached in /run/ltsp/pam/ on login.
 pam_auth() {
     local pw_entry pw_name pw_passwd pw_uid pw_gid pw_gecos pw_dir \
-        pw_shell sp_entry sp_namp sp_pwdp dummy msg
+        pw_shell sp_entry sp_namp sp_pwdp dummy sshfs_params msg
 
     pam_log
     # Verify that we're being called from PAM and that the user exists
@@ -168,9 +173,11 @@ EOF
         # sed'ing fuse.conf, chown'ing home etc; if we did, that would be:
         # allow_root: for the DM to setup .Xauthority
         # nonempty: in case of .bash_history or local home
+        sshfs_params=password_stdin,allow_other,default_permissions
+        # fuse3 defaults to nonempty and doesn't accept it
+        is_command fusermount3 || sshfs_params="$sshfs_params,nonempty"
         if "${_SELF%/*}/ssh-askpass" |
-            sshfs -o password_stdin,allow_other,default_permissions,nonempty \
-            "$@" "$pw_name@$SERVER:" "$pw_dir"
+            sshfs -o "$sshfs_params" "$@" "$pw_name@$SERVER:" "$pw_dir"
         then
             success=1
         fi

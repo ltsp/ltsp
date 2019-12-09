@@ -1,4 +1,4 @@
-# This file is part of LTSP, https://ltsp.github.io
+# This file is part of LTSP, https://ltsp.org
 # Copyright 2019 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -7,8 +7,9 @@
 service_cmdline() {
     local args
 
-    args=$(re getopt -n "ltsp $_APPLET" -o "s" -l \
-        "stop" -- "$@")
+    args=$(getopt -n "ltsp $_APPLET" -o "s" -l \
+        "stop" -- "$@") ||
+        usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
