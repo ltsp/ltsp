@@ -70,6 +70,15 @@ configuration.
 **CRONTAB_x=**_"30 15 * * *  poweroff"_
 : Add a line in crontab. The example powers off the clients at 15:30.
 
+**CUPS_SERVER=**_"$SERVER"_
+: Set the CUPS server in the client /etc/cups/client.conf. Defaults to $SERVER.
+You're supposed to also enable printer sharing on the server by running
+`cupsctl _share_printers=1` or `system-config-printer` or by visiting
+[http://localhost:631](http://localhost:631).
+Then all printers can be managed on the LTSP server.
+Other possible values are CUPS_SERVER="localhost", when a printer is connected
+to a client, or CUPS_SERVER="ignore", to skip CUPS server handling.
+
 **DEBUG_LOG=**_0|1_
 : Write warnings and error messages to /run/ltsp/debug.log. Defaults to 0.
 
