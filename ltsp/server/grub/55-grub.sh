@@ -5,16 +5,21 @@
 # Install Grub binaries and configuration in TFTP
 # @LTSP.CONF: DEFAULT_IMAGE KERNEL_PARAMETERS MENU_TIMEOUT
 
+HTTP=${HTTP:-0}
+HTTP_IMAGE=${HTTP_IMAGE:-0}
+
 grub_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "b::" -l \
-        "binaries::" -- "$@") ||
+    args=$(getopt -n "ltsp $_APPLET" -o "b::h::H::" -l \
+        "binaries::,http::,http-image::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
             -b|--binaries) shift; BINARIES=${1:-1} ;;
+            -h|--http) shift; HTTP=${1:-1} ;;
+            -H|--http-image) shift; HTTP_IMAGE=${1:-1} ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac
@@ -69,6 +74,7 @@ s/\( set timeout=\)5/$(textif "$MENU_TIMEOUT" "\1$MENU_TIMEOUT" "&")/
 s|^\(# Client sections\)\$|$(textif "$client_sections" "\1\n$client_sections" "&")|
 s|^\(# The \"images\" method can boot .*\)\$|$(textif "$items" "\1\n$items" "&")|
 s|^\(# The \"roots\" method can boot .*\)\$|$(textif "$items" "\1\n$r_items" "&")|
+s|^regexp --set=1:proto .*\$|$(textifb "$HTTP" "set proto=http" "&")|
 "
     fi
     if [ "$BINARIES" != "0" ]; then
@@ -143,7 +149,11 @@ grub_entry() {
     title=$3
     case "$method" in
         image)
-            cmdline_method="root=/dev/nfs nfsroot=\${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9"
+            if [ "$HTTP_IMAGE" = 1 ]; then
+                cmdline_method="ip=dhcp ltsp.image=http://\${srv}/ltsp/images/${img}.img"
+            else
+                cmdline_method="root=/dev/nfs nfsroot=\${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9"
+            fi
         ;;
         root)
             cmdline_method="root=/dev/nfs nfsroot=\${srv}:/srv/ltsp/${img}"
@@ -153,10 +163,10 @@ grub_entry() {
     awk -v ORS='\\n' '1'  <<EOF
 menuentry "${title}" --class images {
     set cmdline="${cmdline_method} \${cmdline_ltsp} \${cmdline_client}"
-    echo "/ltsp/${img}/vmlinuz..."
+    echo "\${proto}://\${srv}/ltsp/${img}/vmlinuz..."
     linux /ltsp/${img}/vmlinuz initrd=ltsp.img initrd=initrd.img \${cmdline}
-    echo "/ltsp/ltsp.img..."
-    echo "/ltsp/${img}/initrd.img..."
+    echo "\${proto}://\${srv}/ltsp/ltsp.img..."
+    echo "\${proto}://\${srv}/ltsp/${img}/initrd.img..."
     initrd /ltsp/ltsp.img /ltsp/${img}/initrd.img
 }
 EOF
