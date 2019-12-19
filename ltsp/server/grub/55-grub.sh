@@ -70,7 +70,8 @@ To overwrite it, run: ltsp --overwrite $_APPLET ..."
         client_sections=$(re client_sections)
         re install_template "grub.cfg" "$TFTP_DIR/ltsp/grub/grub.cfg" "\
 s|/srv/ltsp|$BASE_DIR|g
-s|^\(set cmdline_ltsp=.*\)|$(textif "$KERNEL_PARAMETERS" "\1\nset cmdline_client \"$KERNEL_PARAMETERS\"" "&")|
+s|^\(set cmdline_ltsp=.*\)|$(textif "$KERNEL_PARAMETERS" "\1\nset cmdline_client=\"$KERNEL_PARAMETERS\"" "&")|
+s|^\(set cmdline_ltsp=.*\)|$(textif "$DEFAULT_IMAGE" "\1\nset default=\"$DEFAULT_IMAGE\"" "&")|
 s/\( set timeout=\)5/$(textif "$MENU_TIMEOUT" "\1$MENU_TIMEOUT" "&")/
 s|^\(# Client sections\)\$|$(textif "$client_sections" "\1\n$client_sections" "&")|
 s|^\(# The \"images\" method can boot .*\)\$|$(textif "$items" "\1\n$items" "&")|
