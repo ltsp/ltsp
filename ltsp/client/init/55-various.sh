@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Handle various little things that don't deserve a separate file
-# @LTSP.CONF: FSTAB_x IGNORE_EPOPTES
+# @LTSP.CONF: CUPS_SERVER FSTAB_x IGNORE_EPOPTES
 
 various_main() {
     # initrd-bottom may have renamed the real init
@@ -19,11 +19,22 @@ various_main() {
     fi
     # Disable systemd-gpt-auto-generator (DiscoverablePartitionsSpec)
     rw rm -f /lib/systemd/system-generators/systemd-gpt-auto-generator
+    config_cups_server
     config_epoptes
     config_fstab
     config_locale
     config_machine_id
     config_motd
+}
+
+config_cups_server() {
+    if  [ "$CUPS_SERVER" = "ignore" ] || [ ! -d /etc/cups ]; then
+        return 0
+    fi
+    echo "ServerName ${CUPS_SERVER:-$SERVER}" > /etc/cups/client.conf
+    if [ "$CUPS_SERVER" != "localhost" ]; then
+        re systemctl mask --quiet --root=/ --no-reload cups
+    fi
 }
 
 config_epoptes() {

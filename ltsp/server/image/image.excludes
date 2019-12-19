@@ -44,6 +44,7 @@ var/log/*/*
 var/mail/*
 var/spool/cron/*/*
 var/spool/cups/*
+var/spool/squid/*
 var/spool/squid3/*
 var/swap
 var/tmp/.*

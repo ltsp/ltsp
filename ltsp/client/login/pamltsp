@@ -175,7 +175,8 @@ EOF
         # nonempty: in case of .bash_history or local home
         sshfs_params=password_stdin,allow_other,default_permissions
         # fuse3 defaults to nonempty and doesn't accept it
-        is_command fusermount3 || sshfs_params="$sshfs_params,nonempty"
+        command -v fusermount3 >/dev/null ||
+            sshfs_params="$sshfs_params,nonempty"
         if "${_SELF%/*}/ssh-askpass" |
             sshfs -o "$sshfs_params" "$@" "$pw_name@$SERVER:" "$pw_dir"
         then
