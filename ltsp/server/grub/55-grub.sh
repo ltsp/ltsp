@@ -76,7 +76,7 @@ s/\( set timeout=\)5/$(textif "$MENU_TIMEOUT" "\1$MENU_TIMEOUT" "&")/
 s|^\(# Client sections\)\$|$(textif "$client_sections" "\1\n$client_sections" "&")|
 s|^\(# The \"images\" method can boot .*\)\$|$(textif "$items" "\1\n$items" "&")|
 s|^\(# The \"roots\" method can boot .*\)\$|$(textif "$items" "\1\n$r_items" "&")|
-s|^regexp --set=1:proto .*\$|$(textifb "$HTTP" "set proto=http" "&")|
+s|^regexp --set=1:proto .*\$|$(textifb "$HTTP" "set proto=http\nset root=\"http,\${srv}\"" "&")|
 "
     fi
     if [ "$BINARIES" != "0" ]; then
