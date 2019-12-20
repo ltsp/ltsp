@@ -1,3 +1,22 @@
+ltsp (19.12.1-1) unstable; urgency=medium
+
+  [ Alkis Georgopoulos ]
+  * Add var/spool/squid/* to image.excludes (#106)
+  * Amend tftp-root path (#107)
+  * pamltsp is not an LTSP applet and can't use is_command
+  * Introduce CUPS_SERVER (#8)
+
+  [ kvaps ]
+  * Allow global KERNEL_PARAMETERS (#110)
+
+  [ Alkis Georgopoulos ]
+  * Allow global DEFAULT_IMAGE
+
+  [ Vagrant Cascadian ]
+  * Add var/cache/squid-deb-proxy/* to image.excludes
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Thu, 19 Dec 2019 23:33:44 -0800
+
 ltsp (19.12-1) unstable; urgency=low
 
   * Use pam-auth-update to install pamltsp (#104)
