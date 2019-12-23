@@ -51,6 +51,15 @@ The `ltsp initrd` command does a quick syntax check by running
 The following parameters are currently defined; an example is given in
 each case.
 
+**ADD_IMAGE_EXCLUDES=**_"/etc/ltsp/add-image.excludes"_<br/>
+**OMIT_IMAGE_EXCLUDES=**_"home/*"_<br/>
+: Add or omit items to the `ltsp image` exclusion list.
+Some files and directories shouldn't be included in the generated image.
+The initial list is defined in /usr/share/ltsp/server/image/image.excludes.
+It can be completely overriden by creating /etc/ltsp/image.excludes.
+ADD_IMAGE_EXCLUDES and OMIT_IMAGE_EXCLUDES can finetune the list by adding
+or removing lines to it. They can either be filenames or multiline text.
+
 **AUTOLOGIN=**_"user01"_<br/>
 **RELOGIN=**_0|1_<br/>
 **GDM3\_CONF=**_"WaylandEnable=false"_<br/>
