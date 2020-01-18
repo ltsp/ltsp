@@ -203,7 +203,8 @@ locate_applet_scripts() {
         test -d "$_APPLET_DIR" && break
     done
     test -d "$_APPLET_DIR" || die "Could not locate LTSP applet: $_APPLET"
-    if [ "$sub_dir" = client ] && [ ! -d /run/ltsp/client ] ; then
+    if [ "$sub_dir" = client ] && [ ! -d /run/ltsp/client ] && [ "$$" != "1" ]
+    then
         die "Refusing to run client applet $_APPLET in non-ltsp client"
     fi
     # All applets are required to have an entry function ${_APPLET}_cmdline

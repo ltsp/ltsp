@@ -141,12 +141,12 @@ they're listed in MASK_SYSTEM_SERVICES. Space separated list.
 
 **MASK_SESSION_SERVICES=**_"ubuntu-mate-welcome"_
 : Mask some session services that shouldn't be started on LTSP clients.
-Space separated list. See /usr/share/ltsp/client/init/56-rm-services.sh
+Space separated list. See /usr/share/ltsp/client/init/56-mask-services.sh
 for the default. Setting MASK_SESSION_SERVICES in ltsp.conf adds to that list.
 
 **MASK_SYSTEM_SERVICES=**_"teamviewerd"_
 : Mask some system services that shouldn't be started on LTSP clients.
-Space separated list. See /usr/share/ltsp/client/init/56-rm-services.sh
+Space separated list. See /usr/share/ltsp/client/init/56-mask-services.sh
 for the default. Setting MASK_SYSTEM_SERVICES in ltsp.conf adds to that list.
 
 **NAT=**_0|1_
@@ -198,6 +198,13 @@ more of those regular expressions. For more information, read
 pc01, pc02 etc, and your users a01, a02, b01, b02 etc, then the following
 line only shows/allows a01 and b01 to login to pc01:
 `PWMERGE_SUR=".*${HOSTNAME#pc}"`
+
+**RPI_IMAGE=**_"raspbian"_
+: Select this LTSP image to boot Raspberry Pis from.
+This symlinks all $BASE_DIR/$RPI_IMAGE/boot/* files directly under $TFTP_DIR
+when `ltsp kernel $RPI_IMAGE` is called.
+See the [Raspberry Pi documentation page](https://ltsp.org/docs/raspberrypi)
+for more information.
 
 **SEARCH_DOMAIN=**_"ioa.sch.gr"_
 : A search domain to add to resolv.conf and to /etc/hosts. Usually provided
