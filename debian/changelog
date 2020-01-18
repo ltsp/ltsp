@@ -1,3 +1,14 @@
+ltsp (20.01-1) unstable; urgency=medium
+
+  [ Alkis Georgopoulos ]
+  * Server-side support for Raspberry Pis (#68)
+  * Introduce ADD_IMAGE_EXCLUDES and OMIT_IMAGE_EXCLUDES (#83)
+
+  [ Vagrant Cascadian ]
+  * debian/copyright: Use https URL for gnu.org licenses page
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Sat, 18 Jan 2020 12:35:47 +0200
+
 ltsp (19.12.1-1) unstable; urgency=medium
 
   [ Alkis Georgopoulos ]
