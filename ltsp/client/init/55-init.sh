@@ -13,6 +13,7 @@ init_cmdline() {
     re run_main_functions "$_SCRIPTS" "$@"
     # Since we don't return, we need to run the POST parameters manually
     re run_parameters "POST"
+    rw at_exit -EXIT
     re exec /sbin/init
 }
 
@@ -24,16 +25,16 @@ mount_devices() {
         test -d "$mp" || die "Missing directory: $mp"
     done
     test -f /proc/mounts ||
-        re mount -vt proc -o nodev,noexec,nosuid proc /proc
+        re vmount -t proc -o nodev,noexec,nosuid proc /proc
     mounts=$(re awk '{ printf " %s ",$2 }' < /proc/mounts)
     test "$mounts" != "${mounts#* /sys }" ||
-        re mount -vt sysfs -o nodev,noexec,nosuid sysfs /sys
+        re vmount -t sysfs -o nodev,noexec,nosuid sysfs /sys
     test "$mounts" != "${mounts#* /dev }" ||
-        re mount -vt devtmpfs -o nosuid,mode=0755 udev /dev
+        re vmount -t devtmpfs -o nosuid,mode=0755 udev /dev
     test -d /dev/pts ||
         re mkdir -p /dev/pts
     test "$mounts" != "${mounts#* /dev/pts }" ||
-        re mount -vt devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts
+        re vmount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts
     test "$mounts" != "${mounts#* /run }" ||
-        re mount -vt tmpfs -o noexec,nosuid,size=10%,mode=0755 tmpfs /run
+        re vmount -t tmpfs -o noexec,nosuid,size=10%,mode=0755 tmpfs /run
 }

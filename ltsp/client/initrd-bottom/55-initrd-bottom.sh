@@ -35,7 +35,7 @@ initrd_bottom_main() {
             re mkdir -p "/run/initramfs/ltsp"
             warn "Running: cp $img /run/initramfs/ltsp/${img##*/}"
             re cp "$img" "/run/initramfs/ltsp/${img##*/}"
-            re umount "/root"
+            re umount "$rootmnt"
             img_src="/run/initramfs/ltsp/${img##*/}$rest"
         fi
         re mount_img_src "$img_src" "$rootmnt"
@@ -49,8 +49,7 @@ initrd_bottom_main() {
             "$rootmnt/live/filesystem.squashfs"
         do
             if [ -f "$img_src" ]; then
-                warn "Running: mount -t squashfs -o ro $img_src $rootmnt"
-                re mount -t squashfs -o ro "$img_src" "$rootmnt"
+                re vmount -t squashfs -o ro "$img_src" "$rootmnt"
                 re set_readahead "$rootmnt"
             fi
         done

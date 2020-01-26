@@ -169,7 +169,7 @@ exit_command() {
         trap "at_exit -TERM" HUP INT QUIT SEGV PIPE TERM
         trap "at_exit -EXIT" EXIT
     fi
-    if [ "$_APPLET" = "initrd-bottom" ]; then
+    if [ "$_APPLET" = "initrd-bottom" ] || [ "$_APPLET" = "init" ]; then
         _TERM_COMMANDS="$*
 $_TERM_COMMANDS"
     else

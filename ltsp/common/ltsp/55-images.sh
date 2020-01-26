@@ -220,11 +220,9 @@ img_src=$img_src
             # overlay / overlay rw,relatime,lowerdir=/tmp/tmp.Sji338BQsB/ltsp,upperdir=/tmp/tmp.Sji338BQsB/up,workdir=/tmp/tmp.Sji338BQsB/work 0 0
             # ...which is scary; and, additionally, inserting a flash drive
             # at that point mounts it under /tmp/tmp.Sji338BQsB/ltsp/media!
-            warn "Running: mount --bind --make-private -o ${options:-ro} $img_path $dst/$subdir"
-            re mount --bind --make-private -o "${options:-ro}" "$img_path" "$dst/$subdir"
+            re vmount --bind --make-private -o "${options:-ro}" "$img_path" "$dst/$subdir"
             # _LOCKROOT is needed for lock_package_management()
             _LOCKROOT="$img_path"
-            exit_command "rw umount '$dst/$subdir'"
         elif [ -e "$img_path" ]; then
             re mount_file "$img_path" "$dst/$subdir" "$options" "$fstype" "$partition"
         else
@@ -276,7 +274,7 @@ mount_file() {
         unset fstype
         loopdev=$(re losetup -f)
         # Note, klibc losetup doesn't support -r (read only)
-        warn "Running: " losetup "$loopdev" "$src"
+        warn "Running: losetup $loopdev $src"
         re losetup "$loopdev" "$src"
         exit_command "rw losetup -d '$loopdev'"
         test -f /scripts/functions || partprobe "$loopdev"
@@ -296,9 +294,7 @@ mount_file() {
             ext*)  options=${options:-ro,noload} ;;
             *)  options=${options:-ro} ;;
         esac
-        warn "Running: " mount -t "$fstype" ${options:+-o "$options"} "$image" "$dst"
-        re mount -t "$fstype" ${options:+-o "$options"} "$image" "$dst"
-        exit_command "rw umount '$dst'"
+        re vmount -t "$fstype" ${options:+-o "$options"} "$image" "$dst"
         return 0
     done
     die "I don't know how to mount $src"
@@ -322,13 +318,10 @@ overlay() {
         re modprobe overlay
         grep -q overlay /proc/filesystems || die "Could not modprobe overlay"
     fi
-    re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
-    exit_command "rw umount '$tmpfs'"
+    re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
     re mkdir -p "$tmpfs/up" "$tmpfs/work"
     # tmpfs; no need for: exit_command "rw rm -r '$tmpfs/up' '$tmpfs/work'"
-    warn "Running: mount -t overlay -o upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work "$tmpfs" $dst"
-    re mount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" "$tmpfs" "$dst"
-    exit_command "rw umount '$dst'"
+    re vmount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" "$tmpfs" "$dst"
 }
 
 # Most file systems use 128 KB readahead. NFS had a bug and used 15 MB.
@@ -357,4 +350,23 @@ set_readahead() {
             break
         done
     done
+}
+
+# Be verbose, mount, and call exit_command if --no-exit wasn't passed.
+# Destination must be the last parameter.
+vmount() {
+    local dst no_exit
+
+    if [ "$1" = "--no-exit" ]; then
+        no_exit=1
+        shift
+    else
+        unset no_exit
+    fi
+    warn "Running: mount $*"
+    re mount "$@"
+    # Set dst to the last argument
+    for dst; do true; done
+    test "$no_exit" = "1" ||
+        exit_command "rw umount $dst"
 }
