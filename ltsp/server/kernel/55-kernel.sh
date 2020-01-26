@@ -24,7 +24,7 @@ kernel_cmdline() {
 }
 
 kernel_main() {
-    local tmp img_src img_name runipxe
+    local img_src img_name runipxe tmp
 
     if [ "$#" -eq 0 ]; then
         img_src=$(list_img_names)
@@ -48,10 +48,10 @@ Please export ALL_IMAGES=1 if you want to allow this"
         tmp=$(re mktemp -d)
         exit_command "rw rmdir '$tmp'"
         # tmp has mode=0700; use a subdir to hide the mount from users
-        re mkdir -p "$tmp/ltsp"
-        exit_command "rw rmdir '$tmp/ltsp'"
-        tmp=$tmp/ltsp
-        re mount_img_src "$img_src" "$tmp"
+        re mkdir -p "$tmp/root" "$tmp/tmpfs"
+        exit_command "rw rmdir '$tmp/root' '$tmp/tmpfs'"
+        re mount_img_src "$img_src" "$tmp/root" "$tmp/tmpfs"
+        tmp=$tmp/root
         re mkdir -p "$TFTP_DIR/ltsp/$img_name/"
         read -r vmlinuz initrd <<EOF
 $(search_kernel "$tmp" | head -n 1)

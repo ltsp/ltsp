@@ -18,11 +18,12 @@ initrd_bottom_cmdline() {
 }
 
 initrd_bottom_main() {
-    local img_src img rest
+    local tmpfs img_src img rest
 
-    warn "Running $0"
+    echo "Running $0 $_APPLET"
     kernel_vars
     re set_readahead "$rootmnt"
+    tmpfs="/run/initramfs/ltsp"
     if [ -n "$IMAGE" ]; then
         img_src=$IMAGE
         # If it doesn't start with slash, it's relative to $rootmnt
@@ -32,13 +33,14 @@ initrd_bottom_main() {
         if [ "$IMAGE_TO_RAM" = "1" ]; then
             img=${img_src%%,*}
             rest=${img_src#$img}
-            re mkdir -p "/run/initramfs/ltsp"
-            warn "Running: cp $img /run/initramfs/ltsp/${img##*/}"
-            re cp "$img" "/run/initramfs/ltsp/${img##*/}"
+            re mkdir -p "$tmpfs"
+            re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
+            echo "Running: cp -a $img $tmpfs/${img##*/}"
+            re cp -a "$img" "$tmpfs/${img##*/}"
             re umount "$rootmnt"
-            img_src="/run/initramfs/ltsp/${img##*/}$rest"
+            img_src="$tmpfs/${img##*/}$rest"
         fi
-        re mount_img_src "$img_src" "$rootmnt"
+        re mount_img_src "$img_src" "$rootmnt" "$tmpfs"
         re set_readahead "$rootmnt"
     elif [ ! -d "$rootmnt/proc" ]; then
         die "$rootmnt/proc doesn't exist and ltsp.image wasn't specified"
@@ -49,16 +51,12 @@ initrd_bottom_main() {
             "$rootmnt/live/filesystem.squashfs"
         do
             if [ -f "$img_src" ]; then
-                re vmount -t squashfs -o ro "$img_src" "$rootmnt"
+                re omount "$img_src" "$rootmnt" "$tmpfs" -t squashfs -o ro
                 re set_readahead "$rootmnt"
             fi
         done
     fi
     test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in $_APPLET"
-    if [ "$OVERLAY" != "0" ]; then
-        re modprobe_overlay
-        re overlay "$rootmnt" "$rootmnt" "/run/initramfs/ltsp"
-    fi
     re install_ltsp
 }
 

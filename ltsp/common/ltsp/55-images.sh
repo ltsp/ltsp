@@ -164,13 +164,16 @@ add_path_to_src() {
 # Examples for ltsp image:
 # ltsp image -c /,,/boot/efi,subdir=boot/efi
 mount_img_src() {
-    local img_src dst options img partition fstype subdir var_value value first_time
+    local img_src dst tmpfs options img partition fstype subdir var_value value first_time
 
     img_src=$1
     dst=$2
+    tmpfs=$3
     # Ensure $dst is a directory but not /
     dst=$(re readlink -f "$dst")
     test -d "${dst%/}" || die "Error in mount_img_src: $dst"
+    # _LOCKROOT is needed for lock_package_management()
+    unset _LOCKROOT
     first_time=1
     while [ -n "$img_src" ]; do
         img_options=${img_src%%,,*}
@@ -214,17 +217,10 @@ img_src=$img_src
 "
         # Now img_path has enough path information
         if [ -d "$img_path" ]; then
-            # TODO: it's for debugging, remove the next line
-            re test "mount_img_src:$img_path" != "mount_img_src:$dst"
-            # Without --make-private, `mount` while `ltsp image /` runs, shows:
-            # overlay / overlay rw,relatime,lowerdir=/tmp/tmp.Sji338BQsB/ltsp,upperdir=/tmp/tmp.Sji338BQsB/up,workdir=/tmp/tmp.Sji338BQsB/work 0 0
-            # ...which is scary; and, additionally, inserting a flash drive
-            # at that point mounts it under /tmp/tmp.Sji338BQsB/ltsp/media!
-            re vmount --bind --make-private -o "${options:-ro}" "$img_path" "$dst/$subdir"
-            # _LOCKROOT is needed for lock_package_management()
-            _LOCKROOT="$img_path"
+            re omount "$img_path" "$dst/$subdir" "$tmpfs" -o "${options:-ro}"
+            _LOCKROOT="${_LOCKROOT:-$img_path}"
         elif [ -e "$img_path" ]; then
-            re mount_file "$img_path" "$dst/$subdir" "$options" "$fstype" "$partition"
+            re mount_file "$img_path" "$dst/$subdir" "$tmpfs" "$options" "$fstype" "$partition"
         else
             # Warn, don't die, to allow test-mounting image sources
             warn "Image doesn't exist: $img_path"
@@ -258,13 +254,14 @@ mount_type() {
 
 # Try to loop mount a raw partition/disk file to dst
 mount_file() {
-    local src dst options fstype partition loopdev loopparts noload
+    local src dst tmpfs options fstype partition loopdev loopparts noload
 
-    src="$1"
-    dst="$2"
-    options="$3"
-    fstype="$4"
-    partition="$5"
+    src=$1
+    dst=$2
+    tmpfs=$3
+    options=$4
+    fstype=$5
+    partition=$6
     re test -e "$src"
     re test -d "$dst"
     # Work around https://bugs.busybox.net/show_bug.cgi?id=11941 and #70
@@ -274,7 +271,7 @@ mount_file() {
         unset fstype
         loopdev=$(re losetup -f)
         # Note, klibc losetup doesn't support -r (read only)
-        warn "Running: losetup $loopdev $src"
+        echo "Running: losetup $loopdev $src"
         re losetup "$loopdev" "$src"
         exit_command "rw losetup -d '$loopdev'"
         test -f /scripts/functions || partprobe "$loopdev"
@@ -294,7 +291,7 @@ mount_file() {
             ext*)  options=${options:-ro,noload} ;;
             *)  options=${options:-ro} ;;
         esac
-        re vmount -t "$fstype" ${options:+-o "$options"} "$image" "$dst"
+        re omount "$image" "$dst" "$tmpfs" -t "$fstype" ${options:+-o "$options"}
         return 0
     done
     die "I don't know how to mount $src"
@@ -322,6 +319,52 @@ overlay() {
     re mkdir -p "$tmpfs/up" "$tmpfs/work"
     # tmpfs; no need for: exit_command "rw rm -r '$tmpfs/up' '$tmpfs/work'"
     re vmount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" "$tmpfs" "$dst"
+}
+
+# Overlay src into dst, unless OVERLAY=0.
+# Create a tmpfs on the first call. Create appropriate subdirs there to use
+# for up/work dirs; don't use overlayfs subdirs like ltsp-update-image did,
+# for efficiency reasons.
+omount() {
+    local src dst tmpfs i tmpdst
+
+    src=$1
+    dst=$2
+    tmpfs=$3
+    # The rest are parameters to mount
+    shift 3
+    re test -e "$src"
+    re test -d "$dst"
+    if [ "$OVERLAY" = "0" ]; then
+        # Support running LTSP inside discardable containers
+        if [ -d "$src" ]; then
+            re vmount --bind "$src" "$dst"
+        else
+            re vmount "$@" "$src" "$dst"
+        fi
+        return 0
+    fi
+    if ! grep -q overlay /proc/filesystems; then
+        re modprobe overlay
+        grep -q overlay /proc/filesystems || die "Could not modprobe overlay"
+    fi
+    if [ ! -d "$tmpfs" ] || [ "$(stat -fc %T "$tmpfs")" != "tmpfs" ]; then
+        re mkdir -p "$tmpfs"
+        re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
+    fi
+    i=0
+    while [ -d "$tmpfs/$i" ]; do
+        i=$((i+1))
+    done
+    tmpdst=$tmpfs/$i
+    re mkdir -p "$tmpdst/up" "$tmpdst/work"
+    # No need for `exit_command rm ...` on tmpfs
+    if [ ! -d "$src" ]; then
+        re mkdir -p "$tmpdst/looproot"
+        re vmount "$@" "$src" "$tmpdst/looproot"
+        src="$tmpdst/looproot"
+    fi
+    re vmount -t overlay -o "upperdir=$tmpdst/up,lowerdir=$src,workdir=$tmpdst/work" "$tmpfs" "$dst"
 }
 
 # Most file systems use 128 KB readahead. NFS had a bug and used 15 MB.
@@ -363,7 +406,7 @@ vmount() {
     else
         unset no_exit
     fi
-    warn "Running: mount $*"
+    echo "Running: mount $*"
     re mount "$@"
     # Set dst to the last argument
     for dst; do true; done
