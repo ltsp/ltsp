@@ -142,6 +142,28 @@ add_path_to_src() {
     fi
 }
 
+modprobe_overlay() {
+    local target overlayko
+
+    target=$1
+    grep -q overlay /proc/filesystems &&
+        return 0
+    modprobe overlay &&
+        grep -q overlay /proc/filesystems &&
+        return 0
+    overlayko="$target/lib/modules/$(uname -r)/kernel/fs/overlayfs/overlay.ko"
+    if [ -f "$overlayko" ]; then
+        # Do not `ln -s "$target/lib/modules" /lib/modules`
+        # In that case, $target is in use after modprobe
+        warn "Loading overlay module from real root" >&2
+        # insmod is availabe in Debian initramfs but not in Ubuntu
+        "$target/sbin/insmod" "$overlayko" &&
+            grep -q overlay /proc/filesystems &&
+            return 0
+    fi
+    return 1
+}
+
 # Process a series of mount sources to mount an image to dst, for example:
 #     img1,mount-options1,,img2,mount-options2,,...
 # The following rules apply:
@@ -297,30 +319,6 @@ mount_file() {
     die "I don't know how to mount $src"
 }
 
-# Overlay src and a tmpfs overlay into dst
-# It uses exit_command for umount / rmdir
-overlay() {
-    local src dst tmpfs
-
-    src=$1
-    dst=$2
-    tmpfs=$3
-    re test -d "$src"
-    re test -d "$dst"
-    if [ ! -d "$tmpfs" ]; then
-        re mkdir -p "$tmpfs"
-        exit_command "rw rmdir '$tmpfs'"
-    fi
-    if ! grep -q overlay /proc/filesystems; then
-        re modprobe overlay
-        grep -q overlay /proc/filesystems || die "Could not modprobe overlay"
-    fi
-    re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
-    re mkdir -p "$tmpfs/up" "$tmpfs/work"
-    # tmpfs; no need for: exit_command "rw rm -r '$tmpfs/up' '$tmpfs/work'"
-    re vmount -t overlay -o "upperdir=$tmpfs/up,lowerdir=$src,workdir=$tmpfs/work" "$tmpfs" "$dst"
-}
-
 # Overlay src into dst, unless OVERLAY=0.
 # Create a tmpfs on the first call. Create appropriate subdirs there to use
 # for up/work dirs; don't use overlayfs subdirs like ltsp-update-image did,
@@ -344,10 +342,6 @@ omount() {
         fi
         return 0
     fi
-    if ! grep -q overlay /proc/filesystems; then
-        re modprobe overlay
-        grep -q overlay /proc/filesystems || die "Could not modprobe overlay"
-    fi
     if [ ! -d "$tmpfs" ] || [ "$(stat -fc %T "$tmpfs")" != "tmpfs" ]; then
         re mkdir -p "$tmpfs"
         re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
@@ -363,6 +357,10 @@ omount() {
         re mkdir -p "$tmpdst/looproot"
         re vmount "$@" "$src" "$tmpdst/looproot"
         src="$tmpdst/looproot"
+    fi
+    if ! grep -q overlay /proc/filesystems; then
+        re modprobe_overlay "$src"
+        grep -q overlay /proc/filesystems || die "Could not modprobe overlay"
     fi
     re vmount -t overlay -o "upperdir=$tmpdst/up,lowerdir=$src,workdir=$tmpdst/work" "$tmpfs" "$dst"
 }

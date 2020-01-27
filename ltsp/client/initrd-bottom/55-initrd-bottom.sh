@@ -95,24 +95,3 @@ install_ltsp() {
         echo "init=${init:-/sbin/init}" >> /scripts/init-bottom/ORDER
     fi
 }
-
-modprobe_overlay() {
-    local overlayko
-
-    grep -q overlay /proc/filesystems &&
-        return 0
-    modprobe overlay &&
-        grep -q overlay /proc/filesystems &&
-        return 0
-    overlayko="$rootmnt/lib/modules/$(uname -r)/kernel/fs/overlayfs/overlay.ko"
-    if [ -f "$overlayko" ]; then
-        # Do not `ln -s "$rootmnt/lib/modules" /lib/modules`
-        # In that case, /root is in use after modprobe
-        warn "Loading overlay module from real root" >&2
-        # insmod is availabe in Debian initramfs but not in Ubuntu
-        "$rootmnt/sbin/insmod" "$overlayko" &&
-            grep -q overlay /proc/filesystems &&
-            return 0
-    fi
-    return 1
-}
