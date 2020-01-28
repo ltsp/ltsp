@@ -43,7 +43,7 @@ $MASK_SESSION_SERVICES")"
 
     # TODO: also blacklist and handle systemd user units
     for service in $mask_services; do
-        rm -f "/etc/xdg/autostart/$service.desktop" \
+        re rm -f "/etc/xdg/autostart/$service.desktop" \
             "/usr/share/upstart/xdg/autostart/$service.desktop"
     done
 }
@@ -119,5 +119,5 @@ $MASK_SYSTEM_SERVICES")"
             existing_services="$existing_services $service"
         fi
     done
-    systemctl disable --quiet --root=/ --no-reload $existing_services
+    rw systemctl disable --quiet --root=/ --no-reload $existing_services
 }
