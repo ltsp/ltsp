@@ -106,8 +106,8 @@ EOF
     fi
     # Cache the shadow entry for screensaver and passwordless authentication
     if [ "$_UID" = 0 ]; then
-        # TODO: change that to 700 if we need .ICEauthority here
-        mkdir -p -m 500 "/run/ltsp/pam/$pw_name"
+        # This is 700 for pid and in case we wanted .ICEauthority
+        mkdir -p -m 700 "/run/ltsp/pam/$pw_name"
         chown "$pw_uid:$pw_gid" "/run/ltsp/pam/$pw_name"
         echo "$sp_entry" > "/run/ltsp/pam/$pw_name/shadow"
     fi
