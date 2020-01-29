@@ -45,17 +45,6 @@ initrd_bottom_main() {
     elif [ ! -d "$rootmnt/proc" ]; then
         die "$rootmnt/proc doesn't exist and ltsp.image wasn't specified"
     fi
-    # Handle some common live CDs
-    if [ ! -d "$rootmnt/proc" ]; then
-        for img_src in "$rootmnt/casper/filesystem.squashfs" \
-            "$rootmnt/live/filesystem.squashfs"
-        do
-            if [ -f "$img_src" ]; then
-                re omount "$img_src" "$rootmnt" "$tmpfs" -t squashfs -o ro
-                re set_readahead "$rootmnt"
-            fi
-        done
-    fi
     test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in $_APPLET"
     re install_ltsp
 }

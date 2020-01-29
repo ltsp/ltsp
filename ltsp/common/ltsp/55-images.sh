@@ -151,6 +151,7 @@ modprobe_overlay() {
     modprobe overlay &&
         grep -q overlay /proc/filesystems &&
         return 0
+    # Try to load overlay.ko from the target
     overlayko="$target/lib/modules/$(uname -r)/kernel/fs/overlayfs/overlay.ko"
     if [ -f "$overlayko" ]; then
         # Do not `ln -s "$target/lib/modules" /lib/modules`
@@ -357,6 +358,19 @@ omount() {
         re mkdir -p "$tmpdst/looproot"
         re vmount "$@" "$src" "$tmpdst/looproot"
         src="$tmpdst/looproot"
+    fi
+    # Autodetect live CDs, after all the mounts but before needing overlay
+    if [ "$_APPLET" = "initrd-bottom" ] && [ ! -d "$src/proc" ]; then
+        for i in "$src/casper/filesystem.squashfs" \
+            "$src/live/filesystem.squashfs"
+        do
+            if [ -f "$i" ]; then
+                echo "Autodetected live CD image: $i"
+                re vmount -t squashfs -o ro "$i" "$src"
+                re set_readahead "$src"
+                break
+            fi
+        done
     fi
     if ! grep -q overlay /proc/filesystems; then
         re modprobe_overlay "$src"
