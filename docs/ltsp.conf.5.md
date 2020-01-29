@@ -56,7 +56,7 @@ each case.
 : Add or omit items to the `ltsp image` exclusion list.
 Some files and directories shouldn't be included in the generated image.
 The initial list is defined in /usr/share/ltsp/server/image/image.excludes.
-It can be completely overriden by creating /etc/ltsp/image.excludes.
+It can be completely overridden by creating /etc/ltsp/image.excludes.
 ADD_IMAGE_EXCLUDES and OMIT_IMAGE_EXCLUDES can finetune the list by adding
 or removing lines to it. They can either be filenames or multiline text.
 
