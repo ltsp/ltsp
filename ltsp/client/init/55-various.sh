@@ -33,7 +33,7 @@ config_cups_server() {
     fi
     echo "ServerName ${CUPS_SERVER:-$SERVER}" > /etc/cups/client.conf
     if [ "$CUPS_SERVER" != "localhost" ]; then
-        re systemctl mask --quiet --root=/ --no-reload cups
+        rw systemctl mask --quiet --root=/ --no-reload cups
     fi
 }
 
