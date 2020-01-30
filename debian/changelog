@@ -9,7 +9,23 @@ ltsp (20.01-1) unstable; urgency=medium
   [ Vagrant Cascadian ]
   * debian/copyright: Use https URL for gnu.org licenses page
 
- -- Alkis Georgopoulos <alkisg@gmail.com>  Sat, 18 Jan 2020 12:35:47 +0200
+  [ Alkis Georgopoulos ]
+  * Avoid warning when unlocking screensaver
+  * If systemd units cannot be disabled, warn without failing
+  * Restore live CD netbooting (#43)
+
+  [ Vagrant Cascadian ]
+  * docs/ltsp.conf: Fix spelling of "overridden".
+  * debian/control: Update Standards-Version to 4.5.0, no changes.
+  * Make cups mask only warn on failure.
+  * Add cups.path and cups.socket to default masked services.
+
+  [ Alkis Georgopoulos ]
+  * Don't activate debug_shell while inside a subshell
+  * Avoid partprobe race condition (#112)
+  * Consolidate systemctl calls
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Thu, 30 Jan 2020 10:01:06 -0800
 
 ltsp (19.12.1-1) unstable; urgency=medium
 
