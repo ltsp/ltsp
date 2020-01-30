@@ -277,7 +277,9 @@ mount_type() {
 
 # Try to loop mount a raw partition/disk file to dst
 mount_file() {
-    local src dst tmpfs options fstype partition loopdev loopparts noload
+    local src dst tmpfs options fstype partition loopdev loopparts \
+        lohelp loparams
+
 
     src=$1
     dst=$2
@@ -287,17 +289,21 @@ mount_file() {
     partition=$6
     re test -e "$src"
     re test -d "$dst"
-    # Work around https://bugs.busybox.net/show_bug.cgi?id=11941 and #70
+    # See https://github.com/ltsp/ltsp/issues/112#issuecomment-579704835
     test -d /sys/module/loop || re modprobe loop max_part=9
     fstype=${fstype:-$(mount_type "$src")}
     if [ "$fstype" = "gpt" ]; then  # A partition table
         unset fstype
-        loopdev=$(re losetup -f)
-        # Note, klibc losetup doesn't support -r (read only)
-        echo "Running: losetup $loopdev $src"
-        re losetup "$loopdev" "$src"
+        loopdev=$(re losetup -f) || die ""
+        unset loparams
+        lohelp=$(losetup --help 2>&1)
+        echo "$lohelp" | grep -q '^[[:space:]]*-r' &&
+            loparams="${loparams}r"
+        echo "$lohelp" | grep -q '^[[:space:]]*-P' &&
+            loparams="${loparams}P"
+        echo "Running: losetup ${loparams:+"-$loparams "}$loopdev $src"
+        re losetup "$loopdev" ${loparams:+"-$loparams"} "$src"
         exit_command "rw losetup -d '$loopdev'"
-        test -f /scripts/functions || partprobe "$loopdev"
         loopparts="${loopdev}p${partition:-*}"
     elif [ -n "$fstype" ]; then  # A filesystem (partition)
         unset loopparts

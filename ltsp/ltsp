@@ -89,7 +89,7 @@ busybox_fallbacks() {
     for tool in awk blockdev cat chgrp chmod chown chroot chvt cp \
         cpio cut date df env expr find getopt grep head hostname id \
         insmod ionice ip kill killall ln logger losetup ls lsmod \
-        mkdir mktemp modprobe mount mv nc netstat partprobe pidof ping \
+        mkdir mktemp modprobe mount mv nc netstat pidof ping \
         poweroff ps pwd readlink rm rmdir rmmod sed setsid sleep sort \
         swapoff swapon switch_root sync tee touch tr truncate umount \
         uname wc
