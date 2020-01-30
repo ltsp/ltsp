@@ -117,8 +117,12 @@ debug() {
 # to get or set variables; so, use `eval`, not `bash`.
 debug_shell() {
     local cmd
-    echo "${*:-"Emulating a shell, type \`return [0|1]\` to continue|exit:"}"
 
+    if [ "$$" != "$(sh -c 'echo $PPID')" ]; then
+        warn "Not activating debug_shell while inside a subshell"
+        exit 1
+    fi
+    echo "${*:-"Emulating a shell, type \`return [0|1]\` to continue|exit:"}"
     printf "debug:%s\$ " "$(pwd)"
     while read -r cmd; do
         eval "$cmd" || true
