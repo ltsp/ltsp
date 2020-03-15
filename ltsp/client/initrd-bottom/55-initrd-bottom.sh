@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Make root writable using a tmpfs overlay and install ltsp-init
@@ -67,8 +67,8 @@ install_ltsp() {
     fi
     # Symlink the ltsp binary
     re ln -sf ../share/ltsp/ltsp "$rootmnt/usr/sbin/ltsp"
-    # Symlink the service
-    re ln -sf ../../../usr/share/ltsp/common/service/ltsp.service "$rootmnt/lib/systemd/system/ltsp.service"
+    # Symlink the service; use absolute symlink due to /usr/lib migration
+    re ln -sf /usr/share/ltsp/common/service/ltsp.service "$rootmnt/lib/systemd/system/ltsp.service"
     re ln -sf ../ltsp.service "$rootmnt/lib/systemd/system/multi-user.target.wants/ltsp.service"
     # Copy our modules configuration
     if [ -f /etc/modprobe.d/ltsp.conf ] && [ -d "$rootmnt/etc/modprobe.d" ]
