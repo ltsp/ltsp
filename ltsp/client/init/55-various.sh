@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Handle various little things that don't deserve a separate file
@@ -84,4 +84,15 @@ config_machine_id() {
 # there but leave the header and footer.
 config_motd() {
     re rm -f /etc/update-motd.d/[1-9][0-8]*
+}
+
+# Disable the gnome-software shell search provider
+# Adapted from casper/31disable_update_notifier
+config_gnome_software() {
+    local var
+
+    var=/usr/share/gnome-shell/search-providers/org.gnome.Software-search-provider.ini
+    if [ -e "$var" ]; then
+        echo "DefaultDisabled=true" >> "$var"
+    fi
 }
