@@ -197,7 +197,7 @@ more of those regular expressions. For more information, read
 /usr/share/ltsp/client/login/pwmerge. For example, if you name your clients
 pc01, pc02 etc, and your users a01, a02, b01, b02 etc, then the following
 line only shows/allows a01 and b01 to login to pc01:
-`PWMERGE_SUR=".*${HOSTNAME#pc}"`
+`PWMERGE_SUR=".*%{HOSTNAME#pc}"`
 
 **RPI_IMAGE=**_"raspbian"_
 : Select this LTSP image to boot Raspberry Pis from.
