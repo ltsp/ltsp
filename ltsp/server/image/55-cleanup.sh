@@ -36,6 +36,10 @@ remove_users() {
     chown --reference="$_COW_DIR/etc/shadow" \
         "$_COW_DIR/tmp/pwmerged/shadow" "$_COW_DIR/tmp/pwmerged/gshadow"
     re mv "$_COW_DIR/tmp/pwmerged/"* "$_COW_DIR/etc"
+    # Exclude account database backups from the generated image
+    re rm -f "$_COW_DIR/etc/group"? "$_COW_DIR/etc/gshadow"? \
+        "$_COW_DIR/etc/passwd"? "$_COW_DIR/etc/shadow"? \
+        "$_COW_DIR/etc/subgid"? "$_COW_DIR/etc/subuid"?
 }
 
 # Restore possible changes of `ltsp dnsmasq --dns=1`
