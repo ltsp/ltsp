@@ -1,3 +1,9 @@
+ltsp (20.03.1-1) unstable; urgency=medium
+
+  * Exclude account database backups from the generated image
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Sun, 22 Mar 2020 16:05:40 +0200
+
 ltsp (20.03-1) unstable; urgency=medium
 
   * Use eval_percent in PWMERGE_* (#118)
