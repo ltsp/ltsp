@@ -1,3 +1,9 @@
+ltsp (20.04) unstable; urgency=medium
+
+  * Fix NFS chroot booting regression (#126)
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Fri, 03 Apr 2020 08:27:15 +0300
+
 ltsp (20.03.1-1) unstable; urgency=medium
 
   * Exclude account database backups from the generated image
