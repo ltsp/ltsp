@@ -40,11 +40,14 @@ initrd_bottom_main() {
             re umount "$rootmnt"
             img_src="$tmpfs/${img##*/}$rest"
         fi
-        re mount_img_src "$img_src" "$rootmnt" "$tmpfs"
-        re set_readahead "$rootmnt"
-    elif [ ! -d "$rootmnt/proc" ]; then
+    elif [ -d "$rootmnt/proc" ]; then
+        # Plain NFS chroot booting
+        img_src=$rootmnt
+    else
         die "$rootmnt/proc doesn't exist and ltsp.image wasn't specified"
     fi
+    re mount_img_src "$img_src" "$rootmnt" "$tmpfs"
+    re set_readahead "$rootmnt"
     test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in $_APPLET"
     re install_ltsp
 }
