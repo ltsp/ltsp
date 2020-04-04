@@ -1,4 +1,4 @@
-ltsp (20.04) unstable; urgency=medium
+ltsp (20.04-1) unstable; urgency=medium
 
   * Fix NFS chroot booting regression (#126)
 
