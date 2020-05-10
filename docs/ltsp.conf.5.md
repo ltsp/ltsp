@@ -51,6 +51,15 @@ The `ltsp initrd` command does a quick syntax check by running
 The following parameters are currently defined; an example is given in
 each case.
 
+**ADD_IMAGE_EXCLUDES=**_"/etc/ltsp/add-image.excludes"_<br/>
+**OMIT_IMAGE_EXCLUDES=**_"home/*"_<br/>
+: Add or omit items to the `ltsp image` exclusion list.
+Some files and directories shouldn't be included in the generated image.
+The initial list is defined in /usr/share/ltsp/server/image/image.excludes.
+It can be completely overridden by creating /etc/ltsp/image.excludes.
+ADD_IMAGE_EXCLUDES and OMIT_IMAGE_EXCLUDES can finetune the list by adding
+or removing lines to it. They can either be filenames or multiline text.
+
 **AUTOLOGIN=**_"user01"_<br/>
 **RELOGIN=**_0|1_<br/>
 **GDM3\_CONF=**_"WaylandEnable=false"_<br/>
@@ -132,12 +141,12 @@ they're listed in MASK_SYSTEM_SERVICES. Space separated list.
 
 **MASK_SESSION_SERVICES=**_"ubuntu-mate-welcome"_
 : Mask some session services that shouldn't be started on LTSP clients.
-Space separated list. See /usr/share/ltsp/client/init/56-rm-services.sh
+Space separated list. See /usr/share/ltsp/client/init/56-mask-services.sh
 for the default. Setting MASK_SESSION_SERVICES in ltsp.conf adds to that list.
 
 **MASK_SYSTEM_SERVICES=**_"teamviewerd"_
 : Mask some system services that shouldn't be started on LTSP clients.
-Space separated list. See /usr/share/ltsp/client/init/56-rm-services.sh
+Space separated list. See /usr/share/ltsp/client/init/56-mask-services.sh
 for the default. Setting MASK_SYSTEM_SERVICES in ltsp.conf adds to that list.
 
 **NAT=**_0|1_
@@ -188,7 +197,14 @@ more of those regular expressions. For more information, read
 /usr/share/ltsp/client/login/pwmerge. For example, if you name your clients
 pc01, pc02 etc, and your users a01, a02, b01, b02 etc, then the following
 line only shows/allows a01 and b01 to login to pc01:
-`PWMERGE_SUR=".*${HOSTNAME#pc}"`
+`PWMERGE_SUR=".*%{HOSTNAME#pc}"`
+
+**RPI_IMAGE=**_"raspbian"_
+: Select this LTSP image to boot Raspberry Pis from.
+This symlinks all $BASE_DIR/$RPI_IMAGE/boot/* files directly under $TFTP_DIR
+when `ltsp kernel $RPI_IMAGE` is called.
+See the [Raspberry Pi documentation page](https://ltsp.org/docs/raspberrypi)
+for more information.
 
 **SEARCH_DOMAIN=**_"ioa.sch.gr"_
 : A search domain to add to resolv.conf and to /etc/hosts. Usually provided

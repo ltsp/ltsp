@@ -1,6 +1,6 @@
 #!/bin/sh
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Provide PAM authentication to a server via SSH and optionally SSHFS $HOME.
@@ -22,8 +22,6 @@ require_root() {
 
 # Install pamltsp in the system PAM configuration.
 install() {
-    local search replace
-
     require_root
     sed 's/.*\(KillUserProcesses=\).*/\1yes/' -i /etc/systemd/logind.conf
     # The seteuid option is needed for `getent shadow`, for mkdir/chown $HOME,
@@ -86,28 +84,12 @@ EOF
             die "User $PAM_USER can't auth via pamltsp"
         fi
     fi
-    # First call since boot
-    if [ ! -d /run/ltsp/pam ]; then
-        mkdir -p /run/ltsp/pam
-        if [ "$SSHFS" != "0" ]; then
-            # On SSHFS gnome-keyring requires disable_hardlinks, but this
-            # breaks ICEauthority, so just disable gnome-keyring for now
-            # https://bugzilla.gnome.org/show_bug.cgi?id=730587
-            # TODO: ssh -X user@localhost from an ltsp client fails too:
-            # /usr/bin/xauth: timeout in locking authority file /home/user/.Xauthority
-            # It's probably not important; plain `xhost +local:` is OK for DIRECTX.
-            #if [ -x /usr/bin/gnome-keyring ]; then
-            #    chmod -x /usr/bin/gnome-keyring
-            #fi
-            if [ -x /usr/bin/gnome-keyring-daemon ]; then
-                chmod -x /usr/bin/gnome-keyring-daemon
-            fi
-        fi
-    fi
     # Cache the shadow entry for screensaver and passwordless authentication
     if [ "$_UID" = 0 ]; then
-        # TODO: change that to 700 if we need .ICEauthority here
-        mkdir -p -m 500 "/run/ltsp/pam/$pw_name"
+        # The first PAM call since boot is always with _UID = 0
+        mkdir -p /run/ltsp/pam
+        # This is 700 for pid and in case we wanted .ICEauthority
+        mkdir -p -m 700 "/run/ltsp/pam/$pw_name"
         chown "$pw_uid:$pw_gid" "/run/ltsp/pam/$pw_name"
         echo "$sp_entry" > "/run/ltsp/pam/$pw_name/shadow"
     fi
@@ -127,9 +109,11 @@ EOF
     # See https://github.com/libfuse/sshfs/issues/183
     trap "rm -f '/run/ltsp/pam/$PAM_USER/pid'" HUP INT QUIT SEGV PIPE TERM EXIT
     echo "$$" > "/run/ltsp/pam/$PAM_USER/pid"
+    # Check if SSHFS is required.
     # `mountpoint` blocks until the sshfs password in entered.
     # That may be a good thing, to avoid race conditions.
-    if [ "$SSHFS" = "0" ] || mountpoint -q /home || mountpoint -q "$pw_dir"
+    if [ "$SSHFS" = "0" ] || ! command -v sshfs >/dev/null ||
+        mountpoint -q /home || mountpoint -q "$pw_dir"
     then
         if [ "$PAM_TYPE" = "open_session" ]; then
             # This point is reached when we already mounted home in auth,
@@ -151,6 +135,10 @@ EOF
         fi
     else
         test "$_UID" = 0 || die "SSHFS needed without root?!"
+        # On SSHFS gnome-keyring requires disable_hardlinks, but this
+        # breaks ICEauthority, so just remove gnome-keyring for now
+        # https://bugzilla.gnome.org/show_bug.cgi?id=730587
+        rm -f /usr/bin/gnome-keyring-daemon
         # $pw_dir must not be in use to be mounted; cd elsewhere
         cd / || true
         # If a previous sshfs was killed instead of properly unmounted,

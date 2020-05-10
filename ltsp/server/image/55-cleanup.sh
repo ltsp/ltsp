@@ -8,8 +8,10 @@ cleanup_main() {
     test "$CLEANUP" != "0" ||
         return 0
     re test "cleanup_main:$_COW_DIR" != "cleanup_main:"
-    grep -qs "overlay.*lowerdir=$_COW_DIR" /proc/self/mountinfo ||
+    if [ "$OVERLAY" != 0 ] && [ "$(stat -fc %T "$_COW_DIR")" != "overlayfs" ]
+    then
         die "Can't clean up without overlay: $_COW_DIR"
+    fi
     echo "Cleaning up $_IMG_NAME before mksquashfs..."
     # You can override any of the functions with a higher numbered script
     re remove_printers
@@ -34,6 +36,10 @@ remove_users() {
     chown --reference="$_COW_DIR/etc/shadow" \
         "$_COW_DIR/tmp/pwmerged/shadow" "$_COW_DIR/tmp/pwmerged/gshadow"
     re mv "$_COW_DIR/tmp/pwmerged/"* "$_COW_DIR/etc"
+    # Exclude account database backups from the generated image
+    re rm -f "$_COW_DIR/etc/group"? "$_COW_DIR/etc/gshadow"? \
+        "$_COW_DIR/etc/passwd"? "$_COW_DIR/etc/shadow"? \
+        "$_COW_DIR/etc/subgid"? "$_COW_DIR/etc/subuid"?
 }
 
 # Restore possible changes of `ltsp dnsmasq --dns=1`
