@@ -41,7 +41,7 @@ eval_ini() {
 
     config=${1:-/etc/ltsp/ltsp.conf}
     applet=${2:-$_APPLET}
-    if [ -d /run/ltsp/client ]; then
+    if [ -d /run/ltsp/client ] || [ "$$" = "1" ]; then
         clients_section=clients
         # Server applets that run on clients should also evaluate [SERVER]
         sub_dir=${_APPLET_DIR%/*}
