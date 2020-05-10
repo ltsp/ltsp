@@ -45,7 +45,7 @@ Please export ALL_IMAGES=1 if you want to allow this"
 }
 
 image_main() {
-    local img_src img_path tmpfs
+    local img_src img_path
 
     img_src="$1"
     img_path=$(add_path_to_src "${img_src%%,*}")
@@ -58,16 +58,11 @@ image_main() {
     _COW_DIR=$(re mktemp -d)
     exit_command "rw rmdir '$_COW_DIR'"
     # _COW_DIR has mode=0700; use a subdir to hide the mount from users
+    re mkdir -p "$_COW_DIR/root" "$_COW_DIR/tmpfs"
+    exit_command "rw rmdir '$_COW_DIR/root' '$_COW_DIR/tmpfs'"
+    re mount_img_src "$img_src" "$_COW_DIR/root" "$_COW_DIR/tmpfs"
     _COW_DIR="$_COW_DIR/root"
-    re mkdir -p "$_COW_DIR"
-    exit_command "rw rmdir '$_COW_DIR'"
-    unset _LOCKROOT
-    re mount_img_src "$img_src" "$_COW_DIR"
-    # Before doing an overlay, let's make sure the underlying file system
-    # isn't being rapidly modified, by disabling package management
     re lock_package_management
-    tmpfs=$(re readlink -f "$_COW_DIR/../tmpfs")
-    re overlay "$_COW_DIR" "$_COW_DIR" "$tmpfs"
 }
 
 lock_package_management() {
@@ -78,7 +73,7 @@ lock_package_management() {
 
     # Insert lock paths for other distributions here
     for lock in var/lib/dpkg/lock; do
-        lock="$_LOCKROOT/$lock"
+        lock="${_LOCKROOT%/}/$lock"
         test -f "$lock" && break
     done
     if [ ! -f "$lock" ]; then

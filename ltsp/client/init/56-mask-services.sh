@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Remove some services that don't make sense in live sessions
@@ -43,7 +43,7 @@ $MASK_SESSION_SERVICES")"
 
     # TODO: also blacklist and handle systemd user units
     for service in $mask_services; do
-        rm -f "/etc/xdg/autostart/$service.desktop" \
+        re rm -f "/etc/xdg/autostart/$service.desktop" \
             "/usr/share/upstart/xdg/autostart/$service.desktop"
     done
 }
@@ -52,16 +52,20 @@ mask_system_services() {
     local mask_services service existing_services
 
     mask_services="
-# From Ubuntu 18.04 /lib/systemd/system:
+# From Ubuntu 20.04 /lib/systemd/system:
 alsa-restore               # Save/Restore Sound Card State
 alsa-state                 # Manage Sound Card State (restore and store)
-apparmor                   # AppArmor initialization
+apparmor                   # Load AppArmor profiles
 apt-daily                  # Daily apt download activities
 apt-daily.timer            # Daily apt download activities
 apt-daily-upgrade          # Daily apt upgrade and clean activities
 apt-daily-upgrade.timer    # Daily apt upgrade and clean activities
 dnsmasq                    # A lightweight DHCP and caching DNS server
 epoptes                    # Computer lab monitoring tool
+# Apply fw updates that exist in the image, but don't fetch new ones
+fwupd-refresh.timer        # Refresh fwupd metadata regularly
+logrotate.timer            # Daily rotation of log files
+man-db.timer               # Daily man-db regeneration
 ModemManager               # Modem Manager
 packagekit                 # PackageKit Daemon
 packagekit-offline-update  # Update the operating system whilst offline
@@ -69,10 +73,10 @@ ssh                        # OpenBSD Secure Shell server
 systemd-random-seed        # Load/Save Random Seed
 systemd-rfkill             # Load/Save RF Kill Switch Status
 unattended-upgrades        # Unattended Upgrades Shutdown
-ureadahead                 # Read required files in advance
-ureadahead-stop            # Stop ureadahead data collection
+ureadahead                 # [18.04] Read required files in advance
+ureadahead-stop            # [18.04] Stop ureadahead data collection
 x2goserver                 # X2Go Server Daemon
-# From Ubuntu 18.04 /etc/init.d (excluding the ones in systemd):
+# From Ubuntu 20.04 /etc/init.d (excluding the ones in systemd):
 alsa-utils                 # Restore and store ALSA driver settings
 grub-common                # Record successful boot for GRUB
 nbd-server                 # Network Block Device server
@@ -119,5 +123,8 @@ $MASK_SYSTEM_SERVICES")"
             existing_services="$existing_services $service"
         fi
     done
-    systemctl disable --quiet --root=/ --no-reload $existing_services
+    rw systemctl disable --quiet --root=/ --no-reload $existing_services
+    # Mask these services to prevent them from being pulled in
+    rw systemctl mask --quiet --root=/ --no-reload apt-daily.service \
+        apt-daily-upgrade.service rsyslog.service
 }

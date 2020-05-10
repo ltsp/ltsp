@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Copy vmlinuz and initrd.img from image to TFTP
+# @LTSP.CONF: RPI_IMAGE
 
 kernel_cmdline() {
     local args
@@ -24,7 +25,7 @@ kernel_cmdline() {
 }
 
 kernel_main() {
-    local tmp img_src img_name runipxe
+    local img_src img_name runipxe tmp
 
     if [ "$#" -eq 0 ]; then
         img_src=$(list_img_names)
@@ -39,16 +40,22 @@ Please export ALL_IMAGES=1 if you want to allow this"
         img_path=$(add_path_to_src "${img_src%%,*}")
         img_name=$(img_path_to_name "$img_path")
         re test "kernel_main:$img_name" != "kernel_main:"
+        if [ "$img_name" = "$RPI_IMAGE" ] &&
+                [ -f "$BASE_DIR/$img_name/boot/bootcode.bin" ]
+        then
+            re rpi_image "$img_name"
+            continue
+        fi
         if [ "$IN_PLACE" = "1" ]; then
             tmp="$img_path"
         else
             tmp=$(re mktemp -d)
             exit_command "rw rmdir '$tmp'"
             # tmp has mode=0700; use a subdir to hide the mount from users
-            re mkdir -p "$tmp/ltsp"
-            exit_command "rw rmdir '$tmp/ltsp'"
-            tmp=$tmp/ltsp
-            re mount_img_src "$img_src" "$tmp"
+            re mkdir -p "$tmp/root" "$tmp/tmpfs"
+            exit_command "rw rmdir '$tmp/root' '$tmp/tmpfs'"
+            re mount_img_src "$img_src" "$tmp/root" "$tmp/tmpfs"
+            tmp=$tmp/root
         fi
         re mkdir -p "$TFTP_DIR/ltsp/$img_name/"
         read -r vmlinuz initrd <<EOF
@@ -69,6 +76,28 @@ EOF
     if [ "$runipxe" = "1" ]; then
         echo "To update the iPXE menu, run: ltsp ipxe"
     fi
+}
+
+# Symlink all $BASE_DIR/$RPI_IMAGE/boot/* files directly under $TFTP_DIR
+rpi_image() {
+    local img_name var dst
+
+    img_name=$1
+    echo "Symlinking $BASE_DIR/$img_name/boot/* in $TFTP_DIR/*"
+    re test -f "$BASE_DIR/$img_name/boot/bootcode.bin"
+    for var in "$BASE_DIR/$img_name/boot/"*; do
+        re ln -rsf "$var" "$TFTP_DIR/${var##*/}"
+    done
+    # Remove old, dangling symlinks
+    for var in "$TFTP_DIR/"*; do
+        test -L "$var" || continue
+        dst=$(re readlink -f "$var")
+        if [ "$dst" = "$BASE_DIR/$img_name/boot/${var##*/}" ] &&
+                [ ! -e "$dst" ]; then
+            warn "Deleting dangling symlink: $var"
+            re rm "$var"
+        fi
+    done
 }
 
 # Search for the kernel and initrd inside $dir
