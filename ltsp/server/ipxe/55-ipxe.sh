@@ -65,6 +65,8 @@ To overwrite it, run: ltsp --overwrite $_APPLET ..."
         client_sections=$(re client_sections)
         re install_template "ltsp.ipxe" "$TFTP_DIR/ltsp/ltsp.ipxe" "\
 s|^/srv/ltsp|$BASE_DIR|g
+s|^\(set cmdline_ltsp .*\)|$(textif "$KERNEL_PARAMETERS" "\1\nset cmdline_client $KERNEL_PARAMETERS" "&")|
+s|^\(set cmdline_ltsp .*\)|$(textif "$DEFAULT_IMAGE" "\1\nset img $DEFAULT_IMAGE" "&")|
 s/\(|| set menu-timeout \)5000/$(textif "$MENU_TIMEOUT" "\1$MENU_TIMEOUT" "&")/
 s|^:61:6c:6b:69:73:67\$|$(textif "$client_sections" "$client_sections" "&")|
 s|^#.*item.*\bimages\b.*|$(textif "$items$r_items" "$items\n$r_items" "&")|

@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # @LTSP.CONF: PWMERGE_SUR PWMERGE_SGR PWMERGE_DUR PWMERGE_DGR
@@ -9,10 +9,10 @@ pam_main() {
     local userpass user pass
 
     re "$_LTSP_DIR/client/login/pwmerge" \
-        ${PWMERGE_SUR:+"--sur=$PWMERGE_SUR"} \
-        ${PWMERGE_SGR:+"--sgr=$PWMERGE_SGR"} \
-        ${PWMERGE_DUR:+"--dur=$PWMERGE_DUR"} \
-        ${PWMERGE_DGR:+"--dgr=$PWMERGE_DGR"} \
+        ${PWMERGE_SUR:+"--sur=$(re eval_percent "$PWMERGE_SUR")"} \
+        ${PWMERGE_SGR:+"--sgr=$(re eval_percent "$PWMERGE_SGR")"} \
+        ${PWMERGE_DUR:+"--dur=$(re eval_percent "$PWMERGE_DUR")"} \
+        ${PWMERGE_DGR:+"--dgr=$(re eval_percent "$PWMERGE_DGR")"} \
         -lq /etc/ltsp /etc /etc
     re "$_LTSP_DIR/client/login/pamltsp" install
     userpass=$(re echo_values "PASSWORDS_[[:alnum:]_]*")
