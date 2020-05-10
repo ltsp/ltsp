@@ -5,4 +5,4 @@
 
 # Initrd hooks or kernel cmdline can use this wrapper to boot an ltsp client
 
-exec ltsp init "$@"
+exec /usr/share/ltsp/ltsp init "$@"
