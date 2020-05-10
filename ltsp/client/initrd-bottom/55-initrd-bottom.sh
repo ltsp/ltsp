@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Make root writable using a tmpfs overlay and install ltsp-init
@@ -18,12 +18,12 @@ initrd_bottom_cmdline() {
 }
 
 initrd_bottom_main() {
-    local img_src img rest tmpfs
-    tmpfs=/run/initramfs/ltsp
+    local tmpfs img_src img rest
 
-    warn "Running $0"
+    echo "Running $0 $_APPLET"
     kernel_vars
     re set_readahead "$rootmnt"
+    tmpfs="/run/initramfs/ltsp"
     if [ -n "$IMAGE" ]; then
         img_src=$IMAGE
         img=${img_src%%,*}
@@ -42,45 +42,32 @@ initrd_bottom_main() {
                 ;;
         esac
         if [ "$IMAGE_TO_RAM" = "1" ]; then
-            re mkdir -p "$tmpfs/images"
-            re mount -t tmpfs -o mode=0755 tmpfs "$tmpfs/images"
+            re mkdir -p "$tmpfs"
+            re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
             # If it doesn't start with slash, image should be downloaded
             if [ "${img#/}" = "$img" ]; then
                 # Initramfs requires explicit call configure_networking (LP: #1463846)
                 if is_command configure_networking; then
                     configure_networking
                 fi
-                warn "Running: wget $img -O $tmpfs/images/${img##*/}"
-                re wget "$img" -O "$tmpfs/images/${img##*/}"
+                warn "Running: wget $img -O $tmpfs/${img##*/}"
+                re wget "$img" -O "$tmpfs/${img##*/}"
             else
-                warn "Running: cp $img $tmpfs/images/${img##*/}"
-                re cp "$img" "$tmpfs/images/${img##*/}"
+                echo "Running: cp -a $img $tmpfs/${img##*/}"
+                re cp -a "$img" "$tmpfs/${img##*/}"
                 re umount "$rootmnt"
             fi
-            img_src="$tmpfs/images/${img##*/}$rest"
+            img_src="$tmpfs/${img##*/}$rest"
         fi
-        re mount_img_src "$img_src" "$rootmnt"
-        re set_readahead "$rootmnt"
-    elif [ ! -d "$rootmnt/proc" ]; then
+    elif [ -d "$rootmnt/proc" ]; then
+        # Plain NFS chroot booting
+        img_src=$rootmnt
+    else
         die "$rootmnt/proc doesn't exist and ltsp.image wasn't specified"
     fi
-    # Handle some common live CDs
-    if [ ! -d "$rootmnt/proc" ]; then
-        for img_src in "$rootmnt/casper/filesystem.squashfs" \
-            "$rootmnt/live/filesystem.squashfs"
-        do
-            if [ -f "$img_src" ]; then
-                warn "Running: mount -t squashfs -o ro $img_src $rootmnt"
-                re mount -t squashfs -o ro "$img_src" "$rootmnt"
-                re set_readahead "$rootmnt"
-            fi
-        done
-    fi
+    re mount_img_src "$img_src" "$rootmnt" "$tmpfs"
+    re set_readahead "$rootmnt"
     test -d "$rootmnt/proc" || die "$rootmnt/proc doesn't exist in $_APPLET"
-    if [ "$OVERLAY" != "0" ]; then
-        re modprobe_overlay
-        re overlay "$rootmnt" "$rootmnt" "$tmpfs/cow"
-    fi
     re install_ltsp
 }
 
@@ -102,8 +89,8 @@ install_ltsp() {
     fi
     # Symlink the ltsp binary
     re ln -sf ../share/ltsp/ltsp "$rootmnt/usr/sbin/ltsp"
-    # Symlink the service
-    re ln -sf ../../../usr/share/ltsp/common/service/ltsp.service "$rootmnt/lib/systemd/system/ltsp.service"
+    # Symlink the service; use absolute symlink due to /usr/lib migration
+    re ln -sf /usr/share/ltsp/common/service/ltsp.service "$rootmnt/lib/systemd/system/ltsp.service"
     re ln -sf ../ltsp.service "$rootmnt/lib/systemd/system/multi-user.target.wants/ltsp.service"
     # Copy our modules configuration
     if [ -f /etc/modprobe.d/ltsp.conf ] && [ -d "$rootmnt/etc/modprobe.d" ]
@@ -118,25 +105,4 @@ install_ltsp() {
     if grep -qs jessie /etc/os-release; then
         echo "init=${init:-/sbin/init}" >> /scripts/init-bottom/ORDER
     fi
-}
-
-modprobe_overlay() {
-    local overlayko
-
-    grep -q overlay /proc/filesystems &&
-        return 0
-    modprobe overlay &&
-        grep -q overlay /proc/filesystems &&
-        return 0
-    overlayko="$rootmnt/lib/modules/$(uname -r)/kernel/fs/overlayfs/overlay.ko"
-    if [ -f "$overlayko" ]; then
-        # Do not `ln -s "$rootmnt/lib/modules" /lib/modules`
-        # In that case, /root is in use after modprobe
-        warn "Loading overlay module from real root" >&2
-        # insmod is availabe in Debian initramfs but not in Ubuntu
-        "$rootmnt/sbin/insmod" "$overlayko" &&
-            grep -q overlay /proc/filesystems &&
-            return 0
-    fi
-    return 1
 }
