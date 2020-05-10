@@ -89,7 +89,7 @@ busybox_fallbacks() {
     for tool in awk blockdev cat chgrp chmod chown chroot chvt cp \
         cpio cut date df env expr find getopt grep head hostname id \
         insmod ionice ip kill killall ln logger losetup ls lsmod \
-        mkdir mktemp modprobe mount mv nc netstat partprobe pidof ping \
+        mkdir mktemp modprobe mount mv nc netstat pidof ping \
         poweroff ps pwd readlink rm rmdir rmmod sed setsid sleep sort \
         swapoff swapon switch_root sync tee touch tr truncate umount \
         uname wc
@@ -117,8 +117,12 @@ debug() {
 # to get or set variables; so, use `eval`, not `bash`.
 debug_shell() {
     local cmd
-    echo "${*:-"Emulating a shell, type \`return [0|1]\` to continue|exit:"}"
 
+    if [ "$$" != "$(sh -c 'echo $PPID')" ]; then
+        warn "Not activating debug_shell while inside a subshell"
+        exit 1
+    fi
+    echo "${*:-"Emulating a shell, type \`return [0|1]\` to continue|exit:"}"
     printf "debug:%s\$ " "$(pwd)"
     while read -r cmd; do
         eval "$cmd" || true
@@ -169,7 +173,7 @@ exit_command() {
         trap "at_exit -TERM" HUP INT QUIT SEGV PIPE TERM
         trap "at_exit -EXIT" EXIT
     fi
-    if [ "$_APPLET" = "initrd-bottom" ]; then
+    if [ "$_APPLET" = "initrd-bottom" ] || [ "$_APPLET" = "init" ]; then
         _TERM_COMMANDS="$*
 $_TERM_COMMANDS"
     else
@@ -203,7 +207,8 @@ locate_applet_scripts() {
         test -d "$_APPLET_DIR" && break
     done
     test -d "$_APPLET_DIR" || die "Could not locate LTSP applet: $_APPLET"
-    if [ "$sub_dir" = client ] && [ ! -d /run/ltsp/client ] ; then
+    if [ "$sub_dir" = client ] && [ ! -d /run/ltsp/client ] && [ "$$" != "1" ]
+    then
         die "Refusing to run client applet $_APPLET in non-ltsp client"
     fi
     # All applets are required to have an entry function ${_APPLET}_cmdline
