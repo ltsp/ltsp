@@ -1,9 +1,13 @@
-ltsp (20.04-2) UNRELEASED; urgency=medium
+ltsp (20.06-1) unstable; urgency=low
 
-  * Set upstream metadata fields: Bug-Database, Bug-Submit, Repository,
-    Repository-Browse.
+  * Use sftp auth to allow disabling ssh logins (#128)
+  * Set upstream metadata fields (#129)
+  * Support multiseat (#133)
+  * Support netbooting without an initrd (#68)
+  * Default to READ_AHEAD_KB=128 (#27)
+  * Add simple NFS_HOME example in ltsp-nfs.5.md
 
- -- Debian Janitor <janitor@jelmer.uk>  Tue, 28 Apr 2020 20:45:32 +0000
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Fri, 19 Jun 2020 09:11:09 +0300
 
 ltsp (20.04-1) unstable; urgency=medium
 
