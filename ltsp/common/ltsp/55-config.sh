@@ -126,6 +126,7 @@ if ($0 ~ /^[ ]*\[[^]]*\]/) {  # [Section]
 } else if (tolower($0) ~ /^include *=/) {  # INCLUDE = xxx
     value=tolower($0)
     sub("include *= *", "", value)
+    gsub("[^a-z0-9]", "_", value)
     print prefix value
 } else if ($0 ~ /^[a-zA-Z0-9_]* *=/) {  # VAR = xxx
     value=$0
