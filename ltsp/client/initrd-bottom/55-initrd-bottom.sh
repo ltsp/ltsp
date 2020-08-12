@@ -46,10 +46,6 @@ initrd_bottom_main() {
             re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
             # If it doesn't start with slash, image should be downloaded
             if [ "${img#/}" = "$img" ]; then
-                # Initramfs requires explicit call configure_networking (LP: #1463846)
-                if is_command configure_networking; then
-                    configure_networking
-                fi
                 warn "Running: wget $img -O $tmpfs/${img##*/}"
                 re wget "$img" -O "$tmpfs/${img##*/}"
             else
