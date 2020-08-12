@@ -21,25 +21,47 @@ To specify a different directory, set $HOME_DIR in /etc/ltsp/ltsp.conf.
 To specify a different directory, set $TFTP_DIR in /etc/ltsp/ltsp.conf.
 
 ## EXAMPLES
-To export only some user homes over NFS3 (insecure) while the rest still
-use SSHFS, use symlinks as described below. Note that the NFS server doesn't
-follow symlinks outside of an export. Start by putting this line in
-/etc/ltsp/ltsp.conf under the [clients] section:
+To export /home over NFS (insecure), use the following ltsp.conf parameters:
 
 ```shell
-FSTAB_NFS="server:/home/nfs /home nfs defaults,nolock 0 0"
+[server]
+NFS_HOME=1
+
+[clients]
+FSTAB_NFS="server:/home /home nfs defaults,nolock 0 0"
 ```
 
-Then run the following commands:
+And run these commands on the server:
 
 ```shell
 ltsp initrd  # This is needed whenever ltsp.conf is modified
+ltsp nfs
+```
 
+To export only some user homes over NFS while the rest still use SSHFS,
+use these lines in ltsp.conf instead:
+
+```shell
+[server]
+NFS_HOME=1
+HOME_DIR=/home/nfs
+
+[clients]
+FSTAB_NFS="server:/home/nfs /home nfs defaults,nolock 0 0"
+```
+
+Then run the following commands on the server, to move some home directories
+under /home/nfs and to create appropriate symlinks in case the users ever
+need to SSH to the server. Note that the NFS server doesn't follow symlinks
+outside of an export:
+
+```shell
 mkdir /home/nfs
 for u in guest01 guest02; do
     mv "/home/$u" /home/nfs/
     ln -s "nfs/$u" "/home/$u"
 done
 
-ltsp --home-dir=/home/nfs nfs --export-home=1
+ltsp initrd
+ltsp nfs
 ```

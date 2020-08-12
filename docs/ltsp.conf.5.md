@@ -214,6 +214,10 @@ by DHCP.
 : The LTSP server is usually autodetected; it can be manually specified
 if there's need for it.
 
+**UDEV_SEAT_n_x=**_"*/usb?/?-[2,4,6,8,10,12,14,16,18]/*"_
+: Support multiseat by putting udev rules that match hardware to seats to a
+file named /etc/udev/rules.d/72-ltsp-seats.rules. See the EXAMPLES section.
+
 **X_DRIVER=**"_vesa_"<br/>
 **X_HORIZSYNC=**"_28.0-87.0_"<br/>
 **X_MODELINE=**'_"1024x768_85.00"   94.50  1024 1096 1200 1376  768 771 775 809 -hsync +vsync_'<br/>
@@ -258,6 +262,20 @@ INCLUDE=nvidia
 
 [nvidia]
 POST_INIT_LN_XORG="ln -sf ../ltsp/xorg-nvidia.conf /etc/X11/xorg.conf"
+```
+
+To implement multiseat, where an LTSP client might have 2 or more seats,
+with separate monitors, keyboard and mice, the following section can
+be INCLUDEd. The "1" number maps the rule to "seat-1", while the rest
+of the parameter name ("GRAPHICS" etc) is ignored. You can check which
+hardware was assigned to which seat with `loginctl seat-status seat0`.
+
+
+```shell
+[multiseat]
+UDEV_SEAT_1_GRAPHICS="*/pci*/*/0000:01:00.0*"
+UDEV_SEAT_1_SOUND="*/sound/card1*"
+UDEV_SEAT_1_EVEN_USB_PORTS="*/usb?/?-[2,4,6,8,10,12,14,16,18]/*"
 ```
 
 Since ltsp.conf is transformed into a shell script and sections into
