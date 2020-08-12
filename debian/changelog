@@ -1,3 +1,14 @@
+ltsp (20.06-1) unstable; urgency=low
+
+  * Use sftp auth to allow disabling ssh logins (#128)
+  * Set upstream metadata fields (#129)
+  * Support multiseat (#133)
+  * Support netbooting without an initrd (#68)
+  * Default to READ_AHEAD_KB=128 (#27)
+  * Add simple NFS_HOME example in ltsp-nfs.5.md
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Fri, 19 Jun 2020 09:11:09 +0300
+
 ltsp (20.04-1) unstable; urgency=medium
 
   * Fix NFS chroot booting regression (#126)
