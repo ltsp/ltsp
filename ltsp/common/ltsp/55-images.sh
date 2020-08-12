@@ -406,8 +406,8 @@ set_readahead() {
         do
             test -e "$rakf" || continue
             read -r rak <"$rakf"
-            test "$rak" != "${READ_AHEAD_KB:-4}" || continue
-            echo "${READ_AHEAD_KB:-4}" >"$rakf"
+            test "$rak" != "${READ_AHEAD_KB:-128}" || continue
+            echo "${READ_AHEAD_KB:-128}" >"$rakf"
             break
         done
     done
