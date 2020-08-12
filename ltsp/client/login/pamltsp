@@ -124,7 +124,7 @@ EOF
         # The ssh call logic is documented in ssh-askpass
         export DISPLAY=
         export SSH_ASKPASS="${_SELF%/*}/ssh-askpass"
-        if ssh -q "$@" "$pw_name@$SERVER" exit 0; then
+        if ssh -qns "$@" "$pw_name@$SERVER" sftp; then
             success=1
             if [ ! -e "$pw_dir" ] && [ "$MKHOMEDIR" != "0" ]; then
                 # Emulate pam_mkhomedir
