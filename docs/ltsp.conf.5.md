@@ -27,7 +27,7 @@ The configuration file is separated into sections:
  * The special [server] section is evaluated only by the ltsp server.
  * The special [common] section is evaluated by both the server and ltsp clients.
  * In the special [clients] section, parameters for all clients can be defined.
-   Most ltsp.conf parameters should be placed here.
+   Most ltsp.conf parameters should be placed there.
  * MAC address, IP address, or hostname sections can be used to apply settings
    to specific clients. Those support globs, for example [192.168.67.*].
  * It's also possible to group parameters into named sections like
@@ -52,7 +52,7 @@ The following parameters are currently defined; an example is given in
 each case.
 
 **ADD_IMAGE_EXCLUDES=**_"/etc/ltsp/add-image.excludes"_<br/>
-**OMIT_IMAGE_EXCLUDES=**_"home/*"_<br/>
+**OMIT_IMAGE_EXCLUDES=**_"home/*"_
 : Add or omit items to the `ltsp image` exclusion list.
 Some files and directories shouldn't be included in the generated image.
 The initial list is defined in /usr/share/ltsp/server/image/image.excludes.
@@ -64,13 +64,13 @@ or removing lines to it. They can either be filenames or multiline text.
 **RELOGIN=**_0|1_<br/>
 **GDM3\_CONF=**_"WaylandEnable=false"_<br/>
 **LIGHTDM_CONF=**_"greeter-hide-users=true"_<br/>
-**SDDM_CONF=**_"/etc/ltsp/sddm.conf"_<br/>
+**SDDM_CONF=**_"/etc/ltsp/sddm.conf"_
 : Configure the display manager to log in this user automatically.
-The user's password must also be provided using the PASSWORDS_x parameter
-(see below), unless it's a local, non-ltsp user. AUTOLOGIN can be a simple
-username like "user01", or it can be a partial regular expression that
-transforms a hostname to a username. For example, AUTOLOGIN="pc/guest" means
-"automatically log in as guest01 in pc01, as guest02 in pc02 etc".<br/>
+If SSHFS is used, the PASSWORDS_x parameter (see below) must also be provided.
+AUTOLOGIN can be a simple username like "user01", or it can be a partial
+regular expression that transforms a hostname to a username.
+For example, AUTOLOGIN="pc/guest" means "automatically log in as guest01 in
+pc01, as guest02 in pc02 etc".<br/>
 Setting RELOGIN=0 will make AUTOLOGIN work only once.
 Finally, the *_CONF parameters can be either filenames or direct text, and
 provide a way to write additional content to the generated display manager
@@ -94,8 +94,8 @@ to a client, or CUPS_SERVER="ignore", to skip CUPS server handling.
 **DEBUG_SHELL=**_0|1_
 : Launch a debug shell when errors are detected. Defaults to 0.
 
-**DEFAULT_IMAGE=**_"x86_64"_
-**KERNEL_PARAMETERS=**_"nomodeset noapic"_
+**DEFAULT_IMAGE=**_"x86_64"_<br/>
+**KERNEL_PARAMETERS=**_"nomodeset noapic"_<br/>
 **MENU_TIMEOUT=**_"5000"_
 : These parameters can be defined under [mac:address] sections in ltsp.conf,
 and they are used by `ltsp ipxe` to generate the iPXE menu.
@@ -164,7 +164,7 @@ This option can be specified in any [section].
 
 **PASSWORDS_x=**_"teacher/cXdlcjEyMzQK [a-z][-0-9]\*/MTIzNAo= guest[^:]\*/"_
 : A space separated list of regular expressions that match usernames, followed
-by slash and base64-encoded passwords. On boot, `ltsp init` writes those
+by slash and base64-encoded passwords. At boot, `ltsp init` writes those
 passwords for the matching users in /etc/shadow, so that then pamltsp can
 pass them to SSH/SSHFS. The end result is that those users are able to
 login either in the console or the display manager by just pressing [Enter]
@@ -203,7 +203,7 @@ line only shows/allows a01 and b01 to login to pc01:
 : Select this LTSP image to boot Raspberry Pis from.
 This symlinks all $BASE_DIR/$RPI_IMAGE/boot/* files directly under $TFTP_DIR
 when `ltsp kernel $RPI_IMAGE` is called.
-See the [Raspberry Pi documentation page](https://ltsp.org/docs/raspberrypi)
+See the [Raspberry Pi documentation page](https://ltsp.org/docs/installation/raspbian)
 for more information.
 
 **SEARCH_DOMAIN=**_"ioa.sch.gr"_
@@ -224,7 +224,7 @@ file named /etc/udev/rules.d/72-ltsp-seats.rules. See the EXAMPLES section.
 **X_MODES=**'"_1024x768" "800x600" "640x480"_'<br/>
 **X_PREFERREDMODE=**"_1024x768_"<br/>
 **X_VERTREFRESH=**"_43.0-87.0_"<br/>
-**X_VIRTUAL**="_800 600_"<br/>
+**X_VIRTUAL**="_800 600_"
 : If any of these parameters are set, the /usr/share/ltsp/client/init/xorg.conf
 template is installed to /etc/X11/xorg.conf, while applying the parameters.
 Read that template and consult xorg.conf(5) for more information.
@@ -252,9 +252,9 @@ pass01
 cGFzczAxCg==
 ```
 
-If some clients need an custom xorg.conf file, create it in e.g.
+If some clients need a custom xorg.conf file, create it in e.g.
 `/etc/ltsp/xorg-nvidia.conf`, and put the following in ltsp.conf
-to dynamically symlink it for those clients on boot:
+to dynamically symlink it for those clients at boot:
 
 ```shell
 [pc01]
@@ -279,23 +279,17 @@ UDEV_SEAT_1_EVEN_USB_PORTS="*/usb?/?-[2,4,6,8,10,12,14,16,18]/*"
 ```
 
 Since ltsp.conf is transformed into a shell script and sections into
-functions, it's possible to do all kinds of fancy things, even to directly
-include code. But it's usually best to keep it simple and put code in
-separate scripts.
+functions, it's possible to directly include code or to call sections
+at POST_APPLET_x hooks.
 
 ```shell
 [clients]
-# Set the root password to "qwer1234" for all clients.
-# The password hash contains ' and $, making it hard to escape it,
-# so use a "HEREDOC" instead.
-{ POST_INIT_SET_ROOT_HASH=$(cat); } <<"EOF"
-sed 's|^root:[^:]*:|root:$6$p2LdWE6j$PDd1TUzGvvIkj9SE8wbw1gA/MD66tHHlStqi1.qyv860oK47UnKcafSKqGp7cbgZUPlgyPv6giCVyCSCdJt1b0:|' -i /etc/shadow
-EOF
+# Allow local root logins by setting a password hash for the root user.
+# The hash contains $, making it hard to escape in POST_INIT_x="sed ...".
+# So put sed in a section and call it at POST_INIT like this:
+POST_INIT_SET_ROOT_HASH="section_set_root_hash"
 
-[initrd-bottom/]
-# Putting commands under [applet/] sections means that they will only be run
-# by that specific ltsp applet.
-# The following commands work around LP: #345374 bug for SiS clients.
-test -d /sys/module/sis190 || return 0
-ip link set dev "$DEVICE" mtu 1492
+# This is the hash of "qwer1234"; cat /etc/shadow to see your hash.
+[set_root_hash]
+sed 's|^root:[^:]*:|root:$6$bKP3Tahd$a06Zq1j.0eKswsZwmM7Ga76tKNCnueSC.6UhpZ4AFbduHqWA8nA5V/8pLHYFC4SrWdyaDGCgHeApMRNb7mwTq0:|' -i /etc/shadow
 ```
