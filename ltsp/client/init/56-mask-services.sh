@@ -67,6 +67,8 @@ fwupd-refresh.timer        # Refresh fwupd metadata regularly
 logrotate.timer            # Daily rotation of log files
 man-db.timer               # Daily man-db regeneration
 ModemManager               # Modem Manager
+nfs-kernel-server          # NFS server and services
+nfs-server                 # NFS server and services
 packagekit                 # PackageKit Daemon
 packagekit-offline-update  # Update the operating system whilst offline
 ssh                        # OpenBSD Secure Shell server
@@ -83,7 +85,7 @@ nbd-server                 # Network Block Device server
 # From Raspbian Buster
 dhcpcd                     # dhcpcd on all interfaces
 # Third party:
-shared-folders             # Sch-scripts shared folders service
+anydesk                    # AnyDesk
 teamviewerd                # TeamViewer remote control daemon
 "
 
@@ -94,9 +96,7 @@ auth-rpcgss-module         # Kernel Module supporting RPCSEC_GSS
 nfs-blkmap                 # pNFS block layout mapping daemon
 nfs-common                 # nfs-config.service  # Preprocess NFS configuration
 nfs-idmapd                 # NFSv4 ID-name mapping service
-nfs-kernel-server          # NFS server and services
 nfs-mountd                 # NFS Mount Daemon
-nfs-server                 # NFS server and services
 nfs-utils                  # NFS server and client services
 portmap                    # RPC bind portmap service
 rpcbind                    # RPC bind portmap service
