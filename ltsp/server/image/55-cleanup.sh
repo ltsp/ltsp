@@ -8,7 +8,7 @@ cleanup_main() {
     test "$CLEANUP" != "0" ||
         return 0
     re test "cleanup_main:$_COW_DIR" != "cleanup_main:"
-    if [ "$IN_PLACE" != "1" ] || [ "$_COW_DIR" = "/" ]; then
+    if [ "$IN_PLACE" != "1" ]; then
         if [ "$OVERLAY" != 0 ] && [ "$(stat -fc %T "$_COW_DIR")" != "overlayfs" ]
         then
             die "Can't clean up without overlay: $_COW_DIR"
