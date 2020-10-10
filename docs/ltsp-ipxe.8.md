@@ -18,7 +18,7 @@ See the **ltsp(8)** man page for _ltsp-options_.
 : Reinstall the iPXE binaries in TFTP even if they already exist.
 Defaults to "", which means "only install the missing ones".
 Note that the --overwrite flag doesn't affect the binaries, they're only
-contolled by the --binaries flag.
+controlled by the --binaries flag.
 
 ## ADVANCED IMAGE SOURCES
 This section is for advanced LTSP sysadmins.

@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Handle tasks related to display managers.
@@ -9,20 +9,22 @@
 # @LTSP.CONF: LTSPDM_USERS
 
 display_manager_main() {
-    local _ALUSER _AUTOLOGIN _RELOGIN host
+    local _ALUSER _AUTOLOGIN _RELOGIN
 
     if [ -z "$AUTOLOGIN" ]; then
-        _AUTOLOGIN=false
         _ALUSER=
-    else
+    elif ! _ALUSER=$(echo "$HOSTNAME" | sed "s/$AUTOLOGIN/" 2>/dev/null); then
+        # AUTOLOGIN can either be a valid sed regex or a username
+        _ALUSER=$AUTOLOGIN
+    fi
+    # Ignore non-existing users as e.g. lightdm displays artifacts
+    if [ -n "$_ALUSER" ] && ! getent passwd "$_ALUSER" >/dev/null; then
+        _ALUSER=
+    fi
+    if [ -n "$_ALUSER" ]; then
         _AUTOLOGIN=true
-        _ALUSER=${AUTOLOGIN##*/}
-        host=${AUTOLOGIN%%/*}
-        if [ "$host/$_ALUSER" = "$AUTOLOGIN" ] &&
-            echo "$HOSTNAME" | re grep -q "$host"
-        then
-            _ALUSER=$(echo "$HOSTNAME" | re sed "s/$host/$_ALUSER/")
-        fi
+    else
+        _AUTOLOGIN=false
     fi
     if [ "$RELOGIN" = "0" ]; then
         _RELOGIN=false
