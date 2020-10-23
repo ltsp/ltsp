@@ -36,7 +36,7 @@ initrd_main() {
     
     # Copy anything in /etc/ltsp/initrd to the root of the initrd image
     if [ -d /etc/ltsp/initrd ]; then
-        re cp -a /etc/ltsp/initrd "$_DST_DIR"
+        re cp -a /etc/ltsp/initrd/. "$_DST_DIR"
     fi
     
     # Copy the rest of /etc/ltsp to initrd directory /etc/ltsp
