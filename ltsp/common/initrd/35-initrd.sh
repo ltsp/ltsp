@@ -33,6 +33,13 @@ initrd_main() {
     # Busybox doesn't support ln -r
     re ln -s ../../usr/share/ltsp/client/initrd-bottom/initramfs-tools/ltsp-hook.conf \
         "$_DST_DIR/conf/conf.d/00-ltsp.conf"
+    
+    # Copy anything in /etc/ltsp/initrd to the root of the initrd image
+    if [ -d /etc/ltsp/initrd ]; then
+        re cp -a /etc/ltsp/initrd "$_DST_DIR"
+    fi
+    
+    # Copy the rest of /etc/ltsp to initrd directory /etc/ltsp
     re mkdir -p "$_DST_DIR/etc/ltsp"
     if [ -d /etc/ltsp ]; then
         re cp -a /etc/ltsp/. "$_DST_DIR/etc/ltsp/"
