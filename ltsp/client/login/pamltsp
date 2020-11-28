@@ -15,73 +15,101 @@ die() {
 }
 
 require_root() {
-    if [ "$_UID" != "0" ]; then
+    if [ "$_UID" != 0 ]; then
         die "${1:-$0 must be run as root}"
     fi
 }
 
-# Install pamltsp in the system PAM configuration.
+# Install pamltsp in the system PAM configuration
 install() {
+    local auth_control tab
+
     require_root
-    sed 's/.*\(KillUserProcesses=\).*/\1yes/' -i /etc/systemd/logind.conf
+    # Currently the PAM configuration is Debian/Ubuntu specific
+    if [ "$PAM_AUTH_TYPE" = "Primary" ]; then
+        auth_control="[success=end default=ignore]"
+    elif [ "$PAM_AUTH_TYPE" = "Additional" ]; then
+        tab=$(printf "\t")
+        auth_control="optional$tab$tab"
+    else
+        die "Aborting due to PAM_AUTH_TYPE=$PAM_AUTH_TYPE"
+    fi
     # The seteuid option is needed for `getent shadow`, for mkdir/chown $HOME,
     # for caching shadow options to /run/ltsp/pam/, for using systemd-run etc.
-    # These are Debian/Ubuntu specific:
     printf "Name: SSH based authentication for LTSP
 Default: yes
 Priority: 0
-Auth-Type: Primary
+Auth-Type: %s
 Auth:
-\t[success=end default=ignore]\tpam_exec.so seteuid expose_authtok stdout quiet %s pam_auth
+\t%s\tpam_exec.so expose_authtok seteuid stdout quiet %s pam_auth
 Session-Interactive-Only: yes
 Session-Type: Additional
 Session:
 \toptional\tpam_exec.so seteuid stdout quiet %s pam_session\n" \
-    "$_SELF" "$_SELF" > /usr/share/pam-configs/ltsp
+        "$PAM_AUTH_TYPE" "$auth_control" "$_SELF" "$_SELF" \
+        > /usr/share/pam-configs/ltsp
     pam-auth-update --package ltsp ||
         die "Could not configure PAM for SSH authentication!"
+    sed 's/.*\(KillUserProcesses=\).*/\1yes/' -i /etc/systemd/logind.conf
 }
 
 # May be called:
-# As root by pam auth, for SSH or SSHFS or passwordless logins
-# As root by pam open_session, for autologins
+# As root by pam auth>Primary, for SSH or SSHFS or passwordless logins
+# As root by pam auth>Additional, for LDAP SSHFS mounting
+# As root by pam open_session, for autologin SSHFS mounting
 # As user by pam auth, for screensaver unlocking
 # As the user doesn't have enough rights to `getent shadow`;
 # necessary information should be cached in /run/ltsp/pam/ on login.
 pam_auth() {
-    local pw_entry pw_name pw_passwd pw_uid pw_gid pw_gecos pw_dir \
-        pw_shell sp_entry sp_namp sp_pwdp dummy sshfs_params msg
+    local pw_entry remote pw_name pw_passwd pw_uid pw_gid pw_gecos pw_dir \
+        pw_shell sp_entry sp_namp sp_pwdp _dummy sshfs_params msg
 
     pam_log
-    # Verify that we're being called from PAM and that the user exists
+    # Verify that we're being called from PAM and fetch the user entry
     if [ -z "$PAM_USER" ] || ! pw_entry=$(getent passwd "$PAM_USER"); then
         die "User $PAM_USER doesn't exist"
     fi
+    # Detect if the user is local or remote
+    if grep -q "^$PAM_USER:" /etc/passwd; then
+        remote=0
+    else
+        remote=1
+        # For remote users, we *may* do SSHFS; nothing more
+        test "$PAM_TYPE" = "open_session" && return 0
+        test "$PAM_AUTH_TYPE" = "Primary" && return 1
+        test "$SSHFS" = 0 && return 0
+    fi
     # Retrieve the user's sp_entry from shadow or cache
-    if [ "$_UID" = "0" ]; then
+    if [ "$remote" = 1 ]; then
+        # Don't ask for remote shadow entries, e.g.
+        # https://bugzilla.redhat.com/show_bug.cgi?id=751291#c4
+        sp_entry="$PAM_USER:pamltsp:remote-user"
+    elif [ "$_UID" = 0 ]; then
         sp_entry=$(getent shadow "$PAM_USER")
     elif [ -f "/run/ltsp/pam/$PAM_USER/shadow" ]; then
         sp_entry=$(cat "/run/ltsp/pam/$PAM_USER/shadow")
     else
-        # We can't retrieve it; assume they're not a pamltsp user
-        exit 1
+        die "Unhandled user $PAM_USER"
     fi
     IFS=:
     # Variable names from `man getpwent/getspent`
     read -r pw_name pw_passwd pw_uid pw_gid pw_gecos pw_dir pw_shell <<EOF
 $pw_entry
 EOF
-    read -r sp_namp sp_pwdp dummy<<EOF
+    read -r sp_namp sp_pwdp _dummy<<EOF
 $sp_entry
 EOF
     test "$_OLDIFS" = "not set" && unset IFS || IFS="$_OLDIFS"
     test "$pw_name" = "$sp_namp" || die "Invalid passwd/shadow for $PAM_USER"
+    # If this is not a pamltsp user
     if [ "${sp_pwdp}" = "${sp_pwdp#pamltsp}" ]; then
-        if [ "$PAM_TYPE" = "open_session" ]; then
-            exit 0
+        if [ "$PAM_TYPE" = "open_session" ] ||
+            [ "$PAM_AUTH_TYPE" = "Additional" ]
+        then
+            return 0
         else
-            # TODO: delete this message in production and just exit 1
-            die "User $PAM_USER can't auth via pamltsp"
+            # Refuse authentication
+            return 1
         fi
     fi
     # Cache the shadow entry for screensaver and passwordless authentication
@@ -103,7 +131,7 @@ EOF
     # It works with IdentityFile=/nonexistent
     set -- -F /dev/null -o UserKnownHostsFile="/etc/ltsp/ssh_known_hosts" \
         -o IdentitiesOnly=yes -o IdentityFile=/nonexistent \
-        -o NumberOfPasswordPrompts=1
+        -o NumberOfPasswordPrompts=1 $PAM_SSH_OPTIONS
     unset success
     # Indicate that an authentication attempt is in progress
     # See https://github.com/libfuse/sshfs/issues/183
@@ -112,21 +140,20 @@ EOF
     # Check if SSHFS is required.
     # `mountpoint` blocks until the sshfs password in entered.
     # That may be a good thing, to avoid race conditions.
-    if [ "$SSHFS" = "0" ] || ! command -v sshfs >/dev/null ||
+    if [ "$SSHFS" = 0 ] || ! command -v sshfs >/dev/null ||
         mountpoint -q /home || mountpoint -q "$pw_dir"
     then
         if [ "$PAM_TYPE" = "open_session" ]; then
             # This point is reached when we already mounted home in auth,
-            # or for passwordless logins with NFS/local home.
-            # In these cases we want to skip SSH authentication.
-            exit 1
+            # or for passwordless logins with NFS or local home
+            return 0
         fi
         # The ssh call logic is documented in ssh-askpass
         export DISPLAY=
         export SSH_ASKPASS="${_SELF%/*}/ssh-askpass"
-        if ssh -qns "$@" "$pw_name@$SERVER" sftp; then
+        if ssh -qns "$@" "$pw_name@$SSH_SERVER" sftp; then
             success=1
-            if [ ! -e "$pw_dir" ] && [ "$MKHOMEDIR" != "0" ]; then
+            if [ ! -e "$pw_dir" ] && [ "$MKHOMEDIR" != 0 ]; then
                 # Emulate pam_mkhomedir
                 mkdir -p -m 0755 "$pw_dir"
                 cp -a /etc/skel/. "$pw_dir"
@@ -150,7 +177,7 @@ EOF
         # Logins will fail for those seconds, and work properly afterwards.
         grep -qs "$pw_dir fuse.sshfs" /proc/mounts && fusermount -u "$pw_dir"
         # Create an empty home dir if it's not there; nope, no skel for SSHFS
-        if [ ! -d "$pw_dir" ] && [ "$MKHOMEDIR" != "0" ]; then
+        if [ ! -d "$pw_dir" ] && [ "$MKHOMEDIR" != 0 ]; then
             mkdir -p -m 0755 "$pw_dir"
             chown "$pw_uid:$pw_gid" "$pw_dir"
         fi
@@ -166,21 +193,24 @@ EOF
         command -v fusermount3 >/dev/null ||
             sshfs_params="$sshfs_params,nonempty"
         if "${_SELF%/*}/ssh-askpass" |
-            sshfs -o "$sshfs_params" "$@" "$pw_name@$SERVER:" "$pw_dir"
+            sshfs -o "$sshfs_params" "$@" "$pw_name@$SSH_SERVER:" "$pw_dir"
         then
             success=1
         fi
     fi
-    if [ "$success" = "1" ]; then
+    if [ "$success" = 1 ]; then
         return 0
-    else
+    fi
+    if [ "$PAM_TYPE" = "auth" ] && [ "$PAM_AUTH_TYPE" = "Primary" ]; then
         # su: gettext -d Linux-PAM "Authentication failure"
         # login: gettext -d shadow 'Login incorrect' (this works in fedora30 too)
         msg=$(gettext -d shadow "Login incorrect")
         msg=${msg:-Authentication failure}
-        echo ".$msg." >&2
-        return 1
+    else
+        msg="Pamltsp failed to mount home via SSHFS"
     fi
+    echo ".$msg." >&2
+    return 1
 }
 
 pam_log() {
@@ -190,8 +220,8 @@ pam_log() {
 pam_session() {
     pam_log
     case "$PAM_TYPE" in
-        close_session) unmount_sshfs; return 0 ;;
-        open_session) pam_auth; return 0 ;;
+        close_session) unmount_sshfs || return $? ;;
+        open_session) pam_auth || return $? ;;
     esac
 }
 
@@ -253,7 +283,7 @@ unmount_sshfs_stage2() {
             i=$((i+1))
         fi
         # If no user processes are running, unmount it
-        if [ "$(pgrep -cu "$pw_name")" = "0" ]; then
+        if [ "$(pgrep -cu "$pw_name")" = 0 ]; then
             fusermount -u "$pw_dir"
             return 0
         fi
@@ -267,9 +297,16 @@ main() {
     _SELF=$(readlink -f "$0")
     _UID=$(id -u)
     umask 0022
-    # TODO: read these from a configuration file
-    # SSHFS=1  # The default
-    SERVER=server
+    test -f /etc/ltsp/pamltsp.conf && . /etc/ltsp/pamltsp.conf
+    SSH_SERVER=${SSH_SERVER:-server}
+    if [ -z "$PAM_AUTH_TYPE" ]; then
+        # Use autodetection
+        if grep -qswE 'pam_sss|pam_ldap' /etc/pam.d/common-auth; then
+            PAM_AUTH_TYPE="Additional"
+        else
+            PAM_AUTH_TYPE="Primary"
+        fi
+    fi
     case "$1" in
         install|pam_auth|pam_session|unmount_sshfs_stage2)
             func=$1

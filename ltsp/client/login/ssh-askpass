@@ -1,6 +1,6 @@
 #!/bin/sh
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2020 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # SSH_ASKPASS implementation to transfer the passphrase to SSH/SSHFS.
@@ -12,14 +12,14 @@
 # Also, if stdin is a tty, it prefers to use it; so in cmdline it needs:
 #   echo pass | SSH_ASKPASS=ssh-askpass setsid ssh user@server cmd
 # Under PAM we're already in a pipe, and setsid isn't needed.
-# So we just need to the passphrase to stdout.
+# So we just need to echo the passphrase to stdout.
 # Take that, SSH screen scraping! :)
 
 main() {
-    local sp_namp sp_pwdp dummy var_value pass
+    local _sp_namp sp_pwdp _dummy var_value pass
 
     IFS=:
-    read -r sp_namp sp_pwdp dummy <"/run/ltsp/pam/$PAM_USER/shadow"
+    read -r _sp_namp sp_pwdp _dummy <"/run/ltsp/pam/$PAM_USER/shadow"
     IFS=,
     unset pass
     for var_value in $sp_pwdp; do
