@@ -11,14 +11,14 @@
 ro_root_main() {
     test -w / && return 0
 
-    # The following are currently only tested on Raspbian
+    # The following are currently only tested on Raspberry Pi OS
     if [ "$ADMINISTRATIVE_CLIENT" = "1" ]; then
         echo "Administrative client; booting in NFS-RW mode"
         re mount -o remount,rw /
         re exec /sbin/init
     fi
 
-    # Raspbian kernel has only /dev mounted at that point
+    # Raspberry Pi OS kernel has only /dev mounted at that point
     re mount_devices
     re mkdir -p /run/ltsp/client
     re kernel_vars

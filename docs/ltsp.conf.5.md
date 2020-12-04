@@ -199,11 +199,11 @@ pc01, pc02 etc, and your users a01, a02, b01, b02 etc, then the following
 line only shows/allows a01 and b01 to login to pc01:
 `PWMERGE_SUR=".*%{HOSTNAME#pc}"`
 
-**RPI_IMAGE=**_"raspbian"_
+**RPI_IMAGE=**_"raspios"_
 : Select this LTSP image to boot Raspberry Pis from.
 This symlinks all $BASE_DIR/$RPI_IMAGE/boot/* files directly under $TFTP_DIR
 when `ltsp kernel $RPI_IMAGE` is called.
-See the [Raspberry Pi documentation page](https://ltsp.org/docs/installation/raspbian)
+See the [Raspberry Pi OS documentation page](https://ltsp.org/docs/installation/raspios)
 for more information.
 
 **SEARCH_DOMAIN=**_"ioa.sch.gr"_

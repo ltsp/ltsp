@@ -82,7 +82,7 @@ x2goserver                 # X2Go Server Daemon
 alsa-utils                 # Restore and store ALSA driver settings
 grub-common                # Record successful boot for GRUB
 nbd-server                 # Network Block Device server
-# From Raspbian Buster
+# From Raspberry Pi OS Buster
 dhcpcd                     # dhcpcd on all interfaces
 # Third party:
 anydesk                    # AnyDesk
