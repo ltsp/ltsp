@@ -196,6 +196,9 @@ EOF
             sshfs -o "$sshfs_params" "$@" "$pw_name@$SSH_SERVER:" "$pw_dir"
         then
             success=1
+        else
+            # If it's empty, remove it to avoid a tmpfs home
+            rmdir --ignore-fail-on-non-empty "$pw_dir"
         fi
     fi
     if [ "$success" = 1 ]; then
