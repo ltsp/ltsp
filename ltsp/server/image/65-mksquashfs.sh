@@ -15,7 +15,7 @@ mksquashfs_main() {
             IONICE="$IONICE ionice -c3"
         fi
     fi
-    re mkdir -p "$BASE_DIR/images"
+    re mkdir -pm 0700 "$BASE_DIR/images"
     ie=$(image_excludes)
     # image_excludes can't call exit_command because of the subshell
     test "${ie%.tmp}" != "$ie" && exit_command "rw rm '$ie'"
