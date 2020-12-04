@@ -27,7 +27,8 @@ home with them. But sshfs is a small binary without many dependencies,
 so you may usually provide it to the clients if you include it to ltsp.img:
 
 ```shell
-cp /usr/bin/sshfs /etc/ltsp/sshfs-$(uname -m)
+mkdir -p /etc/ltsp/bin
+cp /usr/bin/sshfs /etc/ltsp/bin/sshfs-$(uname -m)
 ltsp initrd
 ```
 
