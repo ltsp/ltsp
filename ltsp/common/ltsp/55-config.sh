@@ -114,7 +114,8 @@ BEGIN {
 if ($0 ~ /^[ ]*\[[^]]*\]/) {  # [Section]
     print "}\n"
     section=tolower($0)
-    gsub("[][]", "", section)
+    sub("#.*", "", section)
+    gsub("[^-*./:?@_|0-9a-z]", "", section)
     section_id=section
     section_id=prefix section_id
     gsub("[^a-z0-9]", "_", section_id)
@@ -125,8 +126,10 @@ if ($0 ~ /^[ ]*\[[^]]*\]/) {  # [Section]
     list_sections=list_sections "\n" section_id
 } else if (tolower($0) ~ /^include *=/) {  # INCLUDE = xxx
     value=tolower($0)
+    sub("#.*", "", value)
     sub("include *= *", "", value)
-    print prefix value
+    gsub("[^-*./:?@_|0-9a-z]", "", value)
+    print prefix "call \"" value "\""
 } else if ($0 ~ /^[a-zA-Z0-9_]* *=/) {  # VAR = xxx
     value=$0
     sub(" *= *", "=", value)  # remove spaces only around the first =
