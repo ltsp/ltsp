@@ -273,9 +273,9 @@ unmount_sshfs_stage2() {
         kill "$i"
     done
     i=0
-    # Allow up to 10 seconds for systemd process killing and cleanup.
+    # Allow up to 120 seconds for systemd process killing and cleanup.
     # Check every second if it finished.
-    while [ "$i" -lt 10 ]; do
+    while [ "$i" -lt 120 ]; do
         sleep 1
         # If it was... manually unmounted?
         grep -qs "$pw_dir fuse.sshfs" /proc/mounts || return 0
