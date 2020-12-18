@@ -28,7 +28,7 @@ To export /home over NFS (insecure), use the following ltsp.conf parameters:
 NFS_HOME=1
 
 [clients]
-FSTAB_NFS="server:/home /home nfs defaults,nolock 0 0"
+FSTAB_HOME="server:/home /home nfs defaults,nolock 0 0"
 ```
 
 And run these commands on the server:
@@ -47,7 +47,7 @@ NFS_HOME=1
 HOME_DIR=/home/nfs
 
 [clients]
-FSTAB_NFS="server:/home/nfs /home nfs defaults,nolock 0 0"
+FSTAB_HOME="server:/home/nfs /home nfs defaults,nolock 0 0"
 ```
 
 Then run the following commands on the server, to move some home directories
