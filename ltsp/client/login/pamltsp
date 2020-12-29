@@ -131,7 +131,7 @@ EOF
     # It works with IdentityFile=/nonexistent
     set -- -F /dev/null -o UserKnownHostsFile="/etc/ltsp/ssh_known_hosts" \
         -o IdentitiesOnly=yes -o IdentityFile=/nonexistent \
-        -o NumberOfPasswordPrompts=1 $PAM_SSH_OPTIONS
+        -o NumberOfPasswordPrompts=1 $SSH_OPTIONS
     unset success
     # Indicate that an authentication attempt is in progress
     # See https://github.com/libfuse/sshfs/issues/183
