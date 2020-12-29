@@ -152,6 +152,13 @@ Use the server installation as a template to generate a client image
 ltsp image /
 ```
 
+Inform `ltsp image` that a chrootless installation uses separate /boot and
+/opt partitions:
+
+```shell
+ltsp image /,,/boot,subdir=boot,,/opt,subdir=opt
+```
+
 Compress the /srv/ltsp/x86_64 chroot or the /srv/ltsp/x86_64.img virtual
 machine image, whichever exists of those two, into /srv/ltsp/images/x86_64.img,
 while disabling ionice:
