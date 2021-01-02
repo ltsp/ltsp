@@ -1,6 +1,6 @@
 #!/bin/sh
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019-2020 the LTSP team, see AUTHORS
+# Copyright 2019-2021 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Provide PAM authentication to a server via SSH and optionally SSHFS $HOME.
@@ -149,7 +149,7 @@ EOF
             return 0
         fi
         # The ssh call logic is documented in ssh-askpass
-        export DISPLAY=
+        export DISPLAY=" "
         export SSH_ASKPASS="${_SELF%/*}/ssh-askpass"
         if ssh -qns "$@" "$pw_name@$SSH_SERVER" sftp; then
             success=1
