@@ -1,3 +1,26 @@
+ltsp (21.01-1) unstable; urgency=low
+
+  * Update copyright in man pages
+  * Support openssh 8.4 (#358)
+  * Document separate partitions in ltsp image (#347)
+  * Correctly pass SSH_OPTIONS to pamltsp (#114)
+  * Increase SSHFS cleanup timeout
+  * Avoid more than 2 login error messages (#353)
+  * Remove all resume configuration files (#346)
+  * Transform INCLUDE into section_call (#343)
+  * Rename Raspbian to Raspberry Pi OS (#342)
+  * Allow NFS home in live CDs (#138)
+  * Avoid tmpfs home (#338)
+  * Make images accessible only by root (#336)
+  * Document the correct /etc/ltsp/bin/sshfs path (#341)
+  * Initial SSSD/LDAP support (#338)
+  * Update issue template for discussions
+  * Prevent AUTOLOGIN blocking boot in unmatched clients (#157)
+  * Disable nfs-kernel-server by default
+  * Update ltsp.conf.5.md
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Sat, 02 Jan 2021 08:36:23 +0200
+
 ltsp (20.06-1) unstable; urgency=low
 
   * Use sftp auth to allow disabling ssh logins (#128)
