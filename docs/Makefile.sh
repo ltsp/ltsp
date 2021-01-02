@@ -1,9 +1,9 @@
 #!/bin/sh
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2021 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Use go-md2man to convert the .md files into manpages;
+# Use ronn or go-md2man to convert the .md files into manpages;
 # put the output in ./man/man[0-9] subdirectories, to make packaging easier,
 # and to be able to test with: `MANPATH=man man ltsp kernel`
 
@@ -13,7 +13,7 @@
 footer() {
     cat <<EOF
 ## COPYRIGHT
-Copyright 2019 the LTSP team, see AUTHORS
+Copyright 2019-2021 the LTSP team, see AUTHORS
 
 ## SEE ALSO
 **ltsp**(8), **ltsp.conf**(5), **ltsp-dnsmasq**(8), **ltsp-image**(8),
