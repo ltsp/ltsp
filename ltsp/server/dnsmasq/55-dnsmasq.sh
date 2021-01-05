@@ -49,16 +49,22 @@ s|^enable-tftp|$(textifb "$TFTP" "&" "#&")|
 }
 
 dns_server() {
-    local dns_server
+    local dns_server resolvectl
 
     if [ -n "$DNS_SERVER" ]; then
         echo "$DNS_SERVER" | tr " " ","
         return 0
     fi
     dns_server=
-    # Jessie doesn't have systemd-resolve
-    if is_command systemd-resolve; then
-        dns_server=$(LANG=C.UTF-8 rw systemd-resolve --status |
+    if is_command resolvectl; then
+        resolvectl="resolvectl status"
+    elif is_command systemd-resolve; then
+        resolvectl="systemd-resolve --status"
+    else
+        resolvectl=""
+    fi
+    if [ -n "$resolvectl" ]; then
+        dns_server=$(LANG=C.UTF-8 rw $resolvectl |
             sed -n '/DNS Servers:/,/:/s/.* \([0-9.]\{7,15\}\).*/\1/p' |
             grep -v '^127.0.' |
             tr '\n' ',')
