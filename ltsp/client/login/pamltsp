@@ -176,6 +176,18 @@ EOF
         # It needs a few seconds to kill all the processes.
         # Logins will fail for those seconds, and work properly afterwards.
         grep -qs "$pw_dir fuse.sshfs" /proc/mounts && fusermount -u "$pw_dir"
+        # make sure all shared directory mount points are available, fail if not
+        while read shared_dir; do
+            if mountpoint -q "$shared_dir"; then
+                if grep -qs "@$SSH_SERVER:$shared_dir $shared_dir fuse.sshfs " /proc/mounts; then
+                    if [ "$pw_name" != $(grep -s "@$SSH_SERVER:$shared_dir $shared_dir fuse.sshfs " /proc/mounts|cut -d @ -f 1) ]; then
+                       die "SSH-shared directory '$shared_dir' is already mounted by another user. Concurrent login is impossible on the same computer."
+                    fi
+                else
+                     die "Shared directory '$shared_dir' cannot be SSH-mounted because it is already mounted using another method"
+                fi
+            fi
+        done < /etc/ltsp/shared_dirs
         # Create an empty home dir if it's not there; nope, no skel for SSHFS
         if [ ! -d "$pw_dir" ] && [ "$MKHOMEDIR" != 0 ]; then
             mkdir -p -m 0755 "$pw_dir"
@@ -192,10 +204,18 @@ EOF
         # fuse3 defaults to nonempty and doesn't accept it
         command -v fusermount3 >/dev/null ||
             sshfs_params="$sshfs_params,nonempty"
-        if msg=$("${_SELF%/*}/ssh-askpass" |
+        p=$("${_SELF%/*}/ssh-askpass")
+        if msg=$(echo $p |
             sshfs -o "$sshfs_params" "$@" "$pw_name@$SSH_SERVER:" "$pw_dir" 2>&1)
         then
             success=1
+            while read shared_dir; do
+                grep -qs "$pw_name@$SSH_SERVER:$shared_dir $shared_dir fuse.sshfs " /proc/mounts || {
+                    mkdir -p "$shared_dir" && {
+                       echo "$p" | sshfs -o "$sshfs_params" "$@" "$pw_name@$SSH_SERVER:$shared_dir" "$shared_dir"
+                    } || echo "Warning: could not mount shared directory '$shared_dir'"
+                }
+            done < /etc/ltsp/shared_dirs
         else
             # If it's empty, remove it to avoid a tmpfs home
             rmdir --ignore-fail-on-non-empty "$pw_dir"
@@ -288,6 +308,9 @@ unmount_sshfs_stage2() {
         # If no user processes are running, unmount it
         if [ "$(pgrep -cu "$pw_name")" = 0 ]; then
             fusermount -u "$pw_dir"
+            tac /etc/ltsp/shared_dirs | while read shared_dir; do
+                grep -qs "$pw_name@server:$shared_dir $shared_dir fuse.sshfs " /proc/mounts && fusermount -u "$shared_dir"
+            done
             return 0
         fi
     done

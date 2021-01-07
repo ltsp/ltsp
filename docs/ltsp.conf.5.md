@@ -232,6 +232,11 @@ The most widely supported method to set a default resolution is X_MODES.
 If more parameters are required, create a custom xorg.conf as described in
 the EXAMPLES section.
 
+**SHARED_DIR_x=**_"/srv/common_folder"_
+: Shared directory to be mounted together with the logging user's home directory.
+Only works with SSH-mounted home directories.
+Prevents more than one user from authenticating concurrently on the same LTSP client.
+
 ## EXAMPLES
 To specify a hostname and a user to autologin in a client:
 

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # @LTSP.CONF: PWMERGE_SUR PWMERGE_SGR PWMERGE_DUR PWMERGE_DGR
-# @LTSP.CONF: PASSWORDS_x PAM_AUTH_TYPE SSH_SERVER SSH_OPTIONS
+# @LTSP.CONF: PASSWORDS_x PAM_AUTH_TYPE SSH_SERVER SSH_OPTIONS SHARED_DIR_x
 
 pam_main() {
     local userpass user pass
@@ -37,4 +37,5 @@ EOF
         fi
     done
     set +f
+    re echo_values "SHARED_DIR_[[:alnum:]_]*" | sort -u > /etc/ltsp/shared_dirs
 }
