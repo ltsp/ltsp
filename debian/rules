@@ -32,4 +32,5 @@ override_dh_install:
 
 override_dh_clean:
 	rm -f debian/ltsp.service
+	rm -rf docs/man
 	dh_clean
