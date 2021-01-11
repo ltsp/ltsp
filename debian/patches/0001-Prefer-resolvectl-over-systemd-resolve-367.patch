@@ -1,0 +1,43 @@
+From 7b0e851fe5c11929bf8ec350e6b24178125cc571 Mon Sep 17 00:00:00 2001
+From: Alkis Georgopoulos <alkisg@gmail.com>
+Date: Tue, 5 Jan 2021 08:28:03 +0200
+Subject: [PATCH] Prefer resolvectl over systemd-resolve (#367)
+
+---
+ ltsp/server/dnsmasq/55-dnsmasq.sh | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/ltsp/server/dnsmasq/55-dnsmasq.sh b/ltsp/server/dnsmasq/55-dnsmasq.sh
+index 09cc69d..38565c7 100644
+--- a/ltsp/server/dnsmasq/55-dnsmasq.sh
++++ b/ltsp/server/dnsmasq/55-dnsmasq.sh
+@@ -49,16 +49,22 @@ s|^enable-tftp|$(textifb "$TFTP" "&" "#&")|
+ }
+ 
+ dns_server() {
+-    local dns_server
++    local dns_server resolvectl
+ 
+     if [ -n "$DNS_SERVER" ]; then
+         echo "$DNS_SERVER" | tr " " ","
+         return 0
+     fi
+     dns_server=
+-    # Jessie doesn't have systemd-resolve
+-    if is_command systemd-resolve; then
+-        dns_server=$(LANG=C.UTF-8 rw systemd-resolve --status |
++    if is_command resolvectl; then
++        resolvectl="resolvectl status"
++    elif is_command systemd-resolve; then
++        resolvectl="systemd-resolve --status"
++    else
++        resolvectl=""
++    fi
++    if [ -n "$resolvectl" ]; then
++        dns_server=$(LANG=C.UTF-8 rw $resolvectl |
+             sed -n '/DNS Servers:/,/:/s/.* \([0-9.]\{7,15\}\).*/\1/p' |
+             grep -v '^127.0.' |
+             tr '\n' ',')
+-- 
+2.20.1
+
