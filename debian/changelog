@@ -1,5 +1,6 @@
-ltsp (21.01-1) unstable; urgency=low
+ltsp (21.01-1) unstable; urgency=medium
 
+  [ Alkis Georgopoulos ]
   * Update copyright in man pages
   * Support openssh 8.4 (#358)
   * Document separate partitions in ltsp image (#347)
@@ -19,7 +20,14 @@ ltsp (21.01-1) unstable; urgency=low
   * Disable nfs-kernel-server by default
   * Update ltsp.conf.5.md
 
- -- Alkis Georgopoulos <alkisg@gmail.com>  Sat, 02 Jan 2021 08:36:23 +0200
+  [ Vagrant Cascadian ]
+  * debian/patches: Prefer resolvectl over systemd-resolve.
+    (Closes: #979261)
+
+  [ Sébastien Ducoulombier ]
+  * make debclean remove docs/man
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Mon, 11 Jan 2021 14:22:12 -0800
 
 ltsp (20.06-1) unstable; urgency=low
 
