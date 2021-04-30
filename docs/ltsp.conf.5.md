@@ -76,7 +76,7 @@ Finally, the *_CONF parameters can be either filenames or direct text, and
 provide a way to write additional content to the generated display manager
 configuration.
 
-**CRONTAB_x=**_"30 15 * * *  poweroff"_
+**CRONTAB_x=**_"30 15   * * *   root    poweroff"_
 : Add a line in crontab. The example powers off the clients at 15:30.
 
 **CUPS_SERVER=**_"$SERVER"_
