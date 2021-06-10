@@ -1,0 +1,43 @@
+#!/usr/bin/python3
+# This file is part of LTSP, https://ltsp.org
+# Copyright 2021 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""
+Display a question dialog. Return 0 if [OK] was clicked.
+"""
+import gi
+import os
+import sys
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+
+def message_dialog(text, title):
+    dialog = Gtk.MessageDialog(
+        transient_for=None,
+        flags=0,
+        message_type=Gtk.MessageType.WARNING,
+        buttons=Gtk.ButtonsType.YES_NO,
+        text=title,
+    )
+    dialog.format_secondary_markup(text)
+    dialog.set_position(Gtk.WindowPosition.CENTER)
+    response = dialog.run()
+    dialog.destroy()
+
+    return response
+
+
+if __name__ == '__main__':
+    if len(sys.argv) <= 1 or len(sys.argv) > 3:
+        print("Usage: {} text [title]".format(
+            os.path.basename(__file__), file=sys.stderr))
+        exit(1)
+    text = sys.argv[1]
+    if len(sys.argv) > 2 and sys.argv[2]:
+        title = sys.argv[2]
+    else:
+        title = ""
+    # exit(False) => 0 => considered as "true" in shell
+    exit(message_dialog(text, title) != Gtk.ResponseType.YES)
