@@ -40,6 +40,7 @@ Aborting, please remove the LTSP5 configuration first"
     install_template "ltsp-dnsmasq.conf" "/etc/dnsmasq.d/ltsp-dnsmasq.conf" "\
 s|^port=0|$(textifb "$DNS" "#&" "&")|
 s|^dhcp-range=set:proxy.*|$(textifb "$PROXY_DHCP" "$(proxy_dhcp)" "#&")|
+s|^pxe-service.*|$(textifb "$PROXY_DHCP" "&" "#&")|
 s|^dhcp-range=192.168.67.20.*|$(textifb "$REAL_DHCP" "&" "#&")|
 s|^\(dhcp-option=option:dns-server,\).*|\1$(dns_server)|
 s|^\(tftp-root=\).*|\1$TFTP_DIR|
