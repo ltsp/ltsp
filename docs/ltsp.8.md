@@ -11,6 +11,7 @@ Run the specified LTSP _applet_ with _applet-options_. To get help with applets 
 The following applets are currently defined:
 
  - **dnsmasq**: configure dnsmasq for LTSP
+ - **http**: configure nginx or apache for LTSP
  - **image**: generate a squashfs image from an image source
  - **info**: gather support information about the LTSP installation
  - **initrd**: create the ltsp.img initrd add-on
