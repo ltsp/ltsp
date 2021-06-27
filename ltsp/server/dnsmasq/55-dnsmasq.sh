@@ -5,6 +5,7 @@
 # Configure dnsmasq for LTSP
 
 DNS=${DNS:-0}
+HTTP=${HTTP:-0}
 PROXY_DHCP=${PROXY_DHCP:-1}
 REAL_DHCP=${REAL_DHCP:-1}
 TFTP=${TFTP:-1}
@@ -12,13 +13,14 @@ TFTP=${TFTP:-1}
 dnsmasq_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "d:p:r:s:t:" -l \
-        "dns:,proxy-dhcp:,real-dhcp:,dns-server:,tftp:" -- "$@") ||
+    args=$(re getopt -n "ltsp $_APPLET" -o "d:h:p:r:s:t:" -l \
+        "dns:,http:,proxy-dhcp:,real-dhcp:,dns-server:,tftp:" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
             -d|--dns) shift; DNS=$1 ;;
+            -h|--http) shift; HTTP=$1 ;;
             -p|--proxy-dhcp) shift; PROXY_DHCP=$1 ;;
             -r|--real-dhcp) shift; REAL_DHCP=$1 ;;
             -s|--dns-server) shift; DNS_SERVER=$1 ;;
@@ -44,6 +46,7 @@ s|^dhcp-range=192.168.67.20.*|$(textifb "$REAL_DHCP" "&" "#&")|
 s|^\(dhcp-option=option:dns-server,\).*|\1$(dns_server)|
 s|^\(tftp-root=\).*|\1$TFTP_DIR|
 s|^enable-tftp|$(textifb "$TFTP" "&" "#&")|
+s|\"http://\${[^}]\+}/\(ltsp/ltsp.ipxe\)\"|$(textifb "$HTTP" "&" "\1")|
 "
     restart_dnsmasq
 }
