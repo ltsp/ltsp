@@ -8,14 +8,15 @@
 image_cmdline() {
     local args _COW_DIR img_src
 
-    args=$(getopt -n "ltsp $_APPLET" -o "b:c:i:k:m:r::" -l \
-        "backup:,cleanup:,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@") ||
+    args=$(re getopt -n "ltsp $_APPLET" -o "b:c:I::i:k:m:r::" -l \
+        "backup:,cleanup:,in-place::,ionice:,kernel-initrd:,mksquashfs-params:,revert::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
             -b|--backup) shift; BACKUP=$1 ;;
             -c|--cleanup) shift; CLEANUP=$1 ;;
+            -I|--in-place) shift; IN_PLACE=${1:-1} ;;
             -i|--ionice) shift; IONICE=$1 ;;
             -k|--kernel-initrd) shift; KERNEL_INITRD=$1 ;;
             -m|--mksquashfs-params) shift; MKSQUASHFS_PARAMS=$1 ;;
@@ -50,6 +51,10 @@ image_main() {
     img_path=$(add_path_to_src "${img_src%%,*}")
     _IMG_NAME=$(img_path_to_name "$img_path")
     re test "image_main:$_IMG_NAME" != "image_main:"
+    if [ "$IN_PLACE" = "1" ]; then
+        _COW_DIR="$img_path"
+        return 0
+    fi
     _COW_DIR=$(re mktemp -d)
     exit_command "rw rmdir '$_COW_DIR'"
     # _COW_DIR has mode=0700; use a subdir to hide the mount from users

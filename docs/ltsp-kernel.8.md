@@ -2,7 +2,7 @@
 **ltsp kernel** - copy the kernel and initrd from an image to TFTP
 
 ## SYNOPSIS
-**ltsp** [_ltsp-options_] **kernel** [**-k** _kernel-initrd_] [_image_] ...
+**ltsp** [_ltsp-options_] **kernel** [**-k** _kernel-initrd_] [**-I** _in-place_] [_image_] ...
 
 ## DESCRIPTION
 Copy vmlinuz and initrd.img from an image or chroot to TFTP.
@@ -18,6 +18,10 @@ See the **ltsp(8)** man page for _ltsp-options_.
 **-k**, **--kernel-initrd=**_glob-regex_
 : Specify a kernel glob and an initrd regex to locate them inside the _image_;
 try to autodetect if undefined. See the EXAMPLES section below.
+
+**-I**, **--in-place**[=_0|1_]
+: Do not use overlay if image source is directory.
+this might be useful for unprivileged running.
 
 ## DIRECT IMAGES
 This section is for advanced LTSP sysadmins.
