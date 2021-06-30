@@ -27,7 +27,7 @@ ro_root_main() {
         # We want an existing mount point for the tmpfs outside of /run,
         # otherwise switch_root can't move the /run mount as it's in use.
         # Let's use /root that is used by initramfs-tools and always exists.
-        re vmount -t nfs -o vers=3,nolock "$SERVER:/srv/ltsp" /root
+        re vmount -t nfs -o vers=3,nolock "$SERVER:${BASE_DIR:-/srv/ltsp}" /root
         re vmount -o loop,ro "/root/$IMAGE" /root
         re mount_img_src /root /root /run/initramfs/ltsp
     else
@@ -43,7 +43,7 @@ ro_root_main() {
 fetch_ltsp_img() {
     re mkdir -p /run/ltsp/tmp/tftp
     re vmount --no-exit -t nfs -o vers=3,tcp,nolock \
-        "$SERVER:/srv/tftp/ltsp" /run/ltsp/tmp/tftp
+        "$SERVER:${TFTP_DIR:-/srv/tftp}/ltsp" /run/ltsp/tmp/tftp
     re test -f /run/ltsp/tmp/tftp/ltsp.img
     re mkdir -p /run/ltsp/tmp/ltsp-img
     (
