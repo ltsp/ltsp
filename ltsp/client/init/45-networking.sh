@@ -176,7 +176,7 @@ detect_server() {
     local cmd
 
     test -z "$SERVER" || return 0
-    grep -Eqw 'root=/dev/nbd.*|root=/dev/nfs' /proc/cmdline ||
+    grep -Eqw 'root=/dev/nbd.*|root=/dev/nfs|ltsp.image=(http|https|ftp)' /proc/cmdline ||
         return 0
     if is_command ss; then
         cmd="ss -tn"
