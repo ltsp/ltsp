@@ -12,18 +12,18 @@ TFTP=${TFTP:-1}
 dnsmasq_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "d:p:r:s:t:" -l \
-        "dns:,proxy-dhcp:,real-dhcp:,dns-server:,tftp:" -- "$@") ||
+    args=$(re getopt -n "ltsp $_APPLET" -o "d::p::r::s:t::" -l \
+        "dns::,proxy-dhcp::,real-dhcp::,dns-server:,tftp::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
-            -d|--dns) shift; DNS=$1 ;;
-            -p|--proxy-dhcp) shift; PROXY_DHCP=$1 ;;
-            -r|--real-dhcp) shift; REAL_DHCP=$1 ;;
+            -d|--dns) shift; DNS=${1:-1} ;;
+            -p|--proxy-dhcp) shift; PROXY_DHCP=${1:-1} ;;
+            -r|--real-dhcp) shift; REAL_DHCP=${1:-1} ;;
             -s|--dns-server) shift; DNS_SERVER=$1 ;;
             # Note that this is fine: ltsp -t... dnsmasq -t...
-            -t|--tftp) shift; TFTP=$1 ;;
+            -t|--tftp) shift; TFTP=${1:-1} ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac

@@ -10,14 +10,14 @@ NFS_TFTP=${NFS_TFTP:-1}
 nfs_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "h:t:" -l \
-        "nfs-home:,nfs-tftp:" -- "$@") ||
+    args=$(getopt -n "ltsp $_APPLET" -o "h::t::" -l \
+        "nfs-home::,nfs-tftp::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
-            -h|--nfs-home) shift; NFS_HOME=$1 ;;
-            -t|--nfs-tftp) shift; NFS_TFTP=$1 ;;
+            -h|--nfs-home) shift; NFS_HOME=${1:-1} ;;
+            -t|--nfs-tftp) shift; NFS_TFTP=${1:-1} ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac

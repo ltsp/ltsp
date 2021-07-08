@@ -11,20 +11,20 @@ the provided parameters.
 ## OPTIONS
 See the **ltsp(8)** man page for _ltsp-options_.
 
-**-d**, **--dns=**_0|1_
+**-d**, **--dns**[=_0|1_]
 : Enable or disable the DNS service. Defaults to 0.
 Enabling the DNS service of dnsmasq allows caching of client requests,
 custom DNS results, blacklisting etc, and automatically disables
 DNSStubListener in systemd-resolved on the LTSP server.
 
-**-p**, **--proxy-dhcp=**_0|1_
+**-p**, **--proxy-dhcp**[=_0|1_]
 : Enable or disable the proxy DHCP service. Defaults to 1.
 Proxy DHCP means that the LTSP server sends the boot filename, but it leaves
 the IP leasing to an external DHCP server, for example a router or pfsense
 or a Windows DHCP server. It's the easiest way to set up LTSP, as it only
 requires a single NIC with no static IP, no need to rewire switches etc.
 
-**-r**, **--real-dhcp=**_0|1_
+**-r**, **--real-dhcp**[=_0|1_]
 : Enable or disable the real DHCP service. Defaults to 1.
 In dual NIC setups, you only need to configure the internal NIC to a static
 IP of 192.168.67.1; LTSP will try to autodetect everything else.
@@ -37,7 +37,7 @@ isc-dhcp-server on the LTSP server.
 Proxy DHCP clients don't receive DHCP options, so it's recommended to use the
 ltsp.conf DNS_SERVER parameter when autodetection isn't appropriate.
 
-**-t**, **--tftp=**_0|1_
+**-t**, **--tftp**[=_0|1_]
 : Enable or disable the TFTP service. Defaults to 1.
 
 ## EXAMPLES
