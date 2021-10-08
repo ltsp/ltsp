@@ -22,6 +22,11 @@ networking_main() {
 config_dns() {
     local var resolv
 
+    # DNS=1 under [common] means to use the LTSP server IP
+    if [ "$DNS" = 1 ] && [ -n "$SERVER" ]; then
+        DNS_SERVER="$SERVER"
+    fi
+
     # If no DNS_SERVER was defined in ltsp.conf or in DHCP (e.g. IPAPPEND=3),
     # check the LTSP server, gateway, and Google Public DNS.
     if [ -z "$DNS_SERVER" ] && [ -x /usr/bin/dig ]; then
