@@ -291,5 +291,5 @@ POST_INIT_SET_ROOT_HASH="section_set_root_hash"
 
 # This is the hash of "qwer1234"; cat /etc/shadow to see your hash.
 [set_root_hash]
-sed 's|^root:[^:]*:|root:$6$bKP3Tahd$a06Zq1j.0eKswsZwmM7Ga76tKNCnueSC.6UhpZ4AFbduHqWA8nA5V/8pLHYFC4SrWdyaDGCgHeApMRNb7mwTq0:|' -i /etc/shadow
+sed 's|^root:[^:]*:|root:$6$VRfFL349App5$BfxBbLE.tYInJfeqyGTv2lbk6KOza3L2AMpQz7bMuCdb3ZsJacl9Nra7F/Zm7WZJbnK5kvK74Ik9WO2qGietM0:|' -i /etc/shadow
 ```
