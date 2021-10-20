@@ -47,7 +47,7 @@ Session-Type: Additional
 Session:
 \toptional\tpam_exec.so seteuid stdout quiet %s pam_session\n" \
         "$PAM_AUTH_TYPE" "$auth_control" "$_SELF" "$_SELF" \
-        > /usr/share/pam-configs/ltsp
+        >/usr/share/pam-configs/ltsp
     pam-auth-update --package ltsp ||
         die "Could not configure PAM for SSH authentication!"
     sed 's/.*\(KillUserProcesses=\).*/\1yes/' -i /etc/systemd/logind.conf
@@ -96,7 +96,7 @@ pam_auth() {
     read -r pw_name pw_passwd pw_uid pw_gid pw_gecos pw_dir pw_shell <<EOF
 $pw_entry
 EOF
-    read -r sp_namp sp_pwdp _dummy<<EOF
+    read -r sp_namp sp_pwdp _dummy <<EOF
 $sp_entry
 EOF
     test "$_OLDIFS" = "not set" && unset IFS || IFS="$_OLDIFS"
@@ -104,8 +104,7 @@ EOF
     # If this is not a pamltsp user
     if [ "${sp_pwdp}" = "${sp_pwdp#pamltsp}" ]; then
         if [ "$PAM_TYPE" = "open_session" ] ||
-            [ "$PAM_AUTH_TYPE" = "Additional" ]
-        then
+            [ "$PAM_AUTH_TYPE" = "Additional" ]; then
             return 0
         else
             # Refuse authentication
@@ -119,7 +118,7 @@ EOF
         # This is 700 for pid and in case we wanted .ICEauthority
         mkdir -p -m 700 "/run/ltsp/pam/$pw_name"
         chown "$pw_uid:$pw_gid" "/run/ltsp/pam/$pw_name"
-        echo "$sp_entry" > "/run/ltsp/pam/$pw_name/shadow"
+        echo "$sp_entry" >"/run/ltsp/pam/$pw_name/shadow"
     fi
     # Support "pamltsp=" for passwordless logins without SSH authentication
     # for guest-like accounts with NFS/local home.
@@ -136,13 +135,12 @@ EOF
     # Indicate that an authentication attempt is in progress
     # See https://github.com/libfuse/sshfs/issues/183
     trap "rm -f '/run/ltsp/pam/$PAM_USER/pid'" HUP INT QUIT SEGV PIPE TERM EXIT
-    echo "$$" > "/run/ltsp/pam/$PAM_USER/pid"
+    echo "$$" >"/run/ltsp/pam/$PAM_USER/pid"
     # Check if SSHFS is required.
     # `mountpoint` blocks until the sshfs password in entered.
     # That may be a good thing, to avoid race conditions.
     if [ "$SSHFS" = 0 ] || ! command -v sshfs >/dev/null ||
-        mountpoint -q /home || mountpoint -q "$pw_dir"
-    then
+        mountpoint -q /home || mountpoint -q "$pw_dir"; then
         if [ "$PAM_TYPE" = "open_session" ]; then
             # This point is reached when we already mounted home in auth,
             # or for passwordless logins with NFS or local home
@@ -193,8 +191,7 @@ EOF
         command -v fusermount3 >/dev/null ||
             sshfs_params="$sshfs_params,nonempty"
         if msg=$("${_SELF%/*}/ssh-askpass" |
-            sshfs -o "$sshfs_params" "$@" "$pw_name@$SSH_SERVER:" "$pw_dir" 2>&1)
-        then
+            sshfs -o "$sshfs_params" "$@" "$pw_name@$SSH_SERVER:" "$pw_dir" 2>&1); then
             success=1
         else
             # If it's empty, remove it to avoid a tmpfs home
@@ -223,8 +220,8 @@ pam_log() {
 pam_session() {
     pam_log
     case "$PAM_TYPE" in
-        close_session) unmount_sshfs || return $? ;;
-        open_session) pam_auth || return $? ;;
+    close_session) unmount_sshfs || return $? ;;
+    open_session) pam_auth || return $? ;;
     esac
 }
 
@@ -283,7 +280,7 @@ unmount_sshfs_stage2() {
         if [ -e "/run/ltsp/pam/$PAM_USER/pid" ]; then
             continue
         else
-            i=$((i+1))
+            i=$((i + 1))
         fi
         # If no user processes are running, unmount it
         if [ "$(pgrep -cu "$pw_name")" = 0 ]; then
@@ -304,19 +301,22 @@ main() {
     SSH_SERVER=${SSH_SERVER:-server}
     if [ -z "$PAM_AUTH_TYPE" ]; then
         # Use autodetection
-        if grep -qswE 'pam_sss|pam_ldap' /etc/pam.d/common-auth; then
+        if grep -qswE 'pam_ldap' /etc/pam.d/common-auth; then
+            PAM_AUTH_TYPE="Additional"
+        elif [ -f /etc/sssd/sssd.conf ] &&
+            grep -qswE 'pam_sss' /etc/pam.d/common-auth; then
             PAM_AUTH_TYPE="Additional"
         else
             PAM_AUTH_TYPE="Primary"
         fi
     fi
     case "$1" in
-        install|pam_auth|pam_session|unmount_sshfs_stage2)
-            func=$1
-            shift
-            $func "$@"
-            ;;
-        *) die "Usage: $0 <install|pam_auth|pam_session> [params], not |$*|" ;;
+    install | pam_auth | pam_session | unmount_sshfs_stage2)
+        func=$1
+        shift
+        $func "$@"
+        ;;
+    *) die "Usage: $0 <install|pam_auth|pam_session> [params], not |$*|" ;;
     esac
 }
 

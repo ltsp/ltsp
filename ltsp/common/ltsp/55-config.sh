@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2021 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Functions related to LTSP configuration and environment variables
@@ -290,6 +290,9 @@ EOF
 $(re ip -o link show dev "$DEVICE" | grep -o 'link/ether [^ ]*')
 EOF
     re test "MAC_ADDRESS=$MAC_ADDRESS" != "MAC_ADDRESS="
+    # HOSTNAME is needed for eval_ini before import_ipconfig
+    HOSTNAME=${HOSTNAME:-$(hostname)}
+    test "$HOSTNAME" != "(none)" || unset HOSTNAME
 }
 
 # Omit functions specified in OMIT_FUNCTIONS

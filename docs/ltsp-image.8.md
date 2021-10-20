@@ -135,7 +135,7 @@ Chroot directories in /srv/ltsp/img_name are properly supported as image
 sources by LTSP, but their creation and maintenance are left to external tools
 like debootstrap, lxc etc. I.e. the `ltsp-build-client` LTSPv5 tool no longer
 exists. LTSP users are invited to create appropriate documentation in the
-[community wiki](https://github.com/ltsp/community/wiki/chroots).
+[community wiki](https://github.com/ltsp/ltsp/wiki/chroots).
 As a small example, you can use kvm to netboot a chroot and maintain it if
 you NFS-export /srv/ltsp/img_name in rw mode for your server IP, and then run
 
