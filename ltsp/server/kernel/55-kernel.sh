@@ -81,7 +81,7 @@ rpi_image() {
     echo "Symlinking $BASE_DIR/$img_name/boot/* in $TFTP_DIR/*"
     re test -f "$BASE_DIR/$img_name/boot/bootcode.bin"
     for var in "$BASE_DIR/$img_name/boot/"*; do
-        re ln -rsf "$var" "$TFTP_DIR/${var##*/}"
+        re ln -rsfn "$var" "$TFTP_DIR/${var##*/}"
     done
     # Remove old, dangling symlinks
     for var in "$TFTP_DIR/"*; do
