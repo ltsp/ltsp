@@ -1,0 +1,9 @@
+#!/bin/sh
+# Copyright 2021 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# A wrapper for `ltsp remoteapps "$0" "$@"`
+# It serves as a symlink target, for example:
+# ln -s /usr/share/ltsp/client/remoteapps/ltsp-remoteapps /usr/local/bin/users-admin
+
+exec ltsp remoteapps "${0##*/}" "$@"
