@@ -207,6 +207,11 @@ pc01, pc02 etc, and your users a01, a02, b01, b02 etc, then the following
 line only shows/allows a01 and b01 to login to pc01:
 `PWMERGE_SUR=".*%{HOSTNAME#pc}"`
 
+**REMOTEAPPS=**_"users-admin mate-about-me"_
+: Register the specified applications as remoteapps, so that they're executed
+on the LTSP server via `ssh -X` instead of on the clients. For more
+information, see **ltsp-remoteapps(8)**.
+
 **RPI_IMAGE=**_"raspios"_
 : Select this LTSP image to boot Raspberry Pis from.
 This symlinks all $BASE_DIR/$RPI_IMAGE/boot/* files directly under $TFTP_DIR
