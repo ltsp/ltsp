@@ -8,7 +8,7 @@
 
 ## DESCRIPTION
 Setup passwordless SSH, by ensuring that ~/.ssh/authorized_keys contains one
-of the public user's SSH keys. Then execute `ssh -X server app params`.
+of the user's public SSH keys. Then execute `ssh -X server app params`.
 If the user has no SSH keys, a new one is generated.
 For `ltsp remoteapps app` to work, /home/username should already be mounted via
 NFS (on LTSP client boot) or SSHFS (on LTSP user login).
