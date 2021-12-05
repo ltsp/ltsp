@@ -7,13 +7,13 @@
 service_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "s" -l \
-        "stop" -- "$@") ||
+    args=$(re getopt -n "ltsp $_APPLET" -o "s::" -l \
+        "stop::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
-            -s|--stop) STOP=1 ;;
+            -s|--stop) shift; STOP=${1:-1} ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac

@@ -13,10 +13,10 @@ only image and then use SSHFS or NFS to mount /home/username from the server.
 ## OPTIONS
 See the **ltsp(8)** man page for _ltsp-options_.
 
-**-b**, **--backup=**_0|1_
+**-b**, **--backup**[=_0|1_]
 : Backup /srv/ltsp/images/_image_.img to _image_.img.old. Defaults to 1.
 
-**-c**, **--cleanup**=_0|1_
+**-c**, **--cleanup**[=_0|1_]
 : Create a writeable overlay on top of the image source and temporarily
 remove user accounts and sensitive data before calling mksquashfs.
 Defaults to 1.
