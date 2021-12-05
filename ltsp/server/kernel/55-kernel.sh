@@ -8,13 +8,14 @@
 kernel_cmdline() {
     local args
 
-    args=$(getopt -n "ltsp $_APPLET" -o "k:" -l \
-        "kernel-initrd:" -- "$@") ||
+    args=$(re getopt -n "ltsp $_APPLET" -o "k:I::" -l \
+        "kernel-initrd:,in-place::" -- "$@") ||
         usage 1
     eval "set -- $args"
     while true; do
         case "$1" in
             -k|--kernel-initrd) shift; KERNEL_INITRD=$1 ;;
+            -I|--in-place) shift; IN_PLACE=${1:-1} ;;
             --) shift; break ;;
             *) die "ltsp $_APPLET: error in cmdline: $*" ;;
         esac
@@ -45,13 +46,17 @@ Please export ALL_IMAGES=1 if you want to allow this"
             re rpi_image "$img_name"
             continue
         fi
-        tmp=$(re mktemp -d)
-        exit_command "rw rmdir '$tmp'"
-        # tmp has mode=0700; use a subdir to hide the mount from users
-        re mkdir -p "$tmp/root" "$tmp/tmpfs"
-        exit_command "rw rmdir '$tmp/root' '$tmp/tmpfs'"
-        re mount_img_src "$img_src" "$tmp/root" "$tmp/tmpfs"
-        tmp=$tmp/root
+        if [ "$IN_PLACE" = "1" ]; then
+            tmp="$img_path"
+        else
+            tmp=$(re mktemp -d)
+            exit_command "rw rmdir '$tmp'"
+            # tmp has mode=0700; use a subdir to hide the mount from users
+            re mkdir -p "$tmp/root" "$tmp/tmpfs"
+            exit_command "rw rmdir '$tmp/root' '$tmp/tmpfs'"
+            re mount_img_src "$img_src" "$tmp/root" "$tmp/tmpfs"
+            tmp=$tmp/root
+        fi
         re mkdir -p "$TFTP_DIR/ltsp/$img_name/"
         read -r vmlinuz initrd <<EOF
 $(search_kernel "$tmp" | head -n 1)
