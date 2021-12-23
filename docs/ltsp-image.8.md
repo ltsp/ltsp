@@ -102,9 +102,12 @@ KVM, VMWare and similar tools to maintain one or more template images for the
 clients. As an example, let's suppose you create a VM in VirtualBox and call it
 "debian". At the disk creation dialog, select "VMDK" type and "Fixed size",
 not "Dynamically allocated". Proceed with installing Debian on it.
+
 In the partitioning step, make sure that the whole operating system goes in the
-first partition, without extra partitions for /boot etc. BIOS/MBR is easier,
-while if you have to use GPT/UEFI, put the EFI partition second.
+first partition, without extra partitions for /boot etc. BIOS/MBR images are
+easier to import using `ltsp image` and it is recommended you use ext4 when
+choosing the format of the VM disk image, which is the default under Ubuntu. 
+
 When you're done, close VirtualBox and symlink the VM disk so that LTSP
 finds it more easily:
 
@@ -125,18 +128,40 @@ It's also possible to omit the symlink by running:
 ...but then the image name shown in the iPXE boot menu would be
 "debian-flat", which isn't pretty.
 
-To sum up, you may symlink raw VM disks in /srv/ltsp/img_name.img, and
+In summary, you may symlink raw VM disks in **/srv/ltsp/img_name.img**, and
 `ltsp image img_name` will allow LTSP clients to netboot from them.
+
+## IMPORTING A UEFI DISK IMAGE
+
+If you attempt to import a disk image where the first partition is not the
+root partition, you will get a `mount` error. To import such an image, we
+need to tell `ltsp image` the correct partition ID number, run:
+
+```shell
+    fdisk -l LTSPbase.raw # Replace LTSPbase.raw with the name of your disk image
+```
+To get a listing of the partitions and their numbers. The number you need is the
+**.rawX** device name suffix in the left column that matches your Linux root
+partition. In my case, the third partition in my disk image was the Linux root
+partition and its device name was **LTSPbase.raw5** so **5** is the number we'd use
+when running a command such as:
+
+```shell
+    ltsp image LTSPbase.raw,partition=5
+```
+
+To import an image from the partition with the **.raw5** device name suffix.
+
 Please also see the DIRECT IMAGES section of ltsp-kernel(8) for an advanced
 method of allowing clients to netboot directly from a VM or .iso image without
-even running `ltsp image`, and the ADVANCED IMAGE SOURCES section of
-ltsp-ipxe(8) for extreme cases like telling the LTSP cliens to boot from
+even running `ltsp image`, and the **ADVANCED IMAGE SOURCES** section of
+ltsp-ipxe(8) for extreme cases like telling the LTSP clients to boot from
 an .iso image inside a local disk partition!
 
 ## CHROOTS
 Chroot directories in /srv/ltsp/img_name are properly supported as image
 sources by LTSP, but their creation and maintenance are left to external tools
-like debootstrap, lxc etc. I.e. the `ltsp-build-client` LTSPv5 tool no longer
+like debootstrap, lxc etc. The `ltsp-build-client` LTSPv5 tool no longer
 exists. LTSP users are invited to create appropriate documentation in the
 [community wiki](https://github.com/ltsp/ltsp/wiki/chroots).
 As a small example, you can use kvm to netboot a chroot and maintain it if
