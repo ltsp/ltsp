@@ -102,6 +102,9 @@ KVM, VMWare and similar tools to maintain one or more template images for the
 clients. As an example, let's suppose you create a VM in VirtualBox and call it
 "debian". At the disk creation dialog, select "VMDK" type and "Fixed size",
 not "Dynamically allocated". Proceed with installing Debian on it.
+In the partitioning step, make sure that the whole operating system goes in the
+first partition, without extra partitions for /boot etc. BIOS/MBR is easier,
+while if you have to use GPT/UEFI, put the EFI partition second.
 When you're done, close VirtualBox and symlink the VM disk so that LTSP
 finds it more easily:
 
