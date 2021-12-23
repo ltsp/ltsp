@@ -129,11 +129,11 @@ the server, but they must have sufficient memory to fit the image.
 : Include another section in this section.
 
 **KEEP_SESSION_SERVICES=**_"at-spi-dbus-bus"_
-: Whitelist some session (user) services so that they're not deleted, even if
+: Whitelist some session (user) services so that they're not masked, even if
 they're listed in MASK_SESSION_SERVICES. Space separated list.
 
 **KEEP_SYSTEM_SERVICES=**_"apparmor ssh"_
-: Whitelist some system services so that they're not deleted, even if
+: Whitelist some system services so that they're not masked, even if
 they're listed in MASK_SYSTEM_SERVICES. Space separated list.
 
 **LOCAL_SWAP=**_0|1_

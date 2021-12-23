@@ -1,8 +1,8 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019-2020 the LTSP team, see AUTHORS
+# Copyright 2019-2021 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Remove some services that don't make sense in live sessions
+# Mask some services that don't make sense in live sessions
 # Depends on 55-various.sh to have put NFS entries in /etc/fstab
 # @LTSP.CONF: MASK_SESSION_SERVICES KEEP_SESSION_SERVICES
 # @LTSP.CONF: MASK_SYSTEM_SERVICES KEEP_SYSTEM_SERVICES
@@ -15,16 +15,17 @@ mask_services_main() {
 exclude_kept_services() {
     local keep_services service
 
-    keep_services=$1; shift
+    keep_services=$1
+    shift
     # Allow multiple services in the same line; remove comments
     echo "$@" | sed 's/#.*//' | tr ' ' '\n' | while read -r service; do
         test -n "$service" || continue
         case " $keep_services " in
-            *" $service "*)
-                ;;
-            *)
-                echo -n " $service"
-                ;;
+        *" $service "*) ;;
+
+        *)
+            echo -n " $service"
+            ;;
         esac
     done
 }
@@ -38,11 +39,13 @@ gnome-software-service  # GNOME Software
 update-notifier         # Check for available updates automatically
 "
     mask_services="$(exclude_kept_services "$KEEP_SESSION_SERVICES" \
-"$mask_services
+        "$mask_services
 $MASK_SESSION_SERVICES")"
 
-    # TODO: also blacklist and handle systemd user units
     for service in $mask_services; do
+        if [ -f "/usr/lib/systemd/user/$service" ]; then
+            rw systemctl mask --user --global --quiet --root=/ --no-reload "$service"
+        fi
         re rm -f "/etc/xdg/autostart/$service.desktop" \
             "/usr/share/upstart/xdg/autostart/$service.desktop"
     done
@@ -71,6 +74,7 @@ nfs-kernel-server          # NFS server and services
 nfs-server                 # NFS server and services
 packagekit                 # PackageKit Daemon
 packagekit-offline-update  # Update the operating system whilst offline
+rsyslog                    # System Logging Service
 ssh                        # OpenBSD Secure Shell server
 systemd-random-seed        # Load/Save Random Seed
 systemd-rfkill             # Load/Save RF Kill Switch Status
@@ -89,9 +93,9 @@ anydesk                    # AnyDesk
 teamviewerd                # TeamViewer remote control daemon
 "
 
-# We don't need NFS-related services if we're not using nfs
-if ! grep -q nfs /etc/fstab; then
-    mask_services="$mask_services
+    # We don't need NFS-related services if we're not using nfs
+    if ! grep -q nfs /etc/fstab; then
+        mask_services="$mask_services
 auth-rpcgss-module         # Kernel Module supporting RPCSEC_GSS
 nfs-blkmap                 # pNFS block layout mapping daemon
 nfs-common                 # nfs-config.service  # Preprocess NFS configuration
@@ -108,23 +112,19 @@ rpc-svcgssd                # RPC security service for NFS server
     fi
 
     mask_services="$(exclude_kept_services "$KEEP_SYSTEM_SERVICES" \
-"$mask_services
+        "$mask_services
 $MASK_SYSTEM_SERVICES")"
 
-    # Minimize `systemctl disable` errors to avoid alarming the users
+    # No need to mask units that do not exist
     existing_services=""
     for service in $mask_services; do
-        if [ -f "/lib/systemd/system/$service" ] ||
-           [ -f "/lib/systemd/system/$service.service" ] ||
-           [ -f "/etc/systemd/system/$service" ] ||
-           [ -f "/etc/systemd/system/$service.service" ] ||
-           [ -f "/etc/init.d/$service" ]
-        then
+        if [ -f "/usr/lib/systemd/system/$service" ] ||
+            [ -f "/usr/lib/systemd/system/$service.service" ] ||
+            [ -f "/etc/systemd/system/$service" ] ||
+            [ -f "/etc/systemd/system/$service.service" ] ||
+            [ -f "/etc/init.d/$service" ]; then
             existing_services="$existing_services $service"
         fi
     done
-    rw systemctl disable --quiet --root=/ --no-reload $existing_services
-    # Mask these services to prevent them from being pulled in
-    rw systemctl mask --quiet --root=/ --no-reload apt-daily.service \
-        apt-daily-upgrade.service rsyslog.service
+    rw systemctl mask --quiet --root=/ --no-reload $existing_services
 }
