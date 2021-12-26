@@ -69,7 +69,7 @@ the typical GUI tools to manage the server, like software centers or update
 managers. Then whenever necessary, you'd run:
 
 ```shell
-    ltsp image /
+ltsp image /
 ```
 This creates or updates /srv/ltsp/images/x86_64.img (the arch name comes from
 `uname -m`). Then, all the clients should be able to boot from x86_64.img
@@ -89,10 +89,10 @@ Apache and MySQL and a few other popular services that we don't want in
 LTSP clients, so it's not a problem if you install Apache on the LTSP server.
 
 If for some reason you prefer a different name to `uname -m`, you may create
-a symink:
+a symlink:
 
 ```shell
-    ln -s / ~/amd64
+ln -s / ~/amd64
 ```
 ...and run `ltsp image ~/amd64` instead.
 
@@ -109,42 +109,42 @@ When you're done, close VirtualBox and symlink the VM disk so that LTSP
 finds it more easily:
 
 ```shell
-    ln -rs ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/debian.img
+ln -rs ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/debian.img
 ```
 To export this image to the clients, after the initial creation or after
 updates etc, you'd run:
 
 ```shell
-    ltsp image debian
+ltsp image debian
 ```
 It's also possible to omit the symlink by running:
 
 ```shell
-    ltsp image ~/VirtualBox\ VMs/debian/debian-flat.vmdk
+ltsp image ~/VirtualBox\ VMs/debian/debian-flat.vmdk
 ```
 ...but then the image name shown in the iPXE boot menu would be
 "debian-flat", which isn't pretty.
 
-To sum up, you may symlink raw VM disks in /srv/ltsp/img_name.img, and
+In summary, you may symlink raw VM disks in /srv/ltsp/img_name.img, and
 `ltsp image img_name` will allow LTSP clients to netboot from them.
 Please also see the DIRECT IMAGES section of ltsp-kernel(8) for an advanced
 method of allowing clients to netboot directly from a VM or .iso image without
 even running `ltsp image`, and the ADVANCED IMAGE SOURCES section of
-ltsp-ipxe(8) for extreme cases like telling the LTSP cliens to boot from
+ltsp-ipxe(8) for extreme cases like telling the LTSP clients to boot from
 an .iso image inside a local disk partition!
 
 ## CHROOTS
 Chroot directories in /srv/ltsp/img_name are properly supported as image
 sources by LTSP, but their creation and maintenance are left to external tools
-like debootstrap, lxc etc. I.e. the `ltsp-build-client` LTSPv5 tool no longer
+like debootstrap, lxc etc. The `ltsp-build-client` LTSPv5 tool no longer
 exists. LTSP users are invited to create appropriate documentation in the
 [community wiki](https://github.com/ltsp/ltsp/wiki/chroots).
 As a small example, you can use kvm to netboot a chroot and maintain it if
 you NFS-export /srv/ltsp/img_name in rw mode for your server IP, and then run
 
 ```shell
-    kvm -m 512 -kernel img_name/vmlinuz -initrd img_name/initrd.img \
-        -append "rw root=/dev/nfs nfsroot=192.168.0.10:/srv/ltsp/img_name"
+kvm -m 512 -kernel img_name/vmlinuz -initrd img_name/initrd.img \
+    -append "rw root=/dev/nfs nfsroot=192.168.67.1:/srv/ltsp/img_name"
 ```
 
 ## EXAMPLES

@@ -26,6 +26,7 @@ Normally, image sources are simple names like "x86_64" or full paths like
 "../path/to/image".
 But the "img_src" parameters are much more flexible than that; specifically,
 they are series of mount sources:
+
     img1,mount-options1,,img2,mount-options2,,...
 
 ...where img1 may be a simple name or full path relative to the current

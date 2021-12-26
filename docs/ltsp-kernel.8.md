@@ -41,10 +41,10 @@ maintaining a Xubuntu image using a virtual machine.
 You can also do this with virtual machine images! For example:
 
 ```shell
-    mv ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-vm.img
-    ln -rs /srv/ltsp/images/debian-vm.img ~/VirtualBox\ VMs/debian/debian-flat.vmdk
-    ltsp kernel debian-vm
-    ltsp ipxe
+mv ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-vm.img
+ln -rs /srv/ltsp/images/debian-vm.img ~/VirtualBox\ VMs/debian/debian-flat.vmdk
+ltsp kernel debian-vm
+ltsp ipxe
 ```
 
 These commands move your "debian" VM to the LTSP images directory, symlink
@@ -56,7 +56,7 @@ changes without waiting 10 minutes for `ltsp image` each time.
 Some advanced users may think of using the opposite symlink instead:
 
 ```shell
-    ln -rs ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-vm.img
+ln -rs ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-vm.img
 ```
 
 Unfortunately NFS doesn't follow symlinks outside of the exported directories,
@@ -64,7 +64,7 @@ so the clients wouldn't be able to boot in this case. Advanced users may use
 bind mounts though, e.g.:
 
 ```shell
-    mount --bind ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-vm.img
+mount --bind ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-vm.img
 ```
 
 ## EXAMPLES
