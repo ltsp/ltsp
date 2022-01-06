@@ -103,6 +103,21 @@ They control the default menu item, the additional kernel parameters and
 the menu timeout for each client. They can also be defined globally
 under [server].
 
+**DISABLE_SESSION_SERVICES=**_"evolution-addressbook-factory obex"_<br/>
+**DISABLE_SYSTEM_SERVICES=**_"anydesk teamviewerd"_<br/>
+**KEEP_SESSION_SERVICES=**_"at-spi-dbus-bus"_<br/>
+**KEEP_SYSTEM_SERVICES=**_"apparmor ssh"_<br/>
+**MASK_SESSION_SERVICES=**_"gnome-software-service update-notifier"_<br/>
+**MASK_SYSTEM_SERVICES=**_"apt-daily apt-daily-upgrade rsyslog"_
+: Space separated lists of services to disable, permit or mask on LTSP clients.
+They mostly correspond to `systemctl disable/mask [--user]` invocations.
+Setting these ltsp.conf parameters adds or omits items from the default lists
+that are defined in `/usr/share/ltsp/client/init/56-services.sh`.
+Disabled services can be started on demand by e.g. dbus or socket activation,
+while masked services need to be manually unmasked first.
+Currently, MASK_SESSION_SERVICES also deletes the non-systemd user services
+from /etc/xdg/autostart.
+
 **DNS_SERVER=**_"8.8.8.8 208.67.222.222"_
 : Specify the DNS servers for the clients.
 
@@ -128,26 +143,8 @@ the server, but they must have sufficient memory to fit the image.
 **INCLUDE=**_"other-section"_
 : Include another section in this section.
 
-**KEEP_SESSION_SERVICES=**_"at-spi-dbus-bus"_
-: Whitelist some session (user) services so that they're not masked, even if
-they're listed in MASK_SESSION_SERVICES. Space separated list.
-
-**KEEP_SYSTEM_SERVICES=**_"apparmor ssh"_
-: Whitelist some system services so that they're not masked, even if
-they're listed in MASK_SYSTEM_SERVICES. Space separated list.
-
 **LOCAL_SWAP=**_0|1_
 : Activate local swap partitions. Defaults to 1.
-
-**MASK_SESSION_SERVICES=**_"ubuntu-mate-welcome"_
-: Mask some session services that shouldn't be started on LTSP clients.
-Space separated list. See /usr/share/ltsp/client/init/56-mask-services.sh
-for the default. Setting MASK_SESSION_SERVICES in ltsp.conf adds to that list.
-
-**MASK_SYSTEM_SERVICES=**_"teamviewerd"_
-: Mask some system services that shouldn't be started on LTSP clients.
-Space separated list. See /usr/share/ltsp/client/init/56-mask-services.sh
-for the default. Setting MASK_SYSTEM_SERVICES in ltsp.conf adds to that list.
 
 **MULTISEAT=**_0|1_<br>
 **UDEV_SEAT_n_x=**_"*/usb?/?-[2,4,6,8,10,12,14,16,18]/*"_
