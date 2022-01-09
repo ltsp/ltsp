@@ -60,7 +60,7 @@ The following parameters are currently defined; an example is given in
 each case.
 
 **ADD_IMAGE_EXCLUDES**=_"/etc/ltsp/add-image.excludes"_  
-**OMIT_IMAGE_EXCLUDES**=_"home/*"_
+**OMIT_IMAGE_EXCLUDES**=_"home/\*"_
 :   Add or omit items to the `ltsp image` exclusion list.
     Some files and directories shouldn't be included in the generated image.
     The initial list is defined in /usr/share/ltsp/server/image/image.excludes.

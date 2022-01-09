@@ -85,7 +85,7 @@ EOF
         done
         footer
         # Work around https://github.com/cpuguy83/go-md2man/issues/79
-    } | sed 's/<\(http[^>]*\)>/\1/g' | go-md2man | {
+    } | sed 's/<\(http[^>]*\)>/\1/g' | go-md2man -in /dev/stdin -out /dev/stdout | {
         # Work around https://github.com/cpuguy83/go-md2man/issues/26
         # and https://github.com/cpuguy83/go-md2man/issues/47
         # They're still an issue with go-md2man 2.0.0+ds-5
@@ -121,7 +121,7 @@ EOF
                 found_name=1
                 ;;
                 # Replace soft line breaks after list definitions with paragraphs
-            *'*  ')
+            *'_  ')
                 printf "%s\n\n" "${line%  }"
                 continue
                 ;;
@@ -130,11 +130,11 @@ EOF
             printf "%s\n" "$line"
         done
         footer
-    } | pandoc -s -f markdown-smart -t man |
+    } | pandoc -s -f markdown -t man |
         {
             # Change <h2> to <h1>, and simpifly some macros for yelp
             # https://man7.org/linux/man-pages/man7/groff_char.7.html
-            sed -e 's/^.SS/.SH/' -e 's/\\\[dq]/"/g;s/\\\[ti]/~/g;s/\\\[at]/@/g;s/\\\[ha]/^/g' # -e 's/\\\[bu]/*/g'
+            sed -e 's/^.SS/.SH/' -e 's/\\\[dq]/"/g;s/\\\[lq]/"/g;s/\\\[rq]/"/g;s/\\\[ti]/~/g;s/\\\[at]/@/g;s/\\\[ha]/^/g' # -e 's/\\\[bu]/*/g'
         }
 
 }

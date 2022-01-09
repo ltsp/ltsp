@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian LTSP Maintainers <team+ltsp@tracker.debian.org>
 Uploaders: Vagrant Cascadian <vagrant@debian.org>, Alkis Georgopoulos <alkisg@gmail.com>
 Build-Depends: debhelper (>= 10),
-  go-md2man | pandoc,
+  go-md2man (>= 2) | pandoc,
 Standards-Version: 4.5.1
 Vcs-Git: https://github.com/ltsp/ltsp.git
 Vcs-Browser: https://github.com/ltsp/ltsp/
