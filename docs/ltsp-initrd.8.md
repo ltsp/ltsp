@@ -1,10 +1,15 @@
+# ltsp-initrd
+
 ## NAME
+
 **ltsp initrd** - create the ltsp.img initrd add-on
 
 ## SYNOPSIS
+
 **ltsp** [_ltsp-options_] **initrd**
 
 ## DESCRIPTION
+
 Create a secondary initrd in /srv/tftp/ltsp/ltsp.img, that contains the LTSP
 client code from /usr/share/ltsp/{client,common} and everything under
 /etc/ltsp, including the ltsp.conf settings file. Additionally it contains
@@ -19,9 +24,11 @@ or other files in /etc/ltsp, and have them on the clients in seconds,
 without having to run `ltsp image`.
 
 ## OPTIONS
+
 See the **ltsp(8)** man page for _ltsp-options_.
 
 ## EXAMPLES
+
 Most live CDs do not contain sshfs, so by default you can only use NFS
 home with them. But sshfs is a small binary without many dependencies,
 so you may usually provide it to the clients if you include it to ltsp.img:

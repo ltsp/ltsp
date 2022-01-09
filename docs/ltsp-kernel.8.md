@@ -1,10 +1,15 @@
+# ltsp-kernel
+
 ## NAME
+
 **ltsp kernel** - copy the kernel and initrd from an image to TFTP
 
 ## SYNOPSIS
+
 **ltsp** [_ltsp-options_] **kernel** [**-k** _kernel-initrd_] [_image_] ...
 
 ## DESCRIPTION
+
 Copy vmlinuz and initrd.img from an image or chroot to TFTP.
 If _image_ is unspecified, process all of them.
 For simplicity, only chroot directories and raw images are supported, either
@@ -13,13 +18,15 @@ to preserve space. Don't use a separate /boot nor LVM in disk images.
 The targets will always be named vmlinuz and initrd.img to simplify ltsp.ipxe.
 
 ## OPTIONS
+
 See the **ltsp(8)** man page for _ltsp-options_.
 
-**-k**, **--kernel-initrd=**_glob-regex_
-: Specify a kernel glob and an initrd regex to locate them inside the _image_;
-try to autodetect if undefined. See the EXAMPLES section below.
+**-k**, **--kernel-initrd**=_glob-regex_
+:   Specify a kernel glob and an initrd regex to locate them inside the _image_;
+    try to autodetect if undefined. See the EXAMPLES section below.
 
 ## DIRECT IMAGES
+
 This section is for advanced LTSP sysadmins.
 Let's suppose that you want to test if your users would prefer Xubuntu
 to your existing Ubuntu MATE. First, move and rename your Xubuntu CD to this
@@ -68,6 +75,7 @@ mount --bind ~/VirtualBox\ VMs/debian/debian-flat.vmdk /srv/ltsp/images/debian-v
 ```
 
 ## EXAMPLES
+
 Typical use:
 
 ```shell
