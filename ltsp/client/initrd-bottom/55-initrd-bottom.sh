@@ -1,9 +1,9 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019-2020 the LTSP team, see AUTHORS
+# Copyright 2019-2022 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Make root writable using a tmpfs overlay and install ltsp-init
-# @LTSP.CONF: IMAGE OVERLAY
+# @LTSP.CONF: IMAGE
 
 initrd_bottom_cmdline() {
     if [ -f /scripts/functions ]; then
@@ -53,21 +53,14 @@ initrd_bottom_main() {
 }
 
 install_ltsp() {
-    # Rsync saves space, but it's not available e.g. in stretch-mate-sch
-    if [ -x "$rootmnt/usr/bin/rsync" ]; then
-        # Running rsync outside the chroot fails because of missing libraries
-        re mount --bind /usr/share/ltsp "$rootmnt/tmp"
-        re chroot "$rootmnt" rsync -a --delete /tmp/ /usr/share/ltsp
-        re umount "$rootmnt/tmp"
-        re mount --bind /etc/ltsp "$rootmnt/tmp"
-        re chroot "$rootmnt" rsync -a --delete /tmp/ /etc/ltsp
-        re umount "$rootmnt/tmp"
-    else
-        re rm -rf "$rootmnt/usr/share/ltsp"
+    # When removing or renaming upstream / vendor shell files under $_LTSP_DIR,
+    # replace them with empty ones and keep them in git for about 10 years,
+    # to avoid side effects of both the old and new scripts being sourced
+    # Busybox <= 2016 doesn't support cp -u
+    rsr cp -au /usr/share/ltsp "$rootmnt/usr/share/" ||
         re cp -a /usr/share/ltsp "$rootmnt/usr/share/"
-        re rm -rf "$rootmnt/etc/ltsp"
+    rsr cp -au /etc/ltsp "$rootmnt/etc/" 2>/dev/null ||
         re cp -a /etc/ltsp "$rootmnt/etc/"
-    fi
     # Symlink the ltsp binary
     re ln -sf ../share/ltsp/ltsp "$rootmnt/usr/sbin/ltsp"
     # Symlink the service; use absolute symlink due to /usr/lib migration

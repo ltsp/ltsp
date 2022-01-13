@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2020 the LTSP team, see AUTHORS
+# Copyright 2020-2022 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # If the root file system is read-only, it means that `ltsp initrd-bottom`
@@ -61,16 +61,8 @@ install_ltsp() {
 
     src=$1
     dst=$2
-    if is_command rsync; then
-        re rsync -a --delete "$src/usr/share/ltsp/" "$dst/usr/share/ltsp"
-        re rsync -a --delete "$src/etc/ltsp/" "$dst/etc/ltsp"
-    else
-        re rm -rf "$dst/usr/share/ltsp"
-        re cp -a "$src/usr/share/ltsp" "$dst/usr/share/"
-        re rm -rf "$dst/etc/ltsp"
-        re cp -a "$src/etc/ltsp" "$dst/etc/"
-    fi
-    ls -lha "$dst/usr/share/ltsp"
+    re cp -au "$src/usr/share/ltsp" "$dst/usr/share/"
+    re cp -au "$src/etc/ltsp" "$dst/etc/"
     # Symlink the ltsp binary
     re ln -sf ../share/ltsp/ltsp "$dst/usr/sbin/ltsp"
     # Symlink the service; use absolute symlink due to /usr/lib migration
