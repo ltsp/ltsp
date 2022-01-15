@@ -59,7 +59,7 @@ install_ltsp() {
     # Busybox <= 2016 doesn't support cp -u
     rsr cp -au /usr/share/ltsp "$rootmnt/usr/share/" ||
         re cp -a /usr/share/ltsp "$rootmnt/usr/share/"
-    rsr cp -au /etc/ltsp "$rootmnt/etc/" 2>/dev/null ||
+    rsr cp -au /etc/ltsp "$rootmnt/etc/" ||
         re cp -a /etc/ltsp "$rootmnt/etc/"
     # Symlink the ltsp binary
     re ln -sf ../share/ltsp/ltsp "$rootmnt/usr/sbin/ltsp"

@@ -35,8 +35,7 @@ _VERSION=
 _EOT=$(printf "\004")
 
 footer() {
-    # TODO: omit the current _APPLET from SEE ALSO
-    cat <<EOF
+    sed "s/\*\*$_APPLET\*\*($_SECTION)//;s/, , /, /;s/, $//;s/^, //" <<EOF
 
 ## COPYRIGHT
 
@@ -48,7 +47,7 @@ Copyright 2019-2022 the LTSP team, see AUTHORS.
 **ltsp-info**(8), **ltsp-initrd**(8), **ltsp-ipxe**(8), **ltsp-kernel**(8),
 **ltsp-nfs**(8), **ltsp-remoteapps**(8)
 
-Online documentation is available at <https://ltsp.org>
+Online documentation is available on <https://ltsp.org>
 EOF
 }
 
@@ -134,7 +133,7 @@ EOF
         {
             # Change <h2> to <h1>, and simpifly some macros for yelp
             # https://man7.org/linux/man-pages/man7/groff_char.7.html
-            sed -e 's/^.SS/.SH/' -e 's/\\\[dq]/"/g;s/\\\[lq]/"/g;s/\\\[rq]/"/g;s/\\\[ti]/~/g;s/\\\[at]/@/g;s/\\\[ha]/^/g' # -e 's/\\\[bu]/*/g'
+            sed -e 's/^.SS/.SH/' -e 's/\\\[dq]/"/g;s/\\\[lq]/"/g;s/\\\[rq]/"/g;s/\\\[ti]/~/g;s/\\\[at]/@/g;s/\\\[ha]/^/g;s/\\\[en]/--/g' # -e 's/\\\[bu]/*/g'
         }
 
 }
