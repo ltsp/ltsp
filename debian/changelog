@@ -1,3 +1,27 @@
+ltsp (22.01-1) unstable; urgency=medium
+
+  * Use cp -u to inject ltsp (#636)
+  * Prefer go-md2man or pandoc over ronn for man pages (#635, #640)
+  * Use more compatible markdown (#634)
+  * Introduce DISABLE_SYSTEM_SERVICES (#495)
+  * debian/watch: Use tags to scan for new upstream versions
+  * Suggest single partitions for VMs (#618)
+  * Implement ltsp remoteapps (#597)
+  * Avoid creating /srv/ltsp/raspios/boot/overlays/overlays (#594)
+  * Check if iPXE has the features we need (#579)
+  * Add e4:5f:01 rpi OUI in dnsmasq and ltsp.conf (#498)
+  * Implement multiseat autodetection (#133)
+  * Use correct root hash in ltsp.conf.5.md (#547)
+  * Correctly replace BASE_DIR in ltsp.ipxe (#416)
+  * Don't hardcode LTSP paths in 25-ro-root.sh (#485)
+  * Use the system hostname (#568)
+  * Use DNS=1 on ltsp clients (#373)
+  * Introduce undocumented ltsp session
+  * Add PATH and username for CRONTAB_x (#454)
+  * Check if sssd.conf exists (#450)
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Sat, 22 Jan 2022 09:08:11 +0200
+
 ltsp (21.01-1) unstable; urgency=medium
 
   [ Alkis Georgopoulos ]
