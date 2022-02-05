@@ -212,7 +212,7 @@ main() {
         _VERSION=$(. ../ltsp/common/ltsp/55-ltsp.sh && echo "$_VERSION")
     fi
     if [ -n "$SOURCE_DATE_EPOCH" ]; then
-        _DATE=$(date -d"@$SOURCE_DATE_EPOCH" "+%Y-%m-%d")
+        _DATE=$(date -u -d"@$SOURCE_DATE_EPOCH" "+%Y-%m-%d")
     else
         _DATE=$(date "+%Y-%m-%d")
     fi
