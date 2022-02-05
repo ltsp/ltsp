@@ -1,0 +1,25 @@
+From bcf61edd53337f581f161aab9202d0b58fc3d429 Mon Sep 17 00:00:00 2001
+From: Chris Lamb <chris@chris-lamb.co.uk>
+Date: Sat, 5 Feb 2022 11:23:04 -0800
+Subject: [PATCH] Make the generated dates timezone-agnostic (#660)
+
+---
+ docs/Makefile.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs/Makefile.sh b/docs/Makefile.sh
+index 8564aa8..289a529 100755
+--- a/docs/Makefile.sh
++++ b/docs/Makefile.sh
+@@ -212,7 +212,7 @@ main() {
+         _VERSION=$(. ../ltsp/common/ltsp/55-ltsp.sh && echo "$_VERSION")
+     fi
+     if [ -n "$SOURCE_DATE_EPOCH" ]; then
+-        _DATE=$(date -d"@$SOURCE_DATE_EPOCH" "+%Y-%m-%d")
++        _DATE=$(date -u -d"@$SOURCE_DATE_EPOCH" "+%Y-%m-%d")
+     else
+         _DATE=$(date "+%Y-%m-%d")
+     fi
+-- 
+2.34.1
+
