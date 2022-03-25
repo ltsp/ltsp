@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+from collections import defaultdict
+from pathlib import Path
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import NoReturn
+from typing import Set
+from typing import cast
+import logging
+import os
+import sys
+import unittest
+
+DESCRIPTION = "Find issues with the documentation"
+NAME = Path(__file__).name.rsplit(".", 1)[0]
+
+logger = logging.getLogger(NAME)
+
+
+def run(options: Any) -> NoReturn:
+    logger.info("Linting documentation...")
+
+    code_root = cast(Path, options.code_root)
+    expected_unused_variable = set(cast(List[str], options.expected_unused_variable))
+
+    # There are two big issues we want to find:
+    # * Source code that mention documentation variables that aren't documented
+    # * Documented variables that don't appear to be used
+
+    # os.walk is also an option
+
+    documented_variables: Set[str] = set()
+
+    logger.debug("Inspection documentation %s", options.ltsp_conf)
+    for line in options.ltsp_conf.read_text().splitlines():
+        if line.startswith("**"):
+            variable = line[2:].partition("**")[0]
+            if variable in ["ltsp.conf"]:  # incorrectly detected
+                continue
+            logger.debug("Documented variable: %s", variable)
+            documented_variables.add(variable)
+
+    # Until we've seen them we have to assume these variables are not used
+    # We're stripping off
+    unused_documented_variables: Set[str] = set()
+    for variable in documented_variables:
+        if variable.endswith("_n_x"):  # x is a placeholder
+            variable = variable[:-3]  # Instead of looking for FOOBAR_n_x we'll scan the sourcecode for FOOBAR_
+        elif variable.endswith("_x"):  # n is a placeholder
+            variable = variable[:-1]  # Instead of looking for FOOBAR_x we'll scan the sourcecode for FOOBAR_
+        unused_documented_variables.add(variable)
+    # ...except some very special variables most likely exist but our heuristic will fail for them. Pre-removing them
+    unused_documented_variables.difference_update(expected_unused_variable)
+
+    # {variablename: [srcfile1_with_mention, srcfile2_with_mention, ...]}
+    expected_in_documentation: Dict[str, List[str]] = defaultdict(list)
+
+    logger.debug("Starting my source code walk at %s", code_root)
+    for path in code_root.glob("**/*"):
+        if path.is_file():
+            for line in path.read_text().splitlines():
+                relative_path = str(path.relative_to(code_root))
+                # These want to be put in the documentation
+                if line.startswith("# @LTSP.CONF:"):
+                    mentioned_variables = line.partition(":")[2].split()
+                    logger.debug("%s wants us to document %s", relative_path, mentioned_variables)
+                    for variable in mentioned_variables:
+                        expected_in_documentation[variable].append(relative_path)
+                else:
+                    # Actual source code, probably.
+                    really_used = set()
+                    for variable in unused_documented_variables:
+                        # This is a really imprecise check, the alternative would require a languague-specific parser which is overkill
+                        if variable in line:
+                            logger.debug("%s used %s, nice", relative_path, variable)
+                            really_used.add(variable)
+                    unused_documented_variables.difference_update(really_used)
+
+    undocumented_variables = set(expected_in_documentation.keys()) - documented_variables
+
+    logger.debug("Done with my inspection.")
+
+    logger.debug("-" * 78)
+    logger.debug("Variables that were explicitly requested to be documented:")
+    for variable, filenames in expected_in_documentation.items():
+        logger.debug("%s requested to be documented by %s", variable, filenames)
+
+    logger.debug("-" * 78)
+    logger.debug(
+        "Variables that were documented but not used (ignoring %s):",
+        expected_unused_variable,
+    )
+    for variable in unused_documented_variables:
+        logger.debug("* %s", variable)
+
+    logger.debug("-" * 78)
+    logger.debug("Variables that requested to be documented but weren't:")
+    for variable in undocumented_variables:
+        logger.debug("* %s", variable)
+
+    # Time to inform the user of our findings
+
+    exitcode = 0  # +1, +2, +4, +8 etc. so that the exit code will tell you precisely which checks failed
+
+    def print_error(text: str) -> None:
+        print(text, file=sys.stderr)
+
+    if unused_documented_variables:
+        print_error(
+            f"Problem detected: {len(unused_documented_variables)} variables were documented but not actually used:"
+        )
+        for variable in sorted(unused_documented_variables):
+            print_error(f"  {variable}")
+        exitcode += 1
+
+    if undocumented_variables:
+        print_error(
+            f"Problem detected: {len(undocumented_variables)} variables wanted to be in the documentation but weren't:",
+        )
+        for variable in sorted(undocumented_variables):
+            print_error(
+                f"  {variable:25} was mentioned by {' '.join(sorted(expected_in_documentation[variable]))}",
+            )
+        exitcode += 2
+
+    if exitcode == 0:
+        logger.info(f"All was fine. {len(documented_variables)} variables were documented and used.")
+
+    sys.exit(exitcode)
+
+
+def run_cli() -> NoReturn:
+    import argparse
+
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        dest="decrease_verbosity",
+        action="count",
+        default=0,
+        help="Decrease verbosity. Can be used multiple times.",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest="increase_verbosity",
+        action="count",
+        default=0,
+        help="Increase verbosity. Can be used multiple times.",
+    )
+    parser.add_argument(
+        "--code-root",
+        help="The root of the code folder. Default: %(default)s",
+        type=Path,
+        default=Path(__file__).parent.parent / "ltsp",
+    )
+    parser.add_argument(
+        "--ltsp-conf",
+        help="The man page for ltsp-conf. Default: %(default)s",
+        type=Path,
+        default=Path(__file__).parent.parent / "docs/ltsp.conf.5.md",
+    )
+    parser.add_argument(
+        "--expected-unused-variable",
+        action="append",
+        help="Which variables are known to be incorrectly reported as unused. Default: %(default)s",
+        default=["PRE_APPLET_", "POST_APPLET_"],
+    )
+
+    args = parser.parse_args()
+
+    calculated_log_level = logging.INFO - (10 * args.increase_verbosity) + (10 * args.decrease_verbosity)
+    desired_log_level = max(logging.DEBUG, min(logging.CRITICAL, calculated_log_level))
+    logformat = "%(asctime)s %(message)s"
+    datefmt = "%H:%M:%S"
+    logging.basicConfig(level=desired_log_level, format=logformat, datefmt=datefmt)
+
+    logging.debug("Welcome to {}".format(NAME))
+    logging.debug("Options from CLI: %s", args)
+
+    run(args)
+
+
+if __name__ == "__main__":
+    run_cli()
