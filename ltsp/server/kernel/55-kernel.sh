@@ -54,7 +54,7 @@ Please export ALL_IMAGES=1 if you want to allow this"
         tmp=$tmp/root
         re mkdir -p "$TFTP_DIR/ltsp/$img_name/"
         read -r vmlinuz initrd <<EOF
-$(search_kernel "$tmp" | head -n 1)
+$(search_kernel "$tmp")
 EOF
         if [ -f "$vmlinuz" ] && [ -f "$initrd" ]; then
             test -f "$TFTP_DIR/ltsp/$img_name/vmlinuz" || runipxe=1
