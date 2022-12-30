@@ -26,6 +26,18 @@ See the **ltsp(8)** man page for _ltsp-options_.
     Note that the --overwrite flag doesn't affect the binaries, they're only
     controlled by the --binaries flag.
 
+**-h**, **--http**=_0|1_
+: Enable or disable the HTTP method for download kernel and initrd.
+The HTTP method is faster and more safe then TFTP however you need
+to have configured http-server. See the ltsp-http(8) man page for more details.
+
+**-H**, **--http-image**=_0|1_
+: Enable or disable the HTTP method for download rootfs image.
+The image will be saved to RAM during the boot. That makes clients less
+dependent on the server, but they must have sufficient memory to fit the image.
+You need to have configured http-server for using this option.
+See the ltsp-http(8) man page for more details.
+
 ## ADVANCED IMAGE SOURCES
 
 This section is for advanced LTSP sysadmins.

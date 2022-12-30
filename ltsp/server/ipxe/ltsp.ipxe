@@ -43,7 +43,7 @@ goto ${img}
 
 :images
 # The "images" method can boot anything in /srv/ltsp/images
-set cmdline_method root=/dev/nfs nfsroot=${srv}:/srv/ltsp ltsp.image=images/${img}.img loop.max_part=9
+set cmdline_method ip=dhcp ltsp.image=http://${srv}/ltsp/images/${img}.img loop.max_part=9
 goto ltsp
 
 :roots
@@ -55,13 +55,13 @@ goto ltsp
 # :images and :roots jump here after setting cmdline_method
 set cmdline ${cmdline_method} ${cmdline_ltsp} ${cmdline_client}
 # In EFI mode, iPXE requires initrds to be specified in the cmdline
-kernel /ltsp/${img}/vmlinuz initrd=ltsp.img initrd=initrd.img ${cmdline}
-initrd /ltsp/ltsp.img
-initrd /ltsp/${img}/initrd.img
+kernel http://${srv}/ltsp/${img}/vmlinuz initrd=ltsp.img initrd=initrd.img ${cmdline}
+initrd http://${srv}/ltsp/ltsp.img
+initrd http://${srv}/ltsp/${img}/initrd.img
 boot || goto failed
 
 :memtest
-iseq ${platform} pcbios && kernel memtest.0 || kernel memtest.efi
+iseq ${platform} pcbios && kernel http://${srv}/ltsp/memtest.0 || kernel http://${srv}/ltsp/memtest.efi
 # Boot "fails" on normal memtest exit with Esc, so show the menu again
 boot ||
 goto start
