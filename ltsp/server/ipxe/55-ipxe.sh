@@ -32,7 +32,6 @@ ipxe_cmdline() {
 
 ipxe_main() {
     local key items gotos r_items r_gotos img_name title client_sections
-    local binary binsrc
 
     # Prepare the menu text for all images and chroot
     key=0
@@ -76,32 +75,11 @@ s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
 "
     fi
     if [ "$BINARIES" != "0" ]; then
-        # Prefer memtest.0 from ipxe.org over the one from distributions:
-        # https://lists.ipxe.org/pipermail/ipxe-devel/2012-August/001731.html
-        for binary in memtest.0 memtest.efi snponly.efi undionly.kpxe; do
-            if [ "$BINARIES" = "1" ] || [ ! -f "$TFTP_DIR/ltsp/$binary" ]; then
-                if [ -f "/usr/share/ltsp/binaries/$binary" ]; then
-                    binsrc="/usr/share/ltsp/binaries/$binary"
-                elif [ -f "/usr/lib/ipxe/$binary" ]; then
-                    binsrc="/usr/lib/ipxe/$binary"
-                elif [ "$binary" = "memtest.0" ] &&
-                    [ -f "/boot/memtest86+.bin" ]; then
-                    binsrc="/boot/memtest86+.bin"
-                elif [ "$binary" = "snponly.efi" ] &&
-                    [ -f "/usr/lib/ipxe/ipxe.efi" ]; then
-                    binsrc="/usr/lib/ipxe/ipxe.efi"
-                elif [ "${binary%.*}" = "memtest" ]; then
-                    warn "$binary not found, that iPXE menu won't work"
-                    continue
-                else
-                    die "Could not locate required iPXE binary: $binary"
-                fi
-                re install -pm 644 "$binsrc" "$TFTP_DIR/ltsp/$binary"
-                echo "Installed $binsrc in $TFTP_DIR/ltsp/$binary"
-            else
-                echo "Skipped existing $TFTP_DIR/ltsp/$binary"
-            fi
-        done
+        re copy_binary memtest.0 /boot/memtest86+x32.bin /boot/memtest86+.bin
+        re copy_binary memtest.efi /boot/memtest86+x64.efi
+        re copy_binary snponly.efi /usr/lib/ipxe/snponly.efi \
+            /usr/lib/ipxe/ipxe.efi
+        re copy_binary undionly.kpxe /usr/lib/ipxe/undionly.kpxe
     fi
 }
 
@@ -141,6 +119,29 @@ client_sections() {
             ;;
         esac
     done
+}
+
+# Search for binary $1 in locations $2+ and copy it to TFTP
+copy_binary() {
+    local binary location
+
+    binary=$1
+    shift
+    if [ "$BINARIES" = "1" ] || [ ! -f "$TFTP_DIR/ltsp/$binary" ]; then
+        for location in "/usr/share/ltsp/binaries/$binary" "$@"; do
+            test -f "$location" && break
+        done
+        if [ -f "$location" ]; then
+            re install -pm 644 "$location" "$TFTP_DIR/ltsp/$binary"
+            echo "Installed $location in $TFTP_DIR/ltsp/$binary"
+        elif [ "${binary%.*}" = "memtest" ]; then
+            warn "$binary not found, that iPXE menu won't work"
+        else
+            die "Could not locate required iPXE binary: $binary"
+        fi
+    else
+        echo "Skipped existing $TFTP_DIR/ltsp/$binary"
+    fi
 }
 
 ipxe_name() {
