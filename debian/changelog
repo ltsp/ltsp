@@ -1,3 +1,15 @@
+ltsp (23.01-1) unstable; urgency=medium
+
+  * Search for new memtest86+ binaries (#783)
+  * Don't chmod -x epoptes anymore
+  * Avoid systemd lingering (#778)
+  * Avoid broken pipe warning (#767)
+  * Better sssd autodetection (#749)
+  * Support arctica-greeter (#742)
+  * Search for DISABLE_SYSTEM_SERVICES in /lib too (#690)
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Sun, 15 Jan 2023 18:42:02 +0200
+
 ltsp (22.01-2) unstable; urgency=medium
 
   * debian/patches: Make the generated dates timezone-agnostic. Thanks to
