@@ -1,5 +1,6 @@
 ltsp (23.01-1) unstable; urgency=medium
 
+  [ Alkis Georgopoulos ]
   * Search for new memtest86+ binaries (#783)
   * Don't chmod -x epoptes anymore
   * Avoid systemd lingering (#778)
@@ -8,7 +9,11 @@ ltsp (23.01-1) unstable; urgency=medium
   * Support arctica-greeter (#742)
   * Search for DISABLE_SYSTEM_SERVICES in /lib too (#690)
 
- -- Alkis Georgopoulos <alkisg@gmail.com>  Sun, 15 Jan 2023 18:42:02 +0200
+  [ Vagrant Cascadian ]
+  * debian/copyright: Update for v23.01.
+  * debian/control: Update to Standards-Version 4.6.2, no changes.
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Tue, 24 Jan 2023 15:12:21 -0800
 
 ltsp (22.01-2) unstable; urgency=medium
 
