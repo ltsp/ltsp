@@ -75,7 +75,7 @@ s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
 "
     fi
     if [ "$BINARIES" != "0" ]; then
-        re copy_binary memtest.0 /boot/memtest86+x32.bin /boot/memtest86+.bin
+        re copy_binary memtest.0 /boot/memtest86+*32.bin /boot/memtest86+.bin
         re copy_binary memtest.efi /boot/memtest86+x64.efi
         re copy_binary snponly.efi /usr/lib/ipxe/snponly.efi \
             /usr/lib/ipxe/ipxe.efi
