@@ -1,3 +1,9 @@
+ltsp (23.02-1) unstable; urgency=medium
+
+  * Match both memtest86+x32.bin and memtest86+ia32.bin (#801)
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Tue, 28 Feb 2023 05:27:32 +0200
+
 ltsp (23.01-1) unstable; urgency=medium
 
   [ Alkis Georgopoulos ]
