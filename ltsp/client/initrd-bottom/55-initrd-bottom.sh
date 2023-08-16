@@ -73,8 +73,10 @@ install_ltsp() {
     fi
     # To avoid specifying an init=, we override the real init.
     # We can't mount --bind as it's in use by libraries and can't be unmounted.
-    re mv "$rootmnt/sbin/init" "$rootmnt/sbin/init.ltsp"
-    re ln -s ../../usr/share/ltsp/client/init/init "$rootmnt/sbin/init"
+    # With Linux 6.1 rename(2) on the symlink fails with ENXIO, so do not use
+    # mv for now (see #860).
+    re cp -a "$rootmnt/sbin/init" "$rootmnt/sbin/init.ltsp"
+    re ln -sf ../../usr/share/ltsp/client/init/init "$rootmnt/sbin/init"
     # Jessie needs a 3.18+ kernel and this initramfs-tools hack:
     if grep -qs jessie /etc/os-release; then
         echo "init=${init:-/sbin/init}" >> /scripts/init-bottom/ORDER
