@@ -1,0 +1,31 @@
+From 19ccbb7c4a5daeebacb4157bea772e26c3fb0f44 Mon Sep 17 00:00:00 2001
+From: gber <guido+github.com@berhoerster.name>
+Date: Thu, 17 Aug 2023 09:45:49 +0200
+Subject: [PATCH] Avoid mv on init symlink in order to work around overlayfs
+ issue (#860)
+
+Signed-off-by: Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+---
+ ltsp/client/initrd-bottom/55-initrd-bottom.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/ltsp/client/initrd-bottom/55-initrd-bottom.sh b/ltsp/client/initrd-bottom/55-initrd-bottom.sh
+index 633ef47..bf68ae0 100644
+--- a/ltsp/client/initrd-bottom/55-initrd-bottom.sh
++++ b/ltsp/client/initrd-bottom/55-initrd-bottom.sh
+@@ -73,8 +73,10 @@ install_ltsp() {
+     fi
+     # To avoid specifying an init=, we override the real init.
+     # We can't mount --bind as it's in use by libraries and can't be unmounted.
+-    re mv "$rootmnt/sbin/init" "$rootmnt/sbin/init.ltsp"
+-    re ln -s ../../usr/share/ltsp/client/init/init "$rootmnt/sbin/init"
++    # With Linux 6.1 rename(2) on the symlink fails with ENXIO, so do not use
++    # mv for now (see #860).
++    re cp -a "$rootmnt/sbin/init" "$rootmnt/sbin/init.ltsp"
++    re ln -sf ../../usr/share/ltsp/client/init/init "$rootmnt/sbin/init"
+     # Jessie needs a 3.18+ kernel and this initramfs-tools hack:
+     if grep -qs jessie /etc/os-release; then
+         echo "init=${init:-/sbin/init}" >> /scripts/init-bottom/ORDER
+-- 
+2.39.2
+
