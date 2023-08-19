@@ -1,3 +1,12 @@
+ltsp (23.02-1+deb12u1) bookworm; urgency=medium
+
+  * debian/patches:
+    + Add 0001_Avoid-mv-on-init-symlink-in-order-to-work-around-ove.patch
+      (cherry-picked from upstream). Avoid mv on init symlink in order to
+      work around overlayfs issue. (Closes: #1049397).
+
+ -- Mike Gabriel <sunweaver@debian.org>  Sat, 19 Aug 2023 17:33:29 +0200
+
 ltsp (23.02-1) unstable; urgency=medium
 
   * Match both memtest86+x32.bin and memtest86+ia32.bin (#801)
