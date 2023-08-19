@@ -1,6 +1,6 @@
 #!/bin/sh
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019-2021 the LTSP team, see AUTHORS
+# Copyright 2019-2022 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Provide PAM authentication to a server via SSH and optionally SSHFS $HOME.
@@ -301,10 +301,10 @@ main() {
     SSH_SERVER=${SSH_SERVER:-server}
     if [ -z "$PAM_AUTH_TYPE" ]; then
         # Use autodetection
-        if grep -qswE 'pam_ldap' /etc/pam.d/common-auth; then
+        if grep -qsw 'pam_ldap' /etc/pam.d/common-auth; then
             PAM_AUTH_TYPE="Additional"
-        elif [ -f /etc/sssd/sssd.conf ] &&
-            grep -qswE 'pam_sss' /etc/pam.d/common-auth; then
+        elif grep -qrsw id_provider /etc/sssd/*conf* &&
+            grep -qsw 'pam_sss' /etc/pam.d/common-auth; then
             PAM_AUTH_TYPE="Additional"
         else
             PAM_AUTH_TYPE="Primary"

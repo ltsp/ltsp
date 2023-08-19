@@ -1,3 +1,26 @@
+ltsp (23.02-1) unstable; urgency=medium
+
+  * Match both memtest86+x32.bin and memtest86+ia32.bin (#801)
+
+ -- Alkis Georgopoulos <alkisg@gmail.com>  Tue, 28 Feb 2023 05:27:32 +0200
+
+ltsp (23.01-1) unstable; urgency=medium
+
+  [ Alkis Georgopoulos ]
+  * Search for new memtest86+ binaries (#783)
+  * Don't chmod -x epoptes anymore
+  * Avoid systemd lingering (#778)
+  * Avoid broken pipe warning (#767)
+  * Better sssd autodetection (#749)
+  * Support arctica-greeter (#742)
+  * Search for DISABLE_SYSTEM_SERVICES in /lib too (#690)
+
+  [ Vagrant Cascadian ]
+  * debian/copyright: Update for v23.01.
+  * debian/control: Update to Standards-Version 4.6.2, no changes.
+
+ -- Vagrant Cascadian <vagrant@debian.org>  Tue, 24 Jan 2023 15:12:21 -0800
+
 ltsp (22.01-2) unstable; urgency=medium
 
   * debian/patches: Make the generated dates timezone-agnostic. Thanks to

@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2022 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 # To customize, see ADD_IMAGE_EXCLUDES and OMIT_IMAGE_EXCLUDES in ltsp.conf(5)
 cdrom/.*
@@ -37,6 +37,7 @@ var/lib/lightdm/.*
 var/lib/lightdm/*
 var/lib/mysql/*
 var/lib/sudo/*
+var/lib/systemd/linger/*
 var/log/*.[1-9]
 var/log/*.gz
 var/log/*.old

@@ -44,7 +44,6 @@ config_epoptes() {
     if [ "$IGNORE_EPOPTES" != "1" ] && [ -f /etc/ltsp/epoptes.crt ]; then
         re mkdir -p /etc/epoptes
         re ln -sf ../ltsp/epoptes.crt /etc/epoptes/server.crt
-        test -x /usr/bin/epoptes && rw chmod -x /usr/bin/epoptes
     fi
 }
 

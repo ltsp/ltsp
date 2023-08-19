@@ -113,6 +113,8 @@ $DISABLE_SYSTEM_SERVICES")"
     for service in $services; do
         if [ -f "/usr/lib/systemd/system/$service" ] ||
             [ -f "/usr/lib/systemd/system/$service.service" ] ||
+            [ -f "/lib/systemd/system/$service" ] ||
+            [ -f "/lib/systemd/system/$service.service" ] ||
             [ -f "/etc/systemd/system/$service" ] ||
             [ -f "/etc/systemd/system/$service.service" ] ||
             [ -f "/etc/init.d/$service" ]; then
@@ -135,7 +137,10 @@ update-notifier         # Check for available updates automatically
 $MASK_SESSION_SERVICES")"
 
     for service in $services; do
-        if [ -f "/usr/lib/systemd/user/$service" ]; then
+        if [ -f "/usr/lib/systemd/user/$service" ] ||
+            [ -f "/usr/lib/systemd/user/$service.service" ] ||
+            [ -f "/lib/systemd/user/$service" ] ||
+            [ -f "/lib/systemd/user/$service.service" ]; then
             rw systemctl mask --user --global --quiet --root=/ --no-reload "$service"
         fi
         re rm -f "/etc/xdg/autostart/$service.desktop" \
