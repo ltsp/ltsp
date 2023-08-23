@@ -1,3 +1,12 @@
+ltsp (21.01-1+deb11u1) bullseye; urgency=medium
+
+  * debian/patches:
+    + Add 0001_Avoid-mv-on-init-symlink-in-order-to-work-around-ove.patch
+      (cherry-picked from upstream). Avoid mv on init symlink in order to
+      work around overlayfs issue. (Closes: #1049397).
+
+ -- Mike Gabriel <sunweaver@debian.org>  Tue, 22 Aug 2023 18:32:24 +0200
+
 ltsp (21.01-1) unstable; urgency=medium
 
   [ Alkis Georgopoulos ]
