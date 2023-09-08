@@ -1,1 +1,2 @@
 usr/share/ltsp/ltsp usr/sbin/ltsp
+usr/share/ltsp/common/ltsp/completion.bash usr/share/bash-completion/completions/ltsp
