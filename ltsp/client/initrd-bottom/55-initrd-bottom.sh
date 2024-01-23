@@ -26,18 +26,33 @@ initrd_bottom_main() {
     tmpfs="/run/initramfs/ltsp"
     if [ -n "$IMAGE" ]; then
         img_src=$IMAGE
-        # If it doesn't start with slash, it's relative to $rootmnt
-        if [ "${img_src#/}" = "$img_src" ]; then
-            img_src="$rootmnt/$img_src"
-        fi
+        img=${img_src%%,*}
+        rest=${img_src#$img}
+        case "${img}" in
+            http:*|https:*|ftp:*)
+                IMAGE_TO_RAM=1
+                ;;
+            /*)
+                true
+                ;;
+            *)
+                # If it doesn't start with slash, it's relative to $rootmnt
+                img_src="$rootmnt/$img_src"
+                img="$rootmnt/$img"
+                ;;
+        esac
         if [ "$IMAGE_TO_RAM" = "1" ]; then
-            img=${img_src%%,*}
-            rest=${img_src#$img}
             re mkdir -p "$tmpfs"
             re vmount -t tmpfs -o mode=0755 tmpfs "$tmpfs"
-            echo "Running: cp -a $img $tmpfs/${img##*/}"
-            re cp -a "$img" "$tmpfs/${img##*/}"
-            re umount "$rootmnt"
+            # If it doesn't start with slash, image should be downloaded
+            if [ "${img#/}" = "$img" ]; then
+                warn "Running: wget $img -O $tmpfs/${img##*/}"
+                re wget "$img" -O "$tmpfs/${img##*/}"
+            else
+                echo "Running: cp -a $img $tmpfs/${img##*/}"
+                re cp -a "$img" "$tmpfs/${img##*/}"
+                re umount "$rootmnt"
+            fi
             img_src="$tmpfs/${img##*/}$rest"
         fi
     elif [ -d "$rootmnt/proc" ]; then

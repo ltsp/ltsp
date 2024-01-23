@@ -1,0 +1,43 @@
+# This file is part of LTSP, https://ltsp.org
+# Copyright 2019-2020 the LTSP team, see AUTHORS
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Simple wrapper to configure network and skip the root mounting
+
+# ltsp-hook.conf automaticaly loads it if ltsp.image= contains url.
+# Another way to hook would be boot=ltsp-http.
+
+mountroot(){
+    # For DHCP
+    modprobe af_packet
+
+    wait_for_udev 10
+
+    # Default delay is around 180s
+    delay=${ROOTDELAY:-180}
+
+    # loop until configure_networking succeeds
+    configure_networking
+    ret=$?
+    ltsp_http_retry_count=0
+    while [ ${ltsp_http_retry_count} -lt "${delay}" ] && [ $ret -ne 0 ] ; do
+        [ "$quiet" != "y" ] && log_begin_msg "Retrying network configuration"
+        sleep 1
+        configure_networking
+        ret=$?
+        ltsp_http_retry_count=$(( ltsp_http_retry_count + 1 ))
+        [ "$quiet" != "y" ] && log_end_msg
+    done
+}
+
+mount_top(){
+    :
+}
+
+mount_premount(){
+    :
+}
+
+mount_bottom(){
+    :
+}
