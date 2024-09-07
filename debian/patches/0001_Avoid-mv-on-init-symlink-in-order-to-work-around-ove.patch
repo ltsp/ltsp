@@ -1,4 +1,5 @@
-From 19ccbb7c4a5daeebacb4157bea772e26c3fb0f44 Mon Sep 17 00:00:00 2001
+Origin: https://github.com/ltsp/ltsp/commit/19ccbb7c4a5daeebacb4157bea772e26c3fb0f44
+Applied-Upstream: https://github.com/ltsp/ltsp/commit/19ccbb7c4a5daeebacb4157bea772e26c3fb0f44
 From: gber <guido+github.com@berhoerster.name>
 Date: Thu, 17 Aug 2023 09:45:49 +0200
 Subject: [PATCH] Avoid mv on init symlink in order to work around overlayfs
