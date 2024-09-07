@@ -1,1 +1,2 @@
 0001_Avoid-mv-on-init-symlink-in-order-to-work-around-ove.patch
+0002-Support-bash-completion.patch
