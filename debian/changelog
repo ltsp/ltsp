@@ -1,3 +1,10 @@
+ltsp (23.02-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * No source change upload to move systemd units into /usr.
+
+ -- Chris Hofstaedtler <zeha@debian.org>  Mon, 27 May 2024 00:47:56 +0200
+
 ltsp (23.02-2) unstable; urgency=medium
 
   * Team upload.
