@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This file is part of LTSP, https://ltsp.org
 # Copyright 2019-2022 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
@@ -23,6 +23,9 @@
 
 # To get a list of all ltsp.conf parameters, run:
 # echo $(grep -r LTSP.CONF | sed 's/.*LTSP.CONF://' | tr ' ' '\n' | sort -u)
+
+# Normally I'd use `set -eu` but that explodes with this script
+set -o pipefail
 
 _APPLET=
 _DATE=
