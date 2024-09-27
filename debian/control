@@ -27,7 +27,7 @@ Suggests: dnsmasq,
   ethtool,
   ltsp-binaries | ipxe,
   net-tools,
-  nfs-kernel-server,
+  nfs-kernel-server | nfs-ganesha,
   openssh-server,
   squashfs-tools,
 Architecture: all
