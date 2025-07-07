@@ -162,6 +162,17 @@ modprobe_overlay() {
             grep -q overlay /proc/filesystems &&
             return 0
     fi
+    # Try to load overlay.ko.zst from the target, newer systems support compressed modules
+    overlayko="$target/lib/modules/$(uname -r)/kernel/fs/overlayfs/overlay.ko.zst"
+    if [ -f "$overlayko" ]; then
+        # Do not `ln -s "$target/lib/modules" /lib/modules`
+        # In that case, $target is in use after modprobe
+        warn "Loading overlay module from real root" >&2
+        # insmod is availabe in Debian initramfs but not in Ubuntu
+        "$target/sbin/insmod" "$overlayko" &&
+            grep -q overlay /proc/filesystems &&
+            return 0
+    fi
     return 1
 }
 
