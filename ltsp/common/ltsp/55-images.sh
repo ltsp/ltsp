@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2025 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Functions for chroot/VM/squashfs manipulation, used by:
@@ -152,16 +152,17 @@ modprobe_overlay() {
         grep -q overlay /proc/filesystems &&
         return 0
     # Try to load overlay.ko from the target
-    overlayko="$target/lib/modules/$(uname -r)/kernel/fs/overlayfs/overlay.ko"
-    if [ -f "$overlayko" ]; then
-        # Do not `ln -s "$target/lib/modules" /lib/modules`
-        # In that case, $target is in use after modprobe
-        warn "Loading overlay module from real root" >&2
-        # insmod is availabe in Debian initramfs but not in Ubuntu
-        "$target/sbin/insmod" "$overlayko" &&
-            grep -q overlay /proc/filesystems &&
-            return 0
-    fi
+    for overlayko in "$target/lib/modules/$(uname -r)/kernel/fs/overlayfs/overlay.ko"*; do
+        if [ -f "$overlayko" ]; then
+            # Do not `ln -s "$target/lib/modules" /lib/modules`
+            # In that case, $target is in use after modprobe
+            warn "Loading overlay module from real root" >&2
+            # insmod is availabe in Debian initramfs but not in Ubuntu
+            "$target/sbin/insmod" "$overlayko" &&
+                grep -q overlay /proc/filesystems &&
+                return 0
+        fi
+    done
     return 1
 }
 
