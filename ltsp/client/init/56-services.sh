@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019-2022 the LTSP team, see AUTHORS
+# Copyright 2019-2025 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Disable services that shouldn't run in live sessions
@@ -51,7 +51,6 @@ disable_system_services() {
 # From Ubuntu 20.04 /lib/systemd/system:
 alsa-restore               # Save/Restore Sound Card State
 alsa-state                 # Manage Sound Card State (restore and store)
-apparmor                   # Load AppArmor profiles
 apt-daily                  # Daily apt download activities
 apt-daily.timer            # Daily apt download activities
 apt-daily-upgrade          # Daily apt upgrade and clean activities
@@ -62,6 +61,8 @@ epoptes                    # Computer lab monitoring tool
 fwupd-refresh.timer        # Refresh fwupd metadata regularly
 logrotate.timer            # Daily rotation of log files
 man-db.timer               # Daily man-db regeneration
+motd-news                  # Message of the Day
+motd-news.timer            # Message of the Day
 ModemManager               # Modem Manager
 nfs-kernel-server          # NFS server and services
 nfs-server                 # NFS server and services
@@ -75,6 +76,8 @@ unattended-upgrades        # Unattended Upgrades Shutdown
 ureadahead                 # [18.04] Read required files in advance
 ureadahead-stop            # [18.04] Stop ureadahead data collection
 x2goserver                 # X2Go Server Daemon
+xrdp                       # xrdp daemon
+xrdp-sesman                # xrdp session manager
 # From Ubuntu 20.04 /etc/init.d (excluding the ones in systemd):
 alsa-utils                 # Restore and store ALSA driver settings
 grub-common                # Record successful boot for GRUB
