@@ -28,8 +28,13 @@ mksquashfs_main() {
     re mv "$BASE_DIR/images/$_IMG_NAME.img.tmp" "$BASE_DIR/images/$_IMG_NAME.img"
     # Unmount everything and continue with the next image
     rw at_exit -EXIT
-    echo "Running: ltsp kernel $BASE_DIR/images/$_IMG_NAME.img"
-    re "$0" kernel ${KERNEL_INITRD:+-k "$KERNEL_INITRD"} "$BASE_DIR/images/$_IMG_NAME.img"
+    if [ "$IN_PLACE" = "1" ]; then
+        kernel_src="$_COW_DIR"
+    else
+        kernel_src="$BASE_DIR/images/$_IMG_NAME.img"
+    fi
+    echo "Running: ltsp kernel $kernel_src"
+    re "$0" kernel ${KERNEL_INITRD:+-k "$KERNEL_INITRD"} "$kernel_src"
 }
 
 # Handle ADD_IMAGE_EXCLUDES and OMIT_IMAGE_EXCLUDES
