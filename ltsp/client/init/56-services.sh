@@ -139,7 +139,6 @@ mask_session_services() {
     local services service
 
     services="
-at-spi-dbus-bus         # AT-SPI D-Bus Bus
 gnome-software-service  # GNOME Software
 update-notifier         # Check for available updates automatically
 "

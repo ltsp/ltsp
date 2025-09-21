@@ -113,7 +113,7 @@ each case.
 
 **DISABLE_SESSION_SERVICES**=_"evolution-addressbook-factory obex"_  
 **DISABLE_SYSTEM_SERVICES**=_"anydesk teamviewerd"_  
-**KEEP_SESSION_SERVICES**=_"at-spi-dbus-bus"_  
+**KEEP_SESSION_SERVICES**=_"gnome-software-service"_  
 **KEEP_SYSTEM_SERVICES**=_"anydesk ssh"_  
 **MASK_SESSION_SERVICES**=_"gnome-software-service update-notifier"_  
 **MASK_SYSTEM_SERVICES**=_"apt-daily apt-daily-upgrade rsyslog"_
