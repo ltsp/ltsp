@@ -51,6 +51,7 @@ disable_system_services() {
 # From Ubuntu 20.04 /lib/systemd/system:
 alsa-restore               # Save/Restore Sound Card State
 alsa-state                 # Manage Sound Card State (restore and store)
+apparmor                   # Load AppArmor profiles
 apt-daily                  # Daily apt download activities
 apt-daily.timer            # Daily apt download activities
 apt-daily-upgrade          # Daily apt upgrade and clean activities
@@ -125,6 +126,13 @@ $DISABLE_SYSTEM_SERVICES")"
         fi
     done
     rw systemctl disable --quiet --root=/ --no-reload $existing_services
+    case " $existing_services " in
+    *" apparmor "*)
+        echo "# Disabled apparmor.service, so allow userns (#950):
+kernel.apparmor_restrict_unprivileged_userns = 0" \
+            >>/etc/sysctl.d/50-ltsp.conf
+        ;;
+    esac
 }
 
 mask_session_services() {
