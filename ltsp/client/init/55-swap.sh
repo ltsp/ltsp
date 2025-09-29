@@ -1,5 +1,5 @@
 # This file is part of LTSP, https://ltsp.org
-# Copyright 2019 the LTSP team, see AUTHORS
+# Copyright 2019-2025 the LTSP team, see AUTHORS
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Activate swap partitions. Code adapted from casper.
@@ -14,7 +14,7 @@ local_swap() {
 
     test "$LOCAL_SWAP" != "0" || return 0
     devices=""
-    for device in /dev/[hsv]d[a-z][0-9]*; do
+    for device in /dev/[hsv]d[a-z][0-9]* /dev/nvme[0-9]n[0-9]p[0-9]*; do
         if ! [ -b "$device" ]; then
             continue
         fi
