@@ -1,6 +1,5 @@
 Source: ltsp
 Section: misc
-Priority: optional
 Maintainer: Debian LTSP Maintainers <team+ltsp@tracker.debian.org>
 Uploaders: Vagrant Cascadian <vagrant@debian.org>, Alkis Georgopoulos <alkisg@gmail.com>
 Build-Depends: debhelper (>= 10),
