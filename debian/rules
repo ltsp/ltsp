@@ -17,7 +17,7 @@ export DH_VERBOSE=1
 	dh $@
 
 override_dh_auto_configure:
-	cd docs; ./Makefile.sh; cd -
+	./docs/Makefile.sh
 
 override_dh_installinit:
 	dh_installinit --no-scripts
