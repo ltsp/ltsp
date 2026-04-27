@@ -205,7 +205,7 @@ main() {
     fi
     echo "Using $cmd to generate the man pages"
 
-    cd "${1%/*}"
+    cd "${0%/*}"
     if is_command dpkg-parsechangelog; then
         _VERSION=$(dpkg-parsechangelog -l ../debian/changelog -S VERSION)
     else
