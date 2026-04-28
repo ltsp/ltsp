@@ -1,3 +1,4 @@
-version=4
-opts=filenamemangle=s/\/(.*)v/@PACKAGE@-/ \
-   https://github.com/ltsp/@PACKAGE@/tags .*/v@ANY_VERSION@@ARCHIVE_EXT@
+Version: 5
+
+Template: Github
+Dist: https://github.com/ltsp/@PACKAGE@
