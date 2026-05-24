@@ -49,7 +49,12 @@ Please export ALL_IMAGES=1 if you want to allow this"
         exit_command "rw rmdir '$tmp'"
         # tmp has mode=0700; use a subdir to hide the mount from users
         re mkdir -p "$tmp/root" "$tmp/tmpfs"
-        exit_command "rw rmdir '$tmp/root' '$tmp/tmpfs'"
+        if [ "$(stat -fc %T "$tmp/tmpfs")" != "tmpfs" ]; then
+            exit_command "rw rmdir '$tmp/tmpfs'"
+        else
+            exit_command "rw rm -Rf '$tmp/tmpfs'"
+        fi
+        exit_command "rw rmdir '$tmp/root'"
         re mount_img_src "$img_src" "$tmp/root" "$tmp/tmpfs"
         tmp=$tmp/root
         re mkdir -p "$TFTP_DIR/ltsp/$img_name/"
