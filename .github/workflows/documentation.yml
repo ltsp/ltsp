@@ -1,0 +1,30 @@
+name: Documentation
+on: [push]
+jobs:
+  Linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: ./tests/lint_documentation
+  md2man:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: sudo apt install -y go-md2man
+      - run: cd docs && MAN_GENERATOR="md2man" ./Makefile.sh
+  pandoc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: sudo apt install -y pandoc
+      - run: cd docs && MAN_GENERATOR="pandoc" ./Makefile.sh
+  ronn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: sudo apt install -y ronn
+      - run: cd docs && MAN_GENERATOR="ronn" ./Makefile.sh
