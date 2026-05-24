@@ -37,6 +37,11 @@ initrd_main() {
     if [ -d /etc/ltsp ]; then
         re cp -a /etc/ltsp/. "$_DST_DIR/etc/ltsp/"
     fi
+    #Installing optional PREMOUNT_CMD
+    if [ ! -z "$PREMOUNT_CMD" ]; then
+	echo "Installing custom premount command: $PREMOUNT_CMD"
+	re sed -i "s#^install_premount .*#install_premount '$PREMOUNT_CMD'#g" "$_DST_DIR/conf/conf.d/00-ltsp.conf"
+    fi
     # Copy server public ssh keys; prepend "server" to each entry
     test -f "$_DST_DIR/etc/ltsp/ssh_known_hosts" ||
         rw sed "s/^/server /" /etc/ssh/ssh_host_*_key.pub > \
@@ -49,3 +54,4 @@ initrd_main() {
         re cp -a /etc/epoptes/server.crt "$_DST_DIR/etc/ltsp/epoptes.crt"
     fi
 }
+

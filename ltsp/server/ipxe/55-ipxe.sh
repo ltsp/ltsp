@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # Install iPXE binaries and configuration in TFTP
-# @LTSP.CONF: DEFAULT_IMAGE KERNEL_PARAMETERS MENU_TIMEOUT
+# @LTSP.CONF: DEFAULT_IMAGE KERNEL_PARAMETERS MENU_TIMEOUT CUSTOM_NFS
 
 ipxe_cmdline() {
     local args
@@ -73,6 +73,10 @@ s|^#.*item.*\bimages\b.*|$(textif "$items$r_items" "$items\n$r_items" "&")|
 s|^:images\$|$(textif "$items" "$gotos" "&")|
 s|^:roots\$|$(textif "$r_items" "$r_gotos" "&")|
 "
+    if [ ! -z $CUSTOM_NFS  ]; then
+        echo "Setting custom NFS server for cmdline: $CUSTOM_NFS"
+        sed -i "s&nfsroot=\${srv}:/srv/ltsp&nfsroot=$CUSTOM_NFS&g" "$TFTP_DIR/ltsp/ltsp.ipxe"
+    fi
     fi
     if [ "$BINARIES" != "0" ]; then
         re copy_binary memtest.0 /boot/memtest86+*32.bin /boot/memtest86+.bin
@@ -148,3 +152,4 @@ ipxe_name() {
     echo "$*" |
         awk '{ var=toupper($0); gsub("[^A-Z0-9]", "_", var); print "IPXE_" var }'
 }
+
