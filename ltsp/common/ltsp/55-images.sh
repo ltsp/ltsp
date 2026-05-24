@@ -327,6 +327,24 @@ mount_file() {
     die "I don't know how to mount $src"
 }
 
+# Mount with squashfuse if /dev/loop-control is missing
+mount_squashfuse_or_loop() {
+    local src dst options
+
+    src=$1
+    dst=$2
+    # Shift src and dst coordinates
+    shift 2
+
+    if [ -f "$src" ] && [ ! -e /dev/loop-control ] && is_command squashfuse; then
+        echo "Loop devices missing, using squashfuse for $src"
+        re squashfuse -o allow_other,ro "$src" "$dst"
+        exit_command "rw fusermount -u '$dst'"
+    else
+        re vmount "$@" "$src" "$dst"
+    fi
+}
+
 # Overlay src into dst, unless OVERLAY=0.
 # Create a tmpfs on the first call. Create appropriate subdirs there to use
 # for up/work dirs; don't use overlayfs subdirs like ltsp-update-image did,
@@ -346,7 +364,7 @@ omount() {
         if [ -d "$src" ]; then
             re vmount --bind "$src" "$dst"
         else
-            re vmount "$@" "$src" "$dst"
+            re mount_squashfuse_or_loop "$src" "$dst" "$@"
         fi
         return 0
     fi
@@ -363,7 +381,7 @@ omount() {
     # No need for `exit_command rm ...` on tmpfs
     if [ ! -d "$src" ]; then
         re mkdir -p "$tmpdst/looproot"
-        re vmount "$@" "$src" "$tmpdst/looproot"
+        re mount_squashfuse_or_loop "$src" "$tmpdst/looproot" "$@"
         src="$tmpdst/looproot"
     fi
     # Autodetect live CDs, after all the mounts but before needing overlay
